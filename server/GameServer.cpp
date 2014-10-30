@@ -6,8 +6,8 @@
 #include <QTime>
 #include <QVariant>
 #include <QDebug>
-#include <QImage>
-#include <QPixmap>
+#include <QtGui/QImage>
+#include <QtGui/QPixmap>
 #include <QFile>
 
 #include "PermaStorage.hpp"
@@ -1316,7 +1316,7 @@ void GameServer::HandleEquip_(const QVariantMap& request, QVariantMap& response)
       }
     }
     BAD_ID(true);
-  }  
+  }
   else
   {
     //item is on the ground

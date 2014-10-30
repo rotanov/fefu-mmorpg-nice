@@ -3,7 +3,8 @@ QT += gui
 QT += network
 QT += sql
 QT += websockets
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT -= widgets
+CONFIG += console
 
 TEMPLATE = app
 
@@ -46,8 +47,6 @@ CONFIG(debug, debug|release) {
 
 SOURCES += Server.cpp \
     main.cpp \
-    MainWindow.cpp \
-    DebugStream.cpp \
     GameServer.cpp \
     WebSocketThread.cpp \
     PermaStorage.cpp \
@@ -64,8 +63,6 @@ SOURCES += Server.cpp \
 
 
 HEADERS += Server.hpp \
-    MainWindow.hpp \
-    DebugStream.hpp \
     GameServer.hpp \
     WebSocketThread.hpp \
     PermaStorage.hpp \
@@ -79,6 +76,3 @@ HEADERS += Server.hpp \
     Projectile.hpp\
     ../3rd/deku2d/2de_Box.h \
 
-
-FORMS += \
-    mainwindow.ui

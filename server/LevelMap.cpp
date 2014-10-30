@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <QImage>
+#include <QtGui/QImage>
 
 #include "Actor.hpp"
 #include "utils.hpp"
