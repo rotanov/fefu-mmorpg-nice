@@ -12,6 +12,7 @@ LevelMap::LevelMap(int columnCount, int rowCount)
   : columnCount_(columnCount)
   , rowCount_(rowCount)
   , data_(nullptr)
+  , actors_(nullptr)
 {
   InitData_();
 }
@@ -101,8 +102,8 @@ void LevelMap::IndexActor(Actor* actor)
 
 void LevelMap::RemoveActor(const Actor* actor)
 {
-  if (actor == nullptr || !actor)
-    return;
+  assert(actor != nullptr);
+
   auto cells = actor->GetOccupiedCells();
   for (auto p: cells)
   {
@@ -147,6 +148,11 @@ void LevelMap::InitData_()
   {
     delete [] data_;
     data_ = nullptr;
+  }
+  if (actors_ != nullptr)
+  {
+    delete [] actors_;
+    actors_ = nullptr;
   }
 
   data_ = new int [columnCount_ * rowCount_];
