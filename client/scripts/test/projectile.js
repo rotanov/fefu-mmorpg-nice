@@ -1,11 +1,11 @@
 define([
-  'jquery',
+  'lib/jquery',
   'lib/chai',
-  'utils/utils',
-  'utils/socket',
+  'utils',
+  'game/api',
   'test/items'
 
-], function ($, chai, utils, ws, it_) {
+], function ($, chai, utils, api, it_) {
   var socket;
   var userData;
   var consts = {};
@@ -215,7 +215,7 @@ define([
 
           //case "useSkill":
           //    assert.equal("ok", data.result, "useSkill fists")
-          //   setTimeout(function() {socket.singleExamine(mob.id, userData.sid)}, 2000)   
+          //   setTimeout(function() {socket.singleExamine(mob.id, userData.sid)}, 2000)
           //   break
           case 'examine':
             if (data.type === 'player') {
@@ -339,7 +339,7 @@ define([
 
           //case "useSkill":
           //    assert.equal("ok", data.result, "useSkill fists")
-          //    setTimeout(function() {socket.singleExamine(mob.id, userData.sid)}, 5000)   
+          //    setTimeout(function() {socket.singleExamine(mob.id, userData.sid)}, 5000)
           //    break
           case 'examine':
             if (data.type === 'player') {
@@ -548,10 +548,12 @@ define([
       break;
 
     }
+
     return {
       'x': x,
       'y': y
     };
   }
+
   return { run: testProjectile };
 });

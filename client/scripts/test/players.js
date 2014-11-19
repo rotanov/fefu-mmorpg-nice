@@ -1867,7 +1867,7 @@ define([
                 })
                 socket.setUpMap({"action": "setUpMap", "map": map, "sid": userData.sid})
             })
-            
+
             it("should successfully move player [north: slide effect]", function(done) {
                 var tick = null
                 var player = {"x": 1+consts.slideThreshold, "y": 2.5}
@@ -2389,10 +2389,12 @@ define([
       break;
 
     }
+
     return {
       'x': x,
       'y': y
     };
   }
+
   return { run: testPlayers };
 });

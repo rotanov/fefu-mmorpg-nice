@@ -45,7 +45,9 @@ void Projectile::Update(float /*dt*/)
   float norm = sqrt(x * x + y * y);
   float dx = x * speed_ / norm;
   float dy = y * speed_ / norm;
-  if ((y < 0 && signy_) || (y > 0 && !signy_) || y == 0)
+  if ((y < 0 && signy_)
+      || (y > 0 && !signy_)
+      || y == 0)
   {
     signyy_++;
   }
@@ -53,8 +55,11 @@ void Projectile::Update(float /*dt*/)
   {
     signxx_++;
   }
-  if (signxx_ > 0 && signyy_ > 0)
-    return false;
+  if (signxx_ > 0
+      && signyy_ > 0)
+  {
+    // dead
+  }
   position_.x += dx;
   position_.y += dy;
 }

@@ -54,8 +54,6 @@ const std::vector<QString> fempResultToString =
   [EFEMPResult::BAD_CLASS] = "badClass",
 };
 
-// TODO: separate module
-// TODO: proper class name
 class GameServer : public QObject
 {
   Q_OBJECT
@@ -101,11 +99,11 @@ private:
     {"getDictionary", &GameServer::HandleGetDictionary_},
     {"look", &GameServer::HandleLook_},
     {"move", &GameServer::HandleMove_},
-    {"pickUp", &GameServer::HandlePickUp_}, //взять
-    {"unequip", &GameServer::HandleUnequip_}, // снять
-    {"use", &GameServer::HandleUse_},// использовать
-    {"drop", &GameServer::HandleDrop_},// положить
-    {"equip", &GameServer::HandleEquip_},// одеть
+    {"pickUp", &GameServer::HandlePickUp_},
+    {"unequip", &GameServer::HandleUnequip_},
+    {"use", &GameServer::HandleUse_},
+    {"drop", &GameServer::HandleDrop_},
+    {"equip", &GameServer::HandleEquip_},
     {"enforce", &GameServer::HandleEnforce_},
     {"useSkill", &GameServer::HandleUseSkill_},
   };

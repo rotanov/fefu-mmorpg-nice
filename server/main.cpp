@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 
   QLocalSocket socket;
   socket.connectToServer(SERVER_NAME);
+  // if server is already running we may be willing to communicate with it
   if (socket.waitForConnected(500))
   {
     if (argc > 1)
@@ -84,14 +85,19 @@ void InitTask::newLocalSocketConnection()
     server_->Stop();
   };
 
+  auto startServer = [=]()
+  {
+    server_->Start();
+    gameServer_->Start();
+  };
+
   if (data == "--stop")
   {
     stopServer();
   }
   else if (data == "--start")
   {
-    server_->Start();
-    gameServer_->Start();
+    startServer();
   }
   else if (data == "--quit")
   {

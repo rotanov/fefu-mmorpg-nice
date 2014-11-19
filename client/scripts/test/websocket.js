@@ -717,11 +717,14 @@ define([
 
     }
     if (flag) {
+
       return keyVal;
 
     } else {
+
       return false;
     }
   }
+
   return { run: testWebSocket };
 });

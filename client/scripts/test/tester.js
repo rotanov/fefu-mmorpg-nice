@@ -22,5 +22,6 @@ define([
     })[testsetName].run();
 
   }
+
   return { runTestset: runTestset };
 });

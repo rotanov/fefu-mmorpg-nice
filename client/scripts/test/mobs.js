@@ -1334,7 +1334,7 @@ define([
 
         });
 
-        /*it("mob1 shouldn't attack mob2 [mob1 and mob2 hasn't CAN_BLOW]", function(done) { 
+        /*it("mob1 shouldn't attack mob2 [mob1 and mob2 hasn't CAN_BLOW]", function(done) {
                 var mobFlag = true
                 var examineFlag = true
                 var mob1 = {"x": 0.5, "y": 0.5,
@@ -1789,5 +1789,6 @@ define([
 
     mocha.run();
   }
+
   return { run: testMobs };
 });

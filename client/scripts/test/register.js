@@ -9,15 +9,15 @@ define([
 
   function testRegister() {
     utils.postToServer({
-      'action': 'register',
-      'login': 'WebSocket',
-      'password': 'WebSocket'
+      action: 'register',
+      login: 'WebSocket',
+      password: 'WebSocket'
     });
 
     userData = utils.postToServer({
-      'action': 'login',
-      'login': 'WebSocket',
-      'password': 'WebSocket'
+      action: 'login',
+      login: 'WebSocket',
+      password: 'WebSocket'
     });
 
     onopen = function () {
@@ -39,7 +39,6 @@ define([
     describe.only('Register', function () {
 
       describe.only('Registration', function () {
-
         it('should return ok', function () {
           assert.equal('ok', utils.postToServer({
             'action': 'register',
@@ -117,7 +116,6 @@ define([
       var sid;
 
       describe('Login', function () {
-
         it('should return ok', function () {
           data = utils.postToServer({
             'action': 'login',
@@ -149,7 +147,6 @@ define([
       });
 
       describe('Logout', function () {
-
         it('should return ok', function () {
           assert.equal('ok', utils.postToServer({
             'action': 'logout',
@@ -195,5 +192,6 @@ define([
 
     mocha.run();
   }
+
   return { run: testRegister };
 });

@@ -1,6 +1,5 @@
 #include "PermaStorage.hpp"
 
-
 #include <QSqlQuery>
 #include <QSql>
 #include <QSqlDriver>
@@ -71,7 +70,8 @@ void PermaStorage::InitSchema()
   )=");
 }
 
-void PermaStorage::AddUser(const QString login, const QString passHash, const QString salt, const QString class_)
+void PermaStorage::AddUser(const QString login, const QString passHash
+                         , const QString salt, const QString class_)
 {
   QSqlQuery q;
   q.prepare(R"=(
