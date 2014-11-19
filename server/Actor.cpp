@@ -36,12 +36,26 @@ Vector2 Actor::GetPosition() const
   return position_;
 }
 
-EActorDirection Actor::GetDirection() const
+Vector2 Actor::GetDirectionVector() const
 {
-  return direction_;
+  Vector2 r = Deku2D::Const::Math::V2_ZERO;
+
+  for (int i = 0; i < 4; i++)
+  {
+    if (directions_[i])
+    {
+      r += directionToVector[i];
+    }
+  }
+
+  if (r.x * r.y != 0.0f)
+  {
+    r.Normalize();
+  }
+  return r;
 }
 
-void Actor::SetDirection(const QString direction)
+void Actor::SetDirection(const QString direction, bool value)
 {
   static std::unordered_map<std::string, EActorDirection> stringToDirection =
   {
@@ -54,17 +68,21 @@ void Actor::SetDirection(const QString direction)
   auto it = stringToDirection.find(direction.toStdString());
   if (it != stringToDirection.end())
   {
-    direction_ = it->second;
-  }
-  else
-  {
-    direction_ = EActorDirection::NONE;
+    directions_[static_cast<int>(it->second)] = value;
   }
 }
 
-void Actor::SetDirection(const EActorDirection direction)
+void Actor::SetDirection(const EActorDirection direction, bool value)
 {
-  direction_ = direction;
+  directions_[static_cast<int>(direction)] = value;
+}
+
+void Actor::Stop()
+{
+  for (int i = 0; i < 4; i++)
+  {
+    directions_[i] = false;
+  }
 }
 
 float Actor::GetSize() const
@@ -80,9 +98,6 @@ void Actor::SetSize(const float size)
 void Actor::Update(float dt)
 {
   position_ += velocity_ * dt;
- // qDebug() << "x " << position_.x;
- // qDebug() << "y " << position_.y;
-  SetDirection(EActorDirection::NONE);
 }
 
 int Actor::GetId() const
@@ -97,7 +112,7 @@ void Actor::SetId(int id)
 
 void Actor::OnCollideWorld()
 {
-  SetDirection(EActorDirection::NONE);
+  Stop();
 }
 
 bool Actor::OnCollideActor(Actor* /*actor*/)

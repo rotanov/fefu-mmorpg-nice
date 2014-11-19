@@ -98,7 +98,8 @@ private:
     {"examine", &GameServer::HandleExamine_},
     {"getDictionary", &GameServer::HandleGetDictionary_},
     {"look", &GameServer::HandleLook_},
-    {"move", &GameServer::HandleMove_},
+    {"beginMove", &GameServer::HandleBeginMove_},
+    {"endMove", &GameServer::HandleEndMove_},
     {"pickUp", &GameServer::HandlePickUp_},
     {"unequip", &GameServer::HandleUnequip_},
     {"use", &GameServer::HandleUse_},
@@ -127,7 +128,8 @@ private:
   void HandleExamine_(const QVariantMap& request, QVariantMap& response);
   void HandleGetDictionary_(const QVariantMap& request, QVariantMap& response);
   void HandleLook_(const QVariantMap& request, QVariantMap& response);
-  void HandleMove_(const QVariantMap& request, QVariantMap& response);
+  void HandleBeginMove_(const QVariantMap& request, QVariantMap& response);
+  void HandleEndMove_(const QVariantMap& request, QVariantMap& response);
   void HandlePickUp_(const QVariantMap& request, QVariantMap& response);
   void HandleUnequip_(const QVariantMap& request, QVariantMap& response);
   void HandleUse_(const QVariantMap& request, QVariantMap& response);

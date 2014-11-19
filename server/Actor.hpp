@@ -7,11 +7,11 @@ using namespace Deku2D;
 
 enum class EActorDirection
 {
-  NONE,
   NORTH,
   EAST,
   SOUTH,
   WEST,
+  NONE,
 };
 
 enum class EStatConst
@@ -39,7 +39,7 @@ struct Damage
 
 const std::vector<Vector2> directionToVector =
 {
-  [EActorDirection::NONE] = Vector2(0.0f, 0.0f),
+//  [EActorDirection::NONE] = Vector2(0.0f, 0.0f),
   [EActorDirection::NORTH] = Vector2(0.0f, -1.0f),
   [EActorDirection::EAST] = Vector2(1.0f, 0.0f),
   [EActorDirection::SOUTH] = Vector2(0.0f, 1.0f),
@@ -67,9 +67,10 @@ public:
   Vector2 GetVelocity() const;
   void SetVelocity(const Vector2& velocity);
 
-  EActorDirection GetDirection() const;
-  void SetDirection(const QString direction);
-  void SetDirection(const EActorDirection direction);
+  Vector2 GetDirectionVector() const;
+  void SetDirection(const QString direction, bool value);
+  void SetDirection(const EActorDirection direction, bool value);
+  void Stop();
 
   float GetSize() const;
   void SetSize(const float size);
@@ -88,7 +89,7 @@ public:
 protected:
   Vector2 position_ = Const::Math::V2_ZERO;
   Vector2 velocity_ = Const::Math::V2_ZERO;
-  EActorDirection direction_ = EActorDirection::NONE;
+  bool directions_[4] = {false, false, false, false};
   float size_ = 1.0f;
   int id_ = -1;
   EActorType type_ = EActorType::undefined;

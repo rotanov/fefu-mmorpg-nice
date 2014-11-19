@@ -767,17 +767,18 @@ void GameServer::HandleGetDictionary_(const QVariantMap& request, QVariantMap& r
 }
 
 //==============================================================================
-void GameServer::HandleMove_(const QVariantMap& request, QVariantMap& response)
+void GameServer::HandleBeginMove_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(response);
 
   auto sid = request["sid"].toByteArray();
   unsigned tick = request["tick"].toUInt();
-  //qDebug() << request["direction"].toString();
   auto direction = request["direction"].toString();
 
+  qDebug() << "begin move " << direction;
+
   Player* p = sidToPlayer_[sid];
-  p->SetDirection(direction);
+  p->SetDirection(direction, true);
   p->SetClientTick(tick);
 }
 
@@ -876,6 +877,22 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
 
   response["map"] = rows;
   response["actors"] = actors;
+}
+
+//==============================================================================
+void GameServer::HandleEndMove_(const QVariantMap& request, QVariantMap& response)
+{
+  Q_UNUSED(response);
+
+  auto sid = request["sid"].toByteArray();
+  unsigned tick = request["tick"].toUInt();
+  auto direction = request["direction"].toString();
+
+  qDebug() << "end move " << direction;
+
+  Player* p = sidToPlayer_[sid];
+  p->SetDirection(direction, false);
+  p->SetClientTick(tick);
 }
 
 //==============================================================================
@@ -1393,7 +1410,7 @@ void GameServer::HandlePutMob_(const QVariantMap& request, QVariantMap& response
   Monster* monster = CreateActor_<Monster>();
   SetActorPosition_(monster, Vector2(x, y));
 
-  monster->SetDirection(EActorDirection::SOUTH);
+  monster->SetDirection(EActorDirection::SOUTH, true);
 
   if (IsPositionWrong(x, y, monster))
   {
@@ -1609,7 +1626,7 @@ void GameServer::GenMonsters_()
           monster->SetType(EActorType::MONSTER);
           Monster& m = *monster;
           SetActorPosition_(monster, Vector2(j + 0.5f, i + 0.5f));
-          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1));
+          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
           storage_.GetMonster(monster, monster->GetId() % 32 + 1);
         }
       }

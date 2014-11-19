@@ -9,7 +9,7 @@ Specification of client-server communication for FEFU MMORPG training project.
 This document is a product of collaborative design by students of group B8303A
 of Far Eastern Federal University (FEFU) of Russian Federation.
 The purpose of this document is to provide students of group B8303A with unified
-standard of client-server communication for particular computer science course 
+standard of client-server communication for particular computer science course
 of second semester of 2013-2014 academic year by https://github.com/klenin/
 
 # Table of Contents
@@ -37,7 +37,8 @@ of second semester of 2013-2014 academic year by https://github.com/klenin/
     - [Get Dictionary](#get-dictionary)
     - [Logout](#logout-1)
     - [Look](#look)
-    - [Move](#move)
+    - [Begin Move](#begin-move)
+    - [End Move](#end-move)
     - [Pick Up](#pick-up)
     - [Tick](#tick)
         - [Possible Events](#possible-events)
@@ -143,7 +144,7 @@ class: see [Player Classes](#classes)
 ### Request
 
     action: register
-    login: <new client's login> 
+    login: <new client's login>
     password: <new client's password>
     class: <player class name>
 
@@ -154,9 +155,9 @@ class: see [Player Classes](#classes)
 ## Login
 
 ### Request
- 
+
     action: login
-    login: <client's login> 
+    login: <client's login>
     password: <client's password>
 
 ### Response
@@ -305,12 +306,12 @@ values.
 Under various circumstances `inventory` field MAY be present or not. However if
 given id is an id of a player corresponding to client issued an `Examine`
 request and this player's inventory is not empty the field `inventory` MUST
-always be present. 
+always be present.
 
 If present, `inventory` is an array of item ids.
 
 If `type` is `monster` response MAY contain these fields:
-    
+
     name: <name of a monster>
     mobType: <string describing the type of a monster>
 
@@ -459,14 +460,22 @@ for more information about class field see [Player Classes](#classes)
 
 See that actors don't contain current player itself
 
-## Move
+## BeginMove
 
 If total weight of items in Player's inventory exceeds this Player's carrying
 capacity then result is `tooHeavy`.
-    
+
 ### Request
 
-    action: move
+    action: beginMove
+    direction: one of: west, north, east, south
+    tick: <tick number for move action>
+
+## EndMove
+
+### Request
+
+    action: endMove
     direction: one of: west, north, east, south
     tick: <tick number for move action>
 
@@ -483,7 +492,7 @@ If total weight of Player's inventory exceeds Player's carrying capacity after
 picking up an item and it is possible to pick up item then result MUST be
 `tooHeavy`.
 
-### Request 
+### Request
 
     action: pickUp
     id: <item-to-pick-up's id>
@@ -500,7 +509,7 @@ current tick number.
 Tick numbers are required to grow monotonously by `1` for each tick.
 
 Tick message MAY also contain an array `events` of JSON objects describing
-events occured at a given tick. 
+events occured at a given tick.
 
 Server MAY decide to send some events only for a subset of clients. e.g. attack
 action only to ones for which it is visible.
@@ -580,7 +589,7 @@ This section is to be completed.
 # Testing
 
 There are a number of request messages available only when server is in the
-testing stage. Such messages are marked with "Testing stage only." If such 
+testing stage. Such messages are marked with "Testing stage only." If such
 message to be sent while testing stage is not active, server MUST respond with
 `"result": "badAction"`.
 
@@ -607,7 +616,7 @@ screenColumnCount: <value>
 pickUpRadius: <value>
 ```
 
-## Put Item 
+## Put Item
 
 Testing stage only.
 
@@ -645,8 +654,8 @@ Put specified mob onto the level map.
     dealtDamage: <mob's dealt damage by single attack>
 
 Field `dealtDamage` `MUST` exist in request. This field is specified by
-string of the form `NdM`, where N is count of verges dice and M is count 
-of dice pops.  
+string of the form `NdM`, where N is count of verges dice and M is count
+of dice pops.
 
 See also:
 
@@ -905,7 +914,7 @@ Some requests from Testing section MAY induce a need to describe an item.
 Examine returns itemData in the same form.
 
 Item description is a set of JSON fields:
-    
+
     name: <item's name>
     weight: <item's weight>
     class: <Item Class*>

@@ -15,7 +15,7 @@ void Monster::OnCollideWorld()
 {
   if (Flags.lastIndexOf("PASS_WALL") == -1)
   {
-    SetDirection(static_cast<EActorDirection>(rand() % 4 + 1));
+    SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
     return;
   }
 }
