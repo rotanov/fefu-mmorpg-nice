@@ -29,6 +29,8 @@ require([
       utils.setServerAddress($('#server-address').val());
     });
 
+    $('#login').focus();
+
     var serverAddress = location.origin;
     if (location.protocol === 'file:') {
       serverAddress = 'http://localhost:6543';
