@@ -1,15 +1,15 @@
 define([
-  'jquery',
-  'lib/phaser',
-  'utils/utils',
-  'game/object',
-  'utils/socket',
-  'game/monsters',
-  'game/items'
+  'lib/jquery',
+  'lib/pixi',
+  'lib/stats',
+  'utils',
+  'game/api',
+  'game/actor',
+  'game/healthbar',
+  'game/hero'
 
-], function ($, phaser, utils, object, sock, monsters, items) {
-  var game;
-  var socket;
+], function ($, pixi, stats, utils, api, Actor, HealthBar, Hero) {
+
   var msg;
   var layer;
   var actors = [];

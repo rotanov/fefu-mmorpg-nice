@@ -1,11 +1,10 @@
 define([
-  'jquery',
+  'lib/jquery',
   'lib/chai',
-  'utils/utils',
-  'utils/socket'
+  'utils',
+  'game/api'
 
-], function ($, chai, utils, ws) {
-  var socket;
+], function ($, chai, utils, api) {
   var userData;
 
   function testRegister() {

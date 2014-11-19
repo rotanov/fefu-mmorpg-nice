@@ -1,11 +1,10 @@
 require([
-  'jquery',
-  'lib/phaser',
-  'authorization',
-  'test/tester',
-  'utils/utils'
+  'lib/jquery',
+  'game/api',
+  'game/game',
+  'test/tester'
 
-], function ($, phaser, auth, test, utils) {
+], function ($, api, game, test) {
 
   $('#register').click(function () {
     auth.jsonHandle('register', auth.registerCallback);

@@ -1,5 +1,8 @@
+define([
+  'utils',
+  'lib/bluebird'
 
-define(function () {
+], function (utils, bird) {
 
   function Socket(wsuri, onopen, onmessage) {
     this.sock = new WebSocket(wsuri);

@@ -1,11 +1,11 @@
 define([
-  'jquery',
+  'lib/jquery',
   'lib/chai',
-  'utils/utils',
-  'utils/socket',
+  'utils',
+  'game/api',
   'test/items'
 
-], function ($, chai, utils, ws, it_) {
+], function ($, chai, utils, api, it_) {
   var socket;
   var userData;
   var defaultDamage = '3d2';
