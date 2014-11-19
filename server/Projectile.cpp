@@ -38,7 +38,7 @@ Player* Projectile::GetPlayer()
   return player_;
 }
 
-bool Projectile::Update(float /*dt*/)
+void Projectile::Update(float /*dt*/)
 {
   float x = point_attack_.GetX() - position_.GetX();
   float y =  point_attack_.GetY() - position_.GetY();
@@ -57,7 +57,6 @@ bool Projectile::Update(float /*dt*/)
     return false;
   position_.x += dx;
   position_.y += dy;
-  return true;
 }
 
 void Projectile::GetCoord()

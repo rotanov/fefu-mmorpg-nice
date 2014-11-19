@@ -42,7 +42,7 @@ public:
 
   virtual void OnCollideWorld();
   virtual bool OnCollideActor(Actor* actor);
-  virtual bool Update(float dt);
+  virtual void Update(float dt);
 
   virtual void SetRace();
   virtual void SetRace(QString r);

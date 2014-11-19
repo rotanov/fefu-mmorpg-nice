@@ -11,7 +11,7 @@ public:
 
   virtual void OnCollideWorld();
   virtual bool OnCollideActor(Actor* actor);
-  virtual bool Update(float);
+  virtual void Update(float);
   void SetPoint(Vector2 p);
   void SetPlayer(Player* p);
   void GetCoord();

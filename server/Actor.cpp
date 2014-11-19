@@ -77,13 +77,12 @@ void Actor::SetSize(const float size)
   size_ = size;
 }
 
-bool Actor::Update(float dt)
+void Actor::Update(float dt)
 {
   position_ += velocity_ * dt;
  // qDebug() << "x " << position_.x;
  // qDebug() << "y " << position_.y;
   SetDirection(EActorDirection::NONE);
-  return true;
 }
 
 int Actor::GetId() const
