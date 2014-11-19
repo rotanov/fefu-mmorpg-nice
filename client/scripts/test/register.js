@@ -20,17 +20,9 @@ define([
       password: 'WebSocket'
     });
 
-    onopen = function () {
-      socket.startTesting(userData.sid);
-    };
-
-    onmessage = function (e) {
-      var data = JSON.parse(e.data);
-      if (data.action === 'startTesting' && data.result === 'ok') {
-        test();
-      }
-    };
-    socket = ws.WSConnect(userData.webSocket, onopen, onmessage);
+    api.connect(userData.webSocket, userData.sid)
+    .then(api.startTesting)
+    .then(test);
   }
 
   function test() {

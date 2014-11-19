@@ -1,70 +1,20 @@
+define([], function () {
 
-define(function () {
-  var serverAddress_ = 'http://localhost:6543';
-
-  function getServerAddress() {
-    return serverAddress_;
+  function reportError(message) {
+    console.log("Error: " + message);
+    var e = new Error();
+    console.log(e.stack);
+    throw e;
   }
 
-  function setServerAddress(serverAddress, onload) {
-    serverAddress_ = serverAddress;
-  }
-
-  function postRequest(object, onLoad, sync) {
-    sync = sync || false;
-    var xml = new XMLHttpRequest();
-    xml.open('POST', serverAddress_, !sync);
-    if (!sync) {
-      xml.responseType = 'json';
-
-      xml.onreadystatechange = function () {
-        if (xml.readyState === 4) {
-          if (xml.status === 200) {
-            onLoad(xml.response);
-
-          } else {
-            console.log('postRequest: failure');
-          }
-        }
-      };
-    }
-    xml.send(JSON.stringify(object));
-    if (sync) {
-      if (xml.status === 200) {
-        if (onLoad) {
-          onLoad($.parseJSON(xml.responseText));
-        }
-
-      } else {
-        console.log('postRequest: failure');
-      }
+  function assert(expression) {
+    if (!expression) {
+      reportError("assertion failed");
     }
   }
 
-  function postToServer(object) {
-    var responseResult;
-
-    postRequest(object, function (response) {
-      responseResult = response;
-    }, true);
-    return responseResult;
-  }
-
-  function timeout(x, callback) {
-    var dfd = $.Deferred();
-
-    setTimeout(function () {
-      if (typeof callback !== 'undefined') {
-        dfd.resolve(callback());
-      }
-    }, x);
-    return dfd.promise();
-  }
   return {
-    getServerAddress: getServerAddress,
-    setServerAddress: setServerAddress,
-    postRequest: postRequest,
-    postToServer: postToServer,
-    timeout: timeout
+    reportError: reportError,
+    assert: assert
   };
 });

@@ -4,230 +4,359 @@ define([
 
 ], function (utils, bird) {
 
-  function Socket(wsuri, onopen, onmessage) {
-    this.sock = new WebSocket(wsuri);
-    this.sock.onmessage = onmessage;
-    this.sock.onopen = onopen;
+//  TODO: Queue requests and batch multiple requests into one message
+//  See http://tavendo.com/blog/post/dissecting-websocket-overhead/ for more
+//  details
 
-    this.sock.onclose = function (event) {
-      if (event.wasClean) {
-        console.log('Connection closed.');
+  var serverAddress_ = 'http://localhost:6543';
+  var sid_;
+  var tickHandler_;
+  var socket;
+  var resolvers = {};
 
-      } else {
-        console.log('Connection is lost.');
-      }
-      console.log('[Code: ' + event.code + ', reason: ' + event.reason + ']');
-    };
+  function getServerAddress() {
+    return serverAddress_;
   }
 
-  Socket.prototype.setOnMessage = function (func) {
-    this.sock.onmessage = func;
-  };
+  function setServerAddress(serverAddress) {
+    serverAddress_ = serverAddress;
+  }
+
+  function setTickHandler(tickHandler) {
+    tickHandler_ = tickHandler;
+  }
+
+  function sendWS(message) {
+    return new Promise(function (resolve, reject) {
+      var action = message.action;
+      utils.assert(action !== undefined);
+      message.sid = sid_;
+      if (resolvers[action] === undefined) {
+        resolvers[action] = [];
+      }
+      resolvers[action].push(resolve);
+      socket.send(JSON.stringify(message));
+    });
+  }
+
+  function sendPOST(message) {
+    return new Promise(function (resolve, reject) {
+      var oReq = new XMLHttpRequest();
+      oReq.open('POST', serverAddress_);
+      oReq.responseType = 'json';
+
+      oReq.onreadystatechange = function () {
+        if (oReq.readyState === 4) {
+          utils.assert(oReq.status === 200);
+          resolve(oReq.response);
+        }
+      };
+
+      oReq.send(JSON.stringify(message));
+    });
+  }
+
+  /* POST */
+
+  function login(login, password) {
+    return sendPOST({
+      action: 'login',
+      login: login,
+      password: password
+    });
+  }
+
+  // class is a reserved word, so
+  function register(login, password, heroType) {
+    return sendPOST({
+      action: 'register',
+      login: login,
+      password: password,
+      'class': heroType
+    });
+  }
+
   /*Game Interaction*/
 
-  Socket.prototype.singleExamine = function (id, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'examine',
-      'id': parseInt(id),
-      'sid': sid
-    }));
-  };
+  function singleExamine(id) {
+    return sendWS({
+      action: 'examine',
+      id: parseInt(id)
+    });
+  }
 
-  Socket.prototype.mapCellExamine = function (sid, x, y) {
-    this.sock.send(JSON.stringify({
-      'action': 'examine',
-      'sid': sid,
-      'x': x,
-      'y': y
-    }));
-  };
+  function mapCellExamine(x, y) {
+    return sendWS({
+      action: 'examine',
+      x: x,
+      y: y
+    });
+  }
 
-  Socket.prototype.multipleIdExamine = function (ids, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'examine',
-      'ids': ids,
-      'sid': sid
-    }));
-  };
+  function multipleIdExamine(ids) {
+    return sendWS({
+      action: 'examine',
+      ids: ids
+    });
+  }
 
-  Socket.prototype.look = function (sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'look',
-      'sid': sid
-    }));
-  };
+  function look() {
+    return sendWS({
+      action: 'look'
+    });
+  }
 
-  Socket.prototype.move = function (direction, tick, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'move',
-      'direction': direction,
-      'tick': tick,
-      'sid': sid
-    }));
-  };
+  function beginMove(direction, tick) {
+    return sendWS({
+      action: 'beginMove',
+      direction: direction,
+      tick: tick
+    });
+  }
 
-  Socket.prototype.getDictionary = function (sid) {
-    this.sock.send(JSON.stringify({
-      action: 'getDictionary',
-      'sid': sid
-    }));
-  };
+  function endMove(direction, tick) {
+    return sendWS({
+      action: 'endMove',
+      direction: direction,
+      tick: tick
+    });
+  }
 
-  Socket.prototype.logout = function (sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'logout',
-      'sid': sid
-    }));
-  };
+  function getDictionary() {
+    return sendWS({
+      action: 'getDictionary'
+    });
+  }
 
-  Socket.prototype.destroyItem = function (id, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'destroyItem',
-      'id': parseInt(id),
-      'sid': sid
-    }));
-  };
+  function logout() {
+    var cleanUp = function () {
+      sid_ = undefined;
+      tickHandler_ = undefined;
+      resolvers = {};
+      if (socket !== undefined) {
+        socket.close();
+      }
+    }
 
-  Socket.prototype.drop = function (id, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'drop',
-      'id': parseInt(id),
-      'sid': sid
-    }));
-  };
+    if (sid_ !== undefined) {
+      return sendWS({action: 'logout'})
+      .then(cleanUp);
+    } else {
+      return sendPOST({
+        action: 'logout',
+        sid: sid_
+      })
+      .then(cleanUp);
+    }
+  }
 
-  Socket.prototype.equip = function (id, sid, slot) {
-    this.sock.send(JSON.stringify({
-      'action': 'equip',
-      'id': parseInt(id),
-      'sid': sid,
-      'slot': slot
-    }));
-  };
+  function destroyItem(id) {
+    return sendWS({
+      action: 'destroyItem',
+      id: parseInt(id)
+    });
+  }
 
-  Socket.prototype.unequip = function (slot, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'unequip',
-      'slot': slot,
-      'sid': sid
-    }));
-  };
+  function drop(id) {
+    return sendWS({
+      action: 'drop',
+      id: parseInt(id)
+    });
+  }
 
-  Socket.prototype.pickUp = function (id, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'pickUp',
-      'id': parseInt(id),
-      'sid': sid
-    }));
-  };
+  function equip(id, slot) {
+    return sendWS({
+      action: 'equip',
+      id: parseInt(id),
+      slot: slot
+    });
+  }
 
-  Socket.prototype.use = function (id, sid, x, y) {
+  function unequip(slot) {
+    return sendWS({
+      action: 'unequip',
+      slot: slot
+    });
+  }
+
+  function pickUp(id) {
+    return sendWS({
+      action: 'pickUp',
+      id: parseInt(id)
+    });
+  }
+
+  function use(id, x, y) {
     var request = {
-      'action': 'use',
-      'id': parseInt(id),
-      'sid': sid
+      action: 'use',
+      id: parseInt(id)
     };
     if (x && y) {
       request.x = x;
       request.y = y;
     }
-    this.sock.send(JSON.stringify(request));
-  };
+    return sendWS(request);
+  }
 
-  Socket.prototype.useSkill = function (sid, x, y) {
-    console.log('useSkill');
-    var request = {
-      'action': 'useSkill',
-      'sid': sid,
-      'x': x,
-      'y': y
-    };
-    this.sock.send(JSON.stringify(request));
-  };
+  function useSkill(x, y) {
+    return sendWS({
+      action: 'useSkill',
+      x: x,
+      y: y
+    });
+  }
+
   /*Testing*/
 
-  Socket.prototype.startTesting = function (sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'startTesting',
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.stopTesting = function (sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'stopTesting',
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.getDictionary = function (sid) {
-    this.sock.send(JSON.stringify({
-      action: 'getDictionary',
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.setUpMap = function (data) {
-    this.sock.send(JSON.stringify(data));
-  };
-
-  Socket.prototype.getConst = function (sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'getConst',
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.setUpConst = function (data) {
-    this.sock.send(JSON.stringify(data));
-  };
-
-  Socket.prototype.putItem = function (x, y, item, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'putItem',
-      'x': x,
-      'y': y,
-      'item': item,
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.putMob = function (x, y, stats, inventory, flags, race, dealtDamage, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'putMob',
-      'x': x,
-      'y': y,
-      'stats': stats,
-      'inventory': inventory,
-      'flags': flags,
-      'race': race,
-      'dealtDamage': dealtDamage,
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.putPlayer = function (x, y, stats, inventory, slots, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'putPlayer',
-      'x': x,
-      'y': y,
-      'stats': stats,
-      'inventory': inventory,
-      'slots': slots,
-      'sid': sid
-    }));
-  };
-
-  Socket.prototype.enforce = function (object, sid) {
-    this.sock.send(JSON.stringify({
-      'action': 'enforce',
-      'enforcedAction': object,
-      'sid': sid
-    }));
-  };
-
-  function WSConnect(wsuri, onopen, onmessage) {
-    return new Socket(wsuri, onopen, onmessage);
+  function startTesting() {
+    return sendWS({
+      action: 'startTesting'
+    });
   }
-  return { WSConnect: WSConnect };
+
+  function stopTesting() {
+    return sendWS({
+      action: 'stopTesting'
+    });
+  }
+
+  function getDictionary() {
+    return sendWS({
+      action: 'getDictionary'
+    });
+  }
+
+  function setUpMap(data) {
+    return sendWS(data);
+  }
+
+  function getConst() {
+    return sendWS({
+      action: 'getConst'
+    });
+  }
+
+  function setUpConst(data) {
+    return sendWS(data);
+  }
+
+  function putItem(x, y, item) {
+    return sendWS({
+      action: 'putItem',
+      x: x,
+      y: y,
+      item: item
+    });
+  }
+
+  function putMob(x, y, stats, inventory, flags, race, dealtDamage) {
+    return sendWS({
+      action: 'putMob',
+      x: x,
+      y: y,
+      stats: stats,
+      inventory: inventory,
+      flags: flags,
+      race: race,
+      dealtDamage: dealtDamage
+    });
+  }
+
+  function putPlayer(x, y, stats, inventory, slots) {
+    return sendWS({
+      action: 'putPlayer',
+      x: x,
+      y: y,
+      stats: stats,
+      inventory: inventory,
+      slots: slots
+    });
+  }
+
+  function enforce(object) {
+    return sendWS({
+      action: 'enforce',
+      enforcedAction: object
+    });
+  }
+
+  function connect(wsuri, sid) {
+    return new Promise(function (resolve, reject) {
+      utils.assert(sid_ === undefined);
+      sid_ = sid;
+
+      socket = new WebSocket(wsuri);
+
+      socket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+
+        if (data.tick !== undefined) {
+          if (tickHandler_ !== undefined) {
+            tickHandler_(data);
+          }
+
+        } else {
+          if (data.result !== 'ok') {
+            utils.reportError(event.data);
+          }
+
+          var queue = resolvers[data.action];
+          if (queue !== undefined && queue.length != 0) {
+            var resolve = queue.shift();
+            resolve(data);
+          }
+        }
+      };
+
+      socket.onopen = function (event) {
+        resolve();
+      };
+
+      socket.onclose = function (event) {
+        if (event.wasClean) {
+          console.log('Connection closed.');
+
+        } else {
+          console.log('Connection is lost.');
+        }
+        console.log('[Code: ' + event.code + ', reason: ' + event.reason + ']');
+        socket = undefined;
+      };
+    });
+  }
+
+  return {
+    getServerAddress: getServerAddress,
+    setServerAddress: setServerAddress,
+    connect: connect,
+    setTickHandler: setTickHandler,
+    // API
+    register: register,
+    login: login,
+    singleExamine: singleExamine,
+    mapCellExamine: mapCellExamine,
+    multipleIdExamine: multipleIdExamine,
+    look: look,
+    beginMove: beginMove,
+    endMove: endMove,
+    getDictionary: getDictionary,
+    logout: logout,
+    destroyItem: destroyItem,
+    drop: drop,
+    equip: equip,
+    unequip: unequip,
+    pickUp: pickUp,
+    use: use,
+    useSkill: useSkill,
+    startTesting: startTesting,
+    stopTesting: stopTesting,
+    getDictionary: getDictionary,
+    setUpMap: setUpMap,
+    getConst: getConst,
+    setUpConst: setUpConst,
+    putItem: putItem,
+    putMob: putMob,
+    putPlayer: putPlayer,
+    enforce: enforce
+  };
 });

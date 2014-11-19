@@ -40,7 +40,7 @@ define([
         test();
       }
     };
-    socket = ws.WSConnect(userData.webSocket, onopen, onmessage);
+    socket = api.WSConnect(userData.webSocket, onopen, onmessage);
   }
 
   function runBeforeEach(done) {
