@@ -50,10 +50,6 @@ define(function () {
     return responseResult;
   }
 
-  function cryBabyCry(result) {
-    console.log('Error: ' + result);
-  }
-
   function timeout(x, callback) {
     var dfd = $.Deferred();
 
@@ -69,7 +65,6 @@ define(function () {
     setServerAddress: setServerAddress,
     postRequest: postRequest,
     postToServer: postToServer,
-    cryBabyCry: cryBabyCry,
     timeout: timeout
   };
 });
