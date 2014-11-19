@@ -661,8 +661,8 @@ void GameServer::HandleGetConst_(const QVariantMap& request, QVariantMap& respon
   response["playerVelocity"] = playerVelocity_;
   response["slideThreshold"] = slideThreshold_;
   response["ticksPerSecond"] = ticksPerSecond_;
-  response["screenRowCount"] = screenRowCount_ / 2;
-  response["screenColumnCount"] = screenColumnCount_ / 2;
+  response["screenRowCount"] = screenRowCount_;
+  response["screenColumnCount"] = screenColumnCount_;
   response["pickUpRadius"] = pickUpRadius_;
 }
 
