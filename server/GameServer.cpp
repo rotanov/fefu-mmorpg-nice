@@ -222,15 +222,28 @@ void GameServer::setWSAddress(QString address)
 //==============================================================================
 void GameServer::tick()
 {
-  /*float dt = (time_.elapsed() - lastTime_) * 0.001f;*/
+  float dt = (time_.elapsed() - lastTime_) * 0.001f;
   lastTime_ = time_.elapsed();
 
-  /*if (actors_.size() < 100 && !testingStageActive_)
+  for (auto actor : actors_)
   {
-    GenMonsters_();
-  }*/
+    levelMap_.RemoveActor(actor);
+    auto v = actor->GetDirectionVector();
+    actor->SetVelocity(v * playerVelocity_);
+    actor->Update(dt);
+    levelMap_.IndexActor(actor);
+  }
 
-  auto collideWithGrid = [=](Actor* actor, EActorDirection direction)
+  QVariantMap tickMessage;
+  tickMessage["tick"] = tick_;
+  tickMessage["events"] = events_;
+  events_.clear();
+  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
+  tick_++;
+
+  return;
+
+  auto collideWithGrid = [=](Actor* actor)
   {
     auto& p = *actor;
 
@@ -239,41 +252,41 @@ void GameServer::tick()
 
     bool collided = false;
 
-    if ((levelMap_.GetCell(x + 0.49f, y - 0.51f) != '.'
-        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
-        && levelMap_.GetCell(x - slideThreshold_+ 0.5f, y) == '.'
-        && (direction == EActorDirection::NORTH
-        || direction == EActorDirection::SOUTH))
-    {
-      p.SetPosition(Vector2(x - slideThreshold_+ 0.0001f, p.GetPosition().y));
-    }
+//    if ((levelMap_.GetCell(x + 0.49f, y - 0.51f) != '.'
+//        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
+//        && levelMap_.GetCell(x - slideThreshold_+ 0.5f, y) == '.'
+//        && (direction == EActorDirection::NORTH
+//        || direction == EActorDirection::SOUTH))
+//    {
+//      p.SetPosition(Vector2(x - slideThreshold_+ 0.0001f, p.GetPosition().y));
+//    }
 
-    if (levelMap_.GetCell(x + slideThreshold_- 0.5f, y) == '.'
-        &&((levelMap_.GetCell(x - 0.5f, y - 0.51f) != '.'
-        || levelMap_.GetCell(x - 0.5f, y + 0.49f) != '.')
-        && (direction == EActorDirection::NORTH
-        || direction == EActorDirection::SOUTH)))
-    {
-      p.SetPosition(Vector2(x + slideThreshold_- 0.0001f, p.GetPosition().y));
-    }
+//    if (levelMap_.GetCell(x + slideThreshold_- 0.5f, y) == '.'
+//        &&((levelMap_.GetCell(x - 0.5f, y - 0.51f) != '.'
+//        || levelMap_.GetCell(x - 0.5f, y + 0.49f) != '.')
+//        && (direction == EActorDirection::NORTH
+//        || direction == EActorDirection::SOUTH)))
+//    {
+//      p.SetPosition(Vector2(x + slideThreshold_- 0.0001f, p.GetPosition().y));
+//    }
 
-    if (levelMap_.GetCell(x, y - slideThreshold_ + 0.5f) == '.'
-        && (levelMap_.GetCell(x - 0.51f, y + 0.49f) != '.'
-        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
-        && (direction == EActorDirection::EAST
-        || direction == EActorDirection::WEST))
-    {
-      p.SetPosition(Vector2(p.GetPosition().x, y - slideThreshold_+ 0.0001f));
-    }
+//    if (levelMap_.GetCell(x, y - slideThreshold_ + 0.5f) == '.'
+//        && (levelMap_.GetCell(x - 0.51f, y + 0.49f) != '.'
+//        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
+//        && (direction == EActorDirection::EAST
+//        || direction == EActorDirection::WEST))
+//    {
+//      p.SetPosition(Vector2(p.GetPosition().x, y - slideThreshold_+ 0.0001f));
+//    }
 
-    if ((levelMap_.GetCell(x + 0.49f, y - 0.5f) != '.'
-        || levelMap_.GetCell(x - 0.51f, y - 0.5f) != '.')
-        && levelMap_.GetCell(x, y + slideThreshold_- 0.5f) == '.'
-        && (direction == EActorDirection::EAST
-        || direction == EActorDirection::WEST))
-    {
-      p.SetPosition(Vector2(p.GetPosition().x, y + slideThreshold_ - 0.001f));
-    }
+//    if ((levelMap_.GetCell(x + 0.49f, y - 0.5f) != '.'
+//        || levelMap_.GetCell(x - 0.51f, y - 0.5f) != '.')
+//        && levelMap_.GetCell(x, y + slideThreshold_- 0.5f) == '.'
+//        && (direction == EActorDirection::EAST
+//        || direction == EActorDirection::WEST))
+//    {
+//      p.SetPosition(Vector2(p.GetPosition().x, y + slideThreshold_ - 0.001f));
+//    }
 
     if (levelMap_.GetCell(x + 0.5f, y) != '.')
     {
@@ -324,31 +337,31 @@ void GameServer::tick()
               && m_pos.x - t_pos.x - 1.0f != 0)
           {
             monster->SetPosition(Vector2(t_pos.x + 1.0f, m_pos.y));
-            monster->SetDirection(EActorDirection::NONE);
+            monster->Stop();
           }
 
           if (abs(m_pos.y - t_pos.y + 1.0f) < playerVelocity_
               && m_pos.y - t_pos.y + 1.0f != 0)
           {
             monster->SetPosition(Vector2(m_pos.x, t_pos.y - 1.0f));
-            monster->SetDirection(EActorDirection::NONE);
+            monster->Stop();
           }
 
           if (m_pos.x < t_pos.x - 1.0f)
           {
-            monster->SetDirection(EActorDirection::EAST);
+//            monster->SetDirection(EActorDirection::EAST);
           }
           else if (m_pos.x > t_pos.x + 1.0f)
           {
-            monster->SetDirection(EActorDirection::WEST);
+//            monster->SetDirection(EActorDirection::WEST);
           }
           else if (m_pos.y < t_pos.y - 1.0f)
           {
-            monster->SetDirection(EActorDirection::SOUTH);
+//            monster->SetDirection(EActorDirection::SOUTH);
           }
           else if (m_pos.y > t_pos.y + 1.0f)
           {
-            monster->SetDirection(EActorDirection::NORTH);
+//            monster->SetDirection(EActorDirection::NORTH);
           }
         }
       }
@@ -408,24 +421,20 @@ void GameServer::tick()
 
   for (Actor* actor: actors_)
   {
-    if (!actor
-        || actor == nullptr)
-    {
-      break;
-    }
+    auto v = actor->GetDirectionVector();
+    actor->SetVelocity(v * playerVelocity_);
 
-    auto v = directionToVector[static_cast<unsigned>(actor->GetDirection())] ;
-    actor->SetVelocity(v);
-    float dt = playerVelocity_;
     Vector2 old_pos = actor->GetPosition();
     Vector2 new_pos = old_pos + v * (dt + 0.001);
     Vector2 old_pos2 = old_pos + v * 0.51;
+
     levelMap_.RemoveActor(actor);
-    EActorDirection d = actor->GetDirection();
+
+//    EActorDirection d = actor->GetDirectionVector();
     float x = new_pos.x;
     float y = new_pos.y;
     if (levelMap_.GetCell(old_pos2.x, old_pos2.y) != '#'
-        && d != EActorDirection::NONE
+/*        && d != EActorDirection::NONE
         && (((levelMap_.GetCell(x - slideThreshold_+ 0.5f, y) == '.'
               && levelMap_.GetCell(x + slideThreshold_- 0.5f, y) == '.')
              && (d == EActorDirection::NORTH
@@ -433,16 +442,17 @@ void GameServer::tick()
             || ((levelMap_.GetCell(x, y - slideThreshold_+ 0.5f) == '.'
                  && levelMap_.GetCell(x, y + slideThreshold_- 0.5f) == '.')
                 && (d == EActorDirection::EAST
-                    || d == EActorDirection::WEST))))
+                    || d == EActorDirection::WEST)))*/)
     {
       if (levelMap_.GetCell(new_pos.x, new_pos.y) == '.')
       {
-        if (!actor->Update(dt)
-            && actor->GetType () == EActorType::PROJECTILE)
+        actor->Update(dt);
+        if (false // actor is projectile and dead
+            && actor->GetType() == EActorType::PROJECTILE)
         {
           static_cast<Projectile*>(actor)->death = true;
         }
-        collideWithGrid(actor, d);
+        collideWithGrid(actor);
       }
       else if (levelMap_.GetCell(x , y) != '.'
                && playerVelocity_ >= 1)
@@ -460,7 +470,7 @@ void GameServer::tick()
       }
       else
       {
-        if (actor->GetType () == EActorType::PROJECTILE)
+        if (actor->GetType() == EActorType::PROJECTILE)
         {
           static_cast<Projectile*>(actor)->death = true;
         }
@@ -468,17 +478,13 @@ void GameServer::tick()
     }
     else
     {
-      if (actor
-          && actor != nullptr)
+      if (actor->GetType() == EActorType::PROJECTILE)
       {
-        if (actor->GetType () == EActorType::PROJECTILE)
-        {
-          static_cast<Projectile*>(actor)->death = true;
-        }
-        else
-        {
-          actor->OnCollideWorld();
-        }
+        static_cast<Projectile*>(actor)->death = true;
+      }
+      else
+      {
+        actor->OnCollideWorld();
       }
     }
 
@@ -512,9 +518,7 @@ void GameServer::tick()
 
     for (Actor* neighbour : actors_)
     {
-      if (actor == nullptr
-          || neighbour == nullptr
-          || actor == neighbour
+      if (actor == neighbour
           || neighbour->GetType() == EActorType::ITEM
           || (actor->GetType() == EActorType::PROJECTILE
               && neighbour->GetType() == EActorType::PROJECTILE))
@@ -580,13 +584,6 @@ void GameServer::tick()
       levelMap_.IndexActor(actor);
     }
   }
-
-  QVariantMap tickMessage;
-  tickMessage["tick"] = tick_;
-  tickMessage["events"] = events_;
-  events_.clear();
-  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
-  tick_++;
 }
 
 //==============================================================================
@@ -925,7 +922,7 @@ void GameServer::HandleSetLocation_(const QVariantMap& request, QVariantMap& res
   }
 
   p->SetSpeed(playerVelocity_);
-  p->SetDirection (EActorDirection::NONE);
+  p->Stop();
   SetActorPosition_(p, Vector2(x,y));
 }
 
@@ -1235,11 +1232,11 @@ void GameServer::HandleUseSkill_(const QVariantMap& request, QVariantMap& respon
     return;
   }
   Projectile* project = CreateActor_<Projectile>();
-  project->SetPosition (Vector2(p->GetPosition().x, p->GetPosition().y));
+  project->SetPosition(Vector2(p->GetPosition().x, p->GetPosition().y));
   project->SetPoint(Vector2(x, y));
   project->SetPlayer(p);
   project->GetCoord ();
-  project->SetDirection (EActorDirection::EAST);
+  project->SetDirection(EActorDirection::EAST, true);
   levelMap_.IndexActor(project);
   WriteResult_(response, EFEMPResult::OK);
   return;
