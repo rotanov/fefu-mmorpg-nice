@@ -33,17 +33,17 @@
         <form id="form-register">
             <div class="form-row">
                 <label for="server-address">Server</label>
-                <input id="server-address" type="url"/>
+                <input id="server-address" type="url" value="http://localhost:6543"/>
             </div>
-            
+
             <div class="form-row">
                 <label for="username">Login</label>
-                <input type="text" id="username" name="login"/>
+                <input type="text" id="username" name="login" value="aa"/>
             </div>
 
             <div class="form-row">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password"/>
+                <input type="password" id="password" name="password" value="aaaaaa"/>
             </div>
 
             <div>
@@ -57,7 +57,7 @@
                 </form>
 
                 <input type="button" value="Register" id="register"/>
-                <input type="button" value="Sign in" id="login" />
+                <input type="button" value="Sign in" id="login" default="true"/>
             </div>
         </form>
 
