@@ -105,7 +105,7 @@ define([
     // overlay border, covering half tile size
     var border = new pixi.Graphics();
     root.addChild(border);
-    border.beginFill(0xFFFFFF, 0xFF);
+    border.beginFill(0x00FFFF, 0xFF);
     border.drawRect(0, 0, step * columnCount, step / 2);
     border.drawRect(0, step * rowCount - step / 2, step * columnCount, step / 2);
     border.drawRect(0, 0, step / 2, step * rowCount);
@@ -115,6 +115,7 @@ define([
 
   function cleanUp() {
     window.clearInterval(requestServerDataIntervalId);
+    requestServerDataIntervalId = undefined;
   }
 
   function requestLook() {
@@ -232,15 +233,21 @@ define([
                                            step * rowCount,
                                            { antialias: true });
     renderer.view.style.display = 'block';
-    document.body.appendChild(renderer.view);
+    renderer.view.style.width = "100%";//$('#game-screen').get('$width');
+    $('#game-screen').add(renderer.view);
+
+    window.addEventListener("resize", function () {
+      // renderer.width = $('#game-screen').get('$width', true);
+      // renderer.view.style.width = $('#game-screen').get('$width');
+    });
+
+    // renderer.width = $('#game-screen').get('$width', true);
 
     var st = new Stats();
     st.setMode(0);
-    // align top-left
-    st.domElement.style.position = 'absolute';
     st.domElement.style.left = '0px';
     st.domElement.style.top = '0px';
-    document.body.appendChild( st.domElement );
+    $('#left-panel').add(st.domElement);
 
     composeScene();
 
