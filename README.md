@@ -9,3 +9,4 @@ https://github.com/antlafarge/QtWebsocket
 https://github.com/nikhilm/qhttpserver
 
 Qt
+Heart Fav Icon http://www.flaticon.com/free-icon/favorite-heart-button_60993 made by Google from http://www.flaticon.com is licensed under CC BY 3.0
