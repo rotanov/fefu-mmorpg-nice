@@ -1,5 +1,5 @@
 define([
-  'lib/jquery',
+  'minified',
   'lib/pixi',
   'lib/stats',
   'utils',
@@ -10,6 +10,7 @@ define([
 
 ], function ($, pixi, stats, utils, api, Actor, HealthBar, Hero) {
 
+  var $ = mini.$;
   var msg;
   var actors = [];
   var tempTiles;
@@ -165,10 +166,10 @@ define([
   }
 
   function startMore(data) {
-    $('#p-slots').css({
-      'left': step * columnCount + 100 + 'px',
-      'position': 'fixed'
-    }).show();
+    // $('#p-slots').css({
+    //   'left': step * columnCount + 100 + 'px',
+    //   'position': 'fixed'
+    // }).show();
 
     pixiStage = new pixi.Stage(0x000000);
 
@@ -390,77 +391,77 @@ define([
     $('#items select#items').append('<option value=\'' + id + '\'>' + name + '</option>');
   }
 
-  $('#reload').click(function () {
-    $('#items select').empty();
-    for (var i = 0, l = inventory.length; i < l; ++i) {
-      pushItem(inventory[i].id, inventory[i].name);
-    }
-  });
+  // $('#reload').click(function () {
+  //   $('#items select').empty();
+  //   for (var i = 0, l = inventory.length; i < l; ++i) {
+  //     pushItem(inventory[i].id, inventory[i].name);
+  //   }
+  // });
 
-  $('#logout').click(function () {
-    game.destroy();
-  });
+  // $('#logout').click(function () {
+  //   game.destroy();
+  // });
 
-  $('#use').click(function () {
-    var id = $('#items select#items').find(':selected').val();
-    api.use(id)
-    .then(function (data) {
-      $('#msg').text(data.message);
-    });
-  });
+  // $('#use').click(function () {
+  //   var id = $('#items select#items').find(':selected').val();
+  //   api.use(id)
+  //   .then(function (data) {
+  //     $('#msg').text(data.message);
+  //   });
+  // });
 
-  $('#destroyItem').click(function () {
-    var id = $('#items select#items').find(':selected').val();
-    $('#items select#items').find(':selected').remove();
-    api.destroyItem(id);
-  });
+  // $('#destroyItem').click(function () {
+  //   var id = $('#items select#items').find(':selected').val();
+  //   $('#items select#items').find(':selected').remove();
+  //   api.destroyItem(id);
+  // });
 
-  $('#drop').click(function (id) {
-    var id = $('#items select#items').find(':selected').val();
-    $('#items select#items').find(':selected').remove();
-    api.drop(id);
-  });
+  // $('#drop').click(function (id) {
+  //   var id = $('#items select#items').find(':selected').val();
+  //   $('#items select#items').find(':selected').remove();
+  //   api.drop(id);
+  // });
 
-  $('#ok').click(function () {
-    $('#slots').hide();
-    var id = $('#items select#items').find(':selected').val();
-    var slot = $('input:radio[name=slot]:checked').val();
-    if (slot !== undefined) {
-      api.equip(id, slot)
-      .then(function (data) {
-        requestExamine(id);
-      });
-    }
-    curr_slot.slot = slot;
-    curr_slot.id = id;
-    console.log(curr_slot);
-  });
+  // $('#ok').click(function () {
+  //   $('#slots').hide();
+  //   var id = $('#items select#items').find(':selected').val();
+  //   var slot = $('input:radio[name=slot]:checked').val();
+  //   if (slot !== undefined) {
+  //     api.equip(id, slot)
+  //     .then(function (data) {
+  //       requestExamine(id);
+  //     });
+  //   }
+  //   curr_slot.slot = slot;
+  //   curr_slot.id = id;
+  //   console.log(curr_slot);
+  // });
 
-  $('#close').click(function () {
-    $('#slots').hide();
-  });
+  // $('#close').click(function () {
+  //   $('#slots').hide();
+  // });
 
-  $('#reset').click(function () {
-    $('input:radio[name=slot]').attr('checked', false);
-  });
+  // $('#reset').click(function () {
+  //   $('input:radio[name=slot]').attr('checked', false);
+  // });
 
-  $('#equip').click(function () {
-    $('#slots').show();
-  });
+  // $('#equip').click(function () {
+  //   $('#slots').show();
+  // });
 
-  $('#unequip').click(function () {
-    var slot = $('#p-slots input:radio[name=slot]:checked', '').val();
-    if (slot !== undefined) {
-      $('div#' + slot).text('');
-      api.unequip(slot);
-    }
-  });
+  // $('#unequip').click(function () {
+  //   var slot = $('#p-slots input:radio[name=slot]:checked', '').val();
+  //   if (slot !== undefined) {
+  //     $('div#' + slot).text('');
+  //     api.unequip(slot);
+  //   }
+  // });
 
-  $('#items select').on('change', function (e) {
-    var optionSelected = $('option:selected', this);
-    var id = this.value;
-    requestExamine(id);
-  });
+  // $('#items select').on('change', function (e) {
+  //   var optionSelected = $('option:selected', this);
+  //   var id = this.value;
+  //   requestExamine(id);
+  // });
 
   return {
     start: start

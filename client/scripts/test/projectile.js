@@ -1,5 +1,5 @@
 define([
-  'lib/jquery',
+  'minified',
   'lib/chai',
   'utils',
   'game/api',
