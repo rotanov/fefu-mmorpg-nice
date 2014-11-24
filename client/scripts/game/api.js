@@ -1,3 +1,5 @@
+'use strict';
+
 define([
   'utils',
   'lib/bluebird'
@@ -10,6 +12,7 @@ define([
 
   var serverAddress_ = 'http://localhost:6543';
   var sid_;
+  var wsURI_;
   var tickHandler_;
   var socket;
   var resolvers = {};
@@ -30,6 +33,8 @@ define([
     return new Promise(function (resolve, reject) {
       var action = message.action;
       utils.assert(action !== undefined);
+      utils.assert(sid_ !== undefined);
+      utils.assert(socket !== undefined);
       message.sid = sid_;
       if (resolvers[action] === undefined) {
         resolvers[action] = [];
@@ -48,7 +53,13 @@ define([
       oReq.onreadystatechange = function () {
         if (oReq.readyState === 4) {
           utils.assert(oReq.status === 200);
-          resolve(oReq.response);
+
+          if (oReq.response.result === 'ok') {
+            resolve(oReq.response);
+          } else {
+            utils.logError(JSON.stringify(oReq.response));
+            reject(oReq.response);
+          }
         }
       };
 
@@ -56,13 +67,25 @@ define([
     });
   }
 
-  /* POST */
+  function send(message) {
+    if (sid_ !== undefined
+        && socket !== undefined) {
+      return sendWS(message);
+    } else {
+      return sendPOST(message);
+    }
+  }
 
   function login(login, password) {
     return sendPOST({
       action: 'login',
       login: login,
       password: password
+    })
+    .then(function (data) {
+      sid_ = data.sid;
+      wsURI_ = data.webSocket;
+      return data;
     });
   }
 
@@ -129,25 +152,18 @@ define([
   }
 
   function logout() {
-    var cleanUp = function () {
+    return send({
+      action: 'logout',
+      sid: sid_
+    })
+    .then(function () {
       sid_ = undefined;
       tickHandler_ = undefined;
       resolvers = {};
       if (socket !== undefined) {
         socket.close();
       }
-    }
-
-    if (sid_ !== undefined) {
-      return sendWS({action: 'logout'})
-      .then(cleanUp);
-    } else {
-      return sendPOST({
-        action: 'logout',
-        sid: sid_
-      })
-      .then(cleanUp);
-    }
+    });
   }
 
   function destroyItem(id) {
@@ -209,13 +225,13 @@ define([
   /*Testing*/
 
   function startTesting() {
-    return sendWS({
+    return send({
       action: 'startTesting'
     });
   }
 
   function stopTesting() {
-    return sendWS({
+    return send({
       action: 'stopTesting'
     });
   }
@@ -227,21 +243,21 @@ define([
   }
 
   function setUpMap(data) {
-    return sendWS(data);
+    return send(data);
   }
 
   function getConst() {
-    return sendWS({
+    return send({
       action: 'getConst'
     });
   }
 
   function setUpConst(data) {
-    return sendWS(data);
+    return send(data);
   }
 
   function putItem(x, y, item) {
-    return sendWS({
+    return send({
       action: 'putItem',
       x: x,
       y: y,
@@ -250,7 +266,7 @@ define([
   }
 
   function putMob(x, y, stats, inventory, flags, race, dealtDamage) {
-    return sendWS({
+    return send({
       action: 'putMob',
       x: x,
       y: y,
@@ -263,7 +279,7 @@ define([
   }
 
   function putPlayer(x, y, stats, inventory, slots) {
-    return sendWS({
+    return send({
       action: 'putPlayer',
       x: x,
       y: y,
@@ -274,18 +290,18 @@ define([
   }
 
   function enforce(object) {
-    return sendWS({
+    return send({
       action: 'enforce',
       enforcedAction: object
     });
   }
 
-  function connect(wsuri, sid) {
+  function connect() {
     return new Promise(function (resolve, reject) {
-      utils.assert(sid_ === undefined);
-      sid_ = sid;
+      utils.assert(sid_ !== undefined);
+      utils.assert(wsURI_ !== undefined);
 
-      socket = new WebSocket(wsuri);
+      socket = new WebSocket(wsURI_);
 
       socket.onmessage = function (event) {
         var data = JSON.parse(event.data);
@@ -296,14 +312,15 @@ define([
           }
 
         } else {
-          if (data.result !== 'ok') {
-            utils.reportError(event.data);
-          }
-
-          var queue = resolvers[data.action];
-          if (queue !== undefined && queue.length != 0) {
-            var resolve = queue.shift();
-            resolve(data);
+          if (data.result === 'ok') {
+            var queue = resolvers[data.action];
+            if (queue !== undefined && queue.length != 0) {
+              var resolve = queue.shift();
+              resolve(data);
+            }
+          } else {
+            utils.logError(event.data);
+            reject(data);
           }
         }
       };
@@ -339,7 +356,6 @@ define([
     look: look,
     beginMove: beginMove,
     endMove: endMove,
-    getDictionary: getDictionary,
     logout: logout,
     destroyItem: destroyItem,
     drop: drop,

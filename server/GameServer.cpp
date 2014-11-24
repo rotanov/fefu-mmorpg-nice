@@ -78,16 +78,14 @@ void GameServer::handleFEMPRequest(const QVariantMap& request, QVariantMap& resp
   }
 
   QString action = actionIt.value().toString();
-  //qDebug() << "FEMP action: " << action;
-  auto handlerIt = requestHandlers_.find(action);
 
+  auto handlerIt = requestHandlers_.find(action);
   if (handlerIt == requestHandlers_.end())
   {
     WriteResult_(response, EFEMPResult::BAD_ACTION);
     return;
   }
 
-  // TODO: extract into unordered_map
   if (sidCheckExceptions_.count(action.toStdString()) == 0)
   {
     if (request.find("sid") == request.end()
@@ -125,14 +123,6 @@ void GameServer::HandleRegister_(const QVariantMap& request, QVariantMap& respon
     }
   }
 
-  // ??? Default class for testing ???
-  if (class_ != "warrior"
-      && class_ != "rouge"
-      && class_ != "mage")
-  {
-    class_ = "mage";
-  }
-
   if (storage_.IfLoginPresent(login))
   {
     WriteResult_(response, EFEMPResult::LOGIN_EXISTS);
@@ -146,11 +136,12 @@ void GameServer::HandleRegister_(const QVariantMap& request, QVariantMap& respon
   {
     WriteResult_(response, EFEMPResult::BAD_PASS);
   }
-  //else if (class_ != "warrior" && class_ != "rouge" && class_ != "mage")
-  //{
-  //  class_ = "mage";
-    //WriteResult_(response, EFEMPResult::BAD_CLASS);
- // }
+  else if (class_ != "warrior"
+           && class_ != "rogue"
+           && class_ != "mage")
+  {
+    WriteResult_(response, EFEMPResult::BAD_CLASS);
+  }
   else
   {
     QByteArray salt = QString::number(qrand()).toLatin1();
@@ -717,6 +708,7 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
   response["webSocket"] = wsAddress_;
   response["fistId"] = FistId_;
   response["id"] = player->GetId();
+  qDebug() << "Logged in, login: " << player->GetLogin();
 }
 
 //==============================================================================
@@ -727,7 +719,7 @@ void GameServer::HandleLogout_(const QVariantMap& request, QVariantMap& response
   auto sid = request["sid"].toByteArray();
   auto it = sidToPlayer_.find(sid);
   Player* p = it.value();
-  qDebug() << "Logging out, login: " << p->GetLogin();
+  qDebug() << "Logged out, login: " << p->GetLogin();
   sidToPlayer_.erase(it);
   KillActor_(p);
 }
@@ -743,8 +735,8 @@ void GameServer::HandleStartTesting_(const QVariantMap& request, QVariantMap& re
     return;
   }
 
+  storage_.Reset();
   testingStageActive_ = true;
-  //storage_.Reset(); //for Alexander's tests
 }
 
 //==============================================================================

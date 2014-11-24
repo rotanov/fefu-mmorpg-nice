@@ -1,4 +1,5 @@
 call fixmyjs -c .jshintrc main.js
+call fixmyjs -c .jshintrc test.js
 call fixmyjs -c .jshintrc utils.js
 
 call fixmyjs -c .jshintrc game/game.js
@@ -11,7 +12,6 @@ call fixmyjs -c .jshintrc test/mobs.js
 call fixmyjs -c .jshintrc test/players.js
 call fixmyjs -c .jshintrc test/projectile.js
 call fixmyjs -c .jshintrc test/register.js
-call fixmyjs -c .jshintrc test/tester.js
 call fixmyjs -c .jshintrc test/websocket.js
 
 

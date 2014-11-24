@@ -1,9 +1,10 @@
+'use strict';
+
 require([
   'minified',
   'audio',
   'game/api',
-  'game/game',
-  'test/tester'
+  'game/game'
 
 ], function (mini, audio, api, game) {
   var $ = mini.$;
@@ -75,6 +76,7 @@ require([
 
   $('#logout').onClick(function (data) {
     // $('#server-answer').empty();
+    game.stop();
     api.logout()
     .then(function (data) {
       if (data.result === 'ok') {
@@ -106,7 +108,7 @@ require([
     if (location.protocol === 'file:') {
       serverAddress = 'http://localhost:6543';
     }
-    $('#server-address').attr('value', serverAddress);
+    $('#server-address').set('value', serverAddress);
     api.setServerAddress(serverAddress);
   });
 

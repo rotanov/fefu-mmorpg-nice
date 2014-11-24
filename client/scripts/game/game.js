@@ -207,7 +207,7 @@ define([
     fistId = data.fistId;
 
     api.setTickHandler(onTick);
-    api.connect(data.webSocket, data.sid)
+    api.connect()
     .then(function () {
       api.getConst()
       .then(function (data) {
@@ -489,7 +489,12 @@ define([
   //   requestExamine(id);
   // });
 
+  function stop() {
+    cleanUp();
+  }
+
   return {
-    start: start
+    start: start,
+    stop: stop
   }
 });

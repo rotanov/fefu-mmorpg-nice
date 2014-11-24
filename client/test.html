@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head>
+<title>Authorization</title>
+<meta charset="UTF-8">
+
+<link href="favicon.png"
+      rel="shortcut icon"/>
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet"
+      href="mocha.css"
+      type="text/css"
+      media="screen"
+      charset="utf-8"/>
+
+<link rel="stylesheet"
+      href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+
+<script data-main="scripts/test"
+        src="scripts/lib/require.js"></script>
+
+</head>
+
+<body>
+
+<div class="pure-g">
+  <div class="pure-u-1-3"></div>
+  <div class="pure-u-1-3">
+    <form id="test-form" class="pure-form">
+      <legend>Select test set</legend>
+      <select id="tests-drop-down" name="tests">
+        <option selected value="register">register</option>
+        <option value="websocket">websocket</option>
+        <option value="items">items</option>
+        <option value="mobs">mobs</option>
+        <option value="players">players</option>
+        <option value="players">projectile</option>
+      </select>
+      <input type="button" value="Run Tests" id="run-tests"
+             class="pure-button pure-button-primary" autofocus/>
+    </form>
+  </div>
+  <div class="pure-u-1-3"></div>
+
+  <div class="pure-u-1-5"></div>
+  <div class="pure-u-3-5" id="mocha"></div>
+  <div class="pure-u-1-5"></div>
+</div>
+
+</body>
+
+</html>

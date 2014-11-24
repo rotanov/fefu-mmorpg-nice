@@ -189,6 +189,16 @@ private:
   {
     "register",
     "login",
+    // testing
+    "startTesting",
+    "stopTesting",
+    "setUpConst",
+    "setUpMap",
+    "getConst",
+    "putItem",
+    "putMob",
+    "putPlayer",
+    "setLocation",
   };
 
   QMap <QString, Slot> SlotToString =

@@ -1,10 +1,16 @@
+'use strict';
+
 define([], function () {
 
   function reportError(message) {
-    console.log("Error: " + message);
-    var e = new Error();
-    console.log(e.stack);
+    var e = new Error(message);
+    console.log("Error: ", message, e.stack);
     throw e;
+  }
+
+  function logError(message) {
+    var e = new Error(message);
+    console.log("Error: ", message, e.stack);
   }
 
   function assert(expression) {
@@ -15,6 +21,7 @@ define([], function () {
 
   return {
     reportError: reportError,
+    logError: logError,
     assert: assert
   };
 });

@@ -1,3 +1,5 @@
+'use strict';
+
 define([
   'minified',
   'lib/chai',
@@ -7,183 +9,129 @@ define([
 ], function ($, chai, utils, api) {
   var userData;
 
-  function testRegister() {
-    utils.postToServer({
-      action: 'register',
-      login: 'WebSocket',
-      password: 'WebSocket'
-    });
-
-    userData = utils.postToServer({
-      action: 'login',
-      login: 'WebSocket',
-      password: 'WebSocket'
-    });
-
-    api.connect(userData.webSocket, userData.sid)
-    .then(api.startTesting)
-    .then(test);
-  }
-
   function test() {
     var assert = chai.assert;
 
-    describe.only('Register', function () {
+    var fail = function(done, data, cond) {
+      if (cond === undefined
+          || !cond) {
+        done(new Error(JSON.stringify(data)));
+      } else {
+        done();
+      }
+    }
 
-      describe.only('Registration', function () {
-        it('should return ok', function () {
-          assert.equal('ok', utils.postToServer({
-            'action': 'register',
-            'login': 'IvanPes',
-            'password': '123456'
-          }).result);
-        });
+    describe('Authentication ', function () {
 
-        it('should return ok', function () {
-          assert.equal('ok', utils.postToServer({
-            'action': 'register',
-            'login': 'Ivan123',
-            'password': '123456'
-          }).result);
-        });
-
-        it('should return badPassword [too short]', function () {
-          assert.equal('badPassword', utils.postToServer({
-            'action': 'register',
-            'login': '123Ivan',
-            'password': '123'
-          }).result);
-        });
-
-        it('should return badPassword [too long]', function () {
-          assert.equal('badPassword', utils.postToServer({
-            'action': 'register',
-            'login': '00Ivan00',
-            'password': '0123456789012345678901234567890123456789'
-          }).result);
-        });
-
-        it('should return badLogin [invalid characters]', function () {
-          assert.equal('badLogin', utils.postToServer({
-            'action': 'register',
-            'login': '  ',
-            'password': '0123456'
-          }).result);
-        });
-
-        it('should return badLogin [invalid characters]', function () {
-          assert.equal('badLogin', utils.postToServer({
-            'action': 'register',
-            'login': '\uFFFD\uFFFD\uFFFD\uFFFD',
-            'password': '0123456'
-          }).result);
-        });
-
-        it('should return badLogin [too short]', function () {
-          assert.equal('badLogin', utils.postToServer({
-            'action': 'register',
-            'login': 'A',
-            'password': '0123456'
-          }).result);
-        });
-
-        it('should return badLogin [too long]', function () {
-          assert.equal('badLogin', utils.postToServer({
-            'action': 'register',
-            'login': 'AaaaaBbbbbCccccDddddEeeeeFffffGggggHhhhh',
-            'password': '0123456'
-          }).result);
-        });
-
-        it('should return loginExists', function () {
-          assert.equal('loginExists', utils.postToServer({
-            'action': 'register',
-            'login': 'IvanPes',
-            'password': '123456'
-          }).result);
-        });
-
+      it('Its ok to register IvanPes:123456', function (done) {
+        api.register('IvanPes', '123456', 'mage')
+        .then(function (data) { done(); })
+        .catch(function (data) { fail(done, data); });
       });
 
-      var sid;
-
-      describe('Login', function () {
-        it('should return ok', function () {
-          data = utils.postToServer({
-            'action': 'login',
-            'login': 'IvanPes',
-            'password': '123456'
-          });
-
-          sid = data.sid;
-          wsUri = data.webSocket;
-          assert.equal('ok', data.result);
-        });
-
-        it('should return invalidCredentials' + '[login does not exist]', function () {
-          assert.equal('invalidCredentials', utils.postToServer({
-            'action': 'login',
-            'login': 'Unknown',
-            'password': '123456'
-          }).result);
-        });
-
-        it('should return invalidCredentials' + '[incorrect password]', function () {
-          assert.equal('invalidCredentials', utils.postToServer({
-            'action': 'login',
-            'login': 'IvanPes',
-            'password': 'Mumbo-jumbo'
-          }).result);
-        });
-
+      it('Its ok to register Ivan123:123456', function (done) {
+        api.register('Ivan123', '123456', 'warrior')
+        .then(function (data) { done(); })
+        .catch(function (data) { fail(done, data); });
       });
 
-      describe('Logout', function () {
-        it('should return ok', function () {
-          assert.equal('ok', utils.postToServer({
-            'action': 'logout',
-            'sid': sid
-          }).result);
+      it('Its wrong (badPassword) to register 123Ivan:123', function (done) {
+        api.register('123Ivan', '123', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badPassword');
         });
+      });
 
-        it('should return badSid', function () {
-          assert.equal('badSid', utils.postToServer({
-            'action': 'logout',
-            'sid': sid
-          }).result);
+      it('Long password is wrong (badPassword)', function (done) {
+        api.register('00Ivan00', '0123456789012345678901234567890123456789', 'rogue')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badPassword');
         });
+      });
 
-        it('should return badSid', function () {
-          assert.equal('badSid', utils.postToServer({
-            'action': 'logout',
-            'sid': ''
-          }).result);
+      it('Should return badLogin (invalid characters)', function (done) {
+        api.register('  ', '0123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badLogin');
         });
+      });
 
+      it('Should return badLogin (invalid characters)', function (done) {
+        api.register('\uFFFD\uFFFD\uFFFD\uFFFD', '0123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badLogin');
+        });
+      });
+
+      it('Should return badLogin (too short)', function (done) {
+        api.register('A', '0123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badLogin');
+        });
+      });
+
+      it('Should return badLogin (too long)', function (done) {
+        api.register('AaaaaBbbbbCccccDddddEeeeeFffffGggggHhhhh', '0123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'badLogin');
+        });
+      });
+
+      it('Should return loginExists', function (done) {
+        api.register('IvanPes', '123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'loginExists');
+        });
+      });
+
+      it('Logging in with IvanPes:123456 is ok', function (done) {
+        api.login('IvanPes', '123456')
+        .then(function (data) { done(); }, function (data) { fail(done, data); });
+      });
+
+      it('Should return invalidCredentials (login does not exist)', function (done) {
+        api.login('Unknown', '123456', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'invalidCredentials');
+        });
+      });
+
+      it('Should return invalidCredentials (incorrect password)', function (done) {
+        api.login('IvanPes', 'Mumbo-jumbo', 'mage')
+        .then(function (data) { fail(done, data); }, function (data) {
+          fail(done, data, data.result === 'invalidCredentials');
+        });
+      });
+
+      it('Logging out now should be ok', function (done) {
+        api.logout()
+        .then(function (data) { done(); }, function (data) { fail(done, data); });
+      });
+
+      it('Logging out once again is wrong (badSid)', function (done) {
+        api.logout()
+        .then(function (data) { done(); }, function (data) { fail(done, data, data.result === 'badSid'); });
+      });
+
+      it('Logging out once again is wrong (badSid)', function (done) {
+        api.logout()
+        .then(function (data) { done(); }, function (data) { fail(done, data, data.result === 'badSid'); });
       });
 
     });
 
-    after(function () {
+    before(function (done) {
+      api.startTesting()
+      .then(function () { done(); });
+    });
 
-      socket.setOnMessage(function (e) {
-        var data = JSON.parse(e.data);
-        if (data.action === 'stopTesting') {
-          if (data.result === 'badAction') {
-            $('#msg').text('Invalid action.').css('color', 'red');
-
-          } else if (data.result === 'ok') {
-            $('#msg').text('Test is successful.').css('color', 'green');
-          }
-        }
-      });
-
-      socket.stopTesting(userData.sid)  //socket.setOnMessage(undefined)
-;
+    after(function (done) {
+      api.stopTesting()
+      .then(function () { done(); });
     });
 
     mocha.run();
   }
 
-  return { run: testRegister };
+  return { run: test };
 });
