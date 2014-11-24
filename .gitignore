@@ -52,3 +52,4 @@ bin/output.txt
 bin/_level-map.png
 server/ui_mainwindow.h
 *.exe
+bot/node_modules/
