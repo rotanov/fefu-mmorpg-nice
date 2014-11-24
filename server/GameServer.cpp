@@ -15,10 +15,11 @@
 
 //==============================================================================
 GameServer::GameServer()
-  : levelMap_(64, 64)
+  : levelMap_(16, 16)
 {
   QTime midnight(0, 0, 0);
   qsrand(midnight.secsTo(QTime::currentTime()));
+  srand(3);
 
   timer_ = new QTimer(this);
   connect(timer_
@@ -222,27 +223,6 @@ void GameServer::setWSAddress(QString address)
 //==============================================================================
 void GameServer::tick()
 {
-  float dt = (time_.elapsed() - lastTime_) * 0.001f;
-  lastTime_ = time_.elapsed();
-
-  for (auto actor : actors_)
-  {
-    levelMap_.RemoveActor(actor);
-    auto v = actor->GetDirectionVector();
-    actor->SetVelocity(v * playerVelocity_);
-    actor->Update(dt);
-    levelMap_.IndexActor(actor);
-  }
-
-  QVariantMap tickMessage;
-  tickMessage["tick"] = tick_;
-  tickMessage["events"] = events_;
-  events_.clear();
-  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
-  tick_++;
-
-  return;
-
   auto collideWithGrid = [=](Actor* actor)
   {
     auto& p = *actor;
@@ -312,11 +292,41 @@ void GameServer::tick()
       collided = true;
     }
 
+    collided = false;
+
+    auto cellPos = actor->GetPosition() + actor->GetDirectionVector() * 0.5;
+
+    if (levelMap_.GetCell(cellPos) != '.')
+    {
+      collided = true;
+    }
     if (collided)
     {
       actor->OnCollideWorld();
     }
   };
+
+  float dt = (time_.elapsed() - lastTime_) * 0.001f;
+  lastTime_ = time_.elapsed();
+
+  for (auto actor : actors_)
+  {
+    levelMap_.RemoveActor(actor);
+    auto v = actor->GetDirectionVector();
+    actor->SetVelocity(v * playerVelocity_);
+    actor->Update(dt);
+    collideWithGrid(actor);
+    levelMap_.IndexActor(actor);
+  }
+
+  QVariantMap tickMessage;
+  tickMessage["tick"] = tick_;
+  tickMessage["events"] = events_;
+  events_.clear();
+  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
+  tick_++;
+
+  return;
 
   for (Actor* actor: actors_)
   {
@@ -772,8 +782,6 @@ void GameServer::HandleBeginMove_(const QVariantMap& request, QVariantMap& respo
   unsigned tick = request["tick"].toUInt();
   auto direction = request["direction"].toString();
 
-  qDebug() << "begin move " << direction;
-
   Player* p = sidToPlayer_[sid];
   p->SetDirection(direction, true);
   p->SetClientTick(tick);
@@ -884,8 +892,6 @@ void GameServer::HandleEndMove_(const QVariantMap& request, QVariantMap& respons
   auto sid = request["sid"].toByteArray();
   unsigned tick = request["tick"].toUInt();
   auto direction = request["direction"].toString();
-
-  qDebug() << "end move " << direction;
 
   Player* p = sidToPlayer_[sid];
   p->SetDirection(direction, false);

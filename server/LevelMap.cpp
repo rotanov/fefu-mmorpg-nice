@@ -55,6 +55,11 @@ int LevelMap::GetCell(float column, float row) const
   return GetCell(GridRound(column), GridRound(row));
 }
 
+int LevelMap::GetCell(const Vector2& p) const
+{
+  return GetCell(p.x, p.y);
+}
+
 void LevelMap::SetCell(int column, int row, int value)
 {
   data_[row * columnCount_ + column] = value;

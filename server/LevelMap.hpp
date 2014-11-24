@@ -7,6 +7,8 @@
 
 class Actor;
 
+using namespace Deku2D;
+
 class LevelMap
 {
 public:
@@ -18,6 +20,7 @@ public:
 
   int GetCell(int column, int row) const;
   int GetCell(float column, float row) const;
+  int GetCell(const Vector2& p) const;
   void SetCell(int column, int row, int value);
 
   const std::vector<Actor*>& GetActors(int column, int row) const;
