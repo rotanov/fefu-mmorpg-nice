@@ -6,23 +6,25 @@ define([
   'game/api',
   'game/actor',
   'game/healthbar',
-  'game/hero'
+  'game/hero',
+  'game/emitter'
 
-], function ($, pixi, stats, utils, api, Actor, HealthBar, Hero) {
+], function (mini, pixi, stats, utils, api, Actor, HealthBar, Hero, Emitter) {
 
   var $ = mini.$;
   var msg;
-  var actors = [];
-  var tempTiles;
+  var heroesBuffer = [];
+  var heroesCount = 0;
+
   var columnCount = 9;
   var rowCount = 7;
   var step = 64;
+
   var gPlayerX;
   var gPlayerY;
   var id_;
   var tick_;
   var fistId;
-  //player
   var inventory;
   var health;
   var lifespan = 1;
@@ -31,15 +33,19 @@ define([
     'id': null
   };
   var fireBall = 283;
+
   var requestServerDataIntervalId;
   var pixiStage
   // root render container
   var root;
+  var fxLayerNear;
+  var fxLayerFar;
   var healthBar;
 
   function composeScene() {
     root = new pixi.Graphics();
     pixiStage.addChild(root);
+
     // draw background (grid)
     root.lineStyle(1, 0xFFFFFF, 0.1);
     for (var i = 1; i < columnCount; i++) {
@@ -70,11 +76,24 @@ define([
       }
     }
 
+    fxLayerFar = new pixi.DisplayObjectContainer();
+    root.addChild(fxLayerFar);
+
     // setup heroes
     var hero = new Hero();
     root.addChild(hero);
     root.hero = hero;
     hero.position.set(288, 224);
+
+    for (var i = 0; i < 256; i++) {
+      var hero = new Hero();
+      heroesBuffer.push(hero);
+      hero.visible = false;
+      root.addChild(hero);
+    }
+
+    fxLayerNear = new pixi.DisplayObjectContainer();
+    root.addChild(fxLayerNear);
 
     // interface
     healthBar = new HealthBar();
