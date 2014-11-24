@@ -1,5 +1,6 @@
 require([
   'minified',
+  'audio',
   'game/api',
   'game/game',
   'test/tester'
