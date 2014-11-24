@@ -1,7 +1,11 @@
+'use strict';
+
 define([
   'lib/pixi',
   'game/actor'
+
 ], function (pixi, Actor) {
+
   var HealthBar = function() {
     Actor.call(this);
 
@@ -38,7 +42,7 @@ define([
   }
 
   HealthBar.prototype.update = function(dt) {
-    this.t += 2 * dt;
+    this.t += 20 * dt;
     this.text.position.set(4, 2.0 * Math.sin(this.t));
   }
 

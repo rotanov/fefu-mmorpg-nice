@@ -1,5 +1,8 @@
+'use strict';
+
 define([
   'lib/pixi'
+
 ], function (pixi) {
   var actors = [];
 

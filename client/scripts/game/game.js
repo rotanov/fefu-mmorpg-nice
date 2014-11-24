@@ -1,3 +1,5 @@
+'use strict';
+
 define([
   'minified',
   'lib/pixi',
@@ -130,8 +132,42 @@ define([
         }
       }
 
-      //renderWalls(data.map);
-      //renderActors(data.actors);
+      // actors[0].id = id_;
+      // actors[0].name = 'player';
+      // actors[0].x = coordinate(gPlayerX, gPlayerX, columnCount);
+      // actors[0].y = coordinate(gPlayerY, gPlayerY, rowCount);
+      // actors[0].visible = true;
+      for (var i = 0; i < heroesBuffer.length; i++) {
+        heroesBuffer[i].visible = false;
+      }
+      var l = Math.min(data.actors.length, heroesBuffer.length);
+      var iSkip = 0;
+      for (var i = 0; i < l; i++) {
+        var a = data.actors[i];
+        var hero = heroesBuffer[i - iSkip];
+        //actors[j].id = actor[i].id;
+        //actors[j].name = actor[i].name;
+        if (a.id == id_) {
+          iSkip = 1;
+          continue;
+        }
+        if (a.type === 'monster') {
+          hero.setColor(0xFF0000);
+        }
+        else if (a.type === 'player') {
+          hero.setColor(0x00FF00);
+        }
+        hero.position.x = coordinate(gPlayerX, data.actors[i].x, columnCount);
+        hero.position.y = coordinate(gPlayerY, data.actors[i].y, rowCount);
+        hero.visible = true;
+        heroesCount = i + 1;
+        // actors[j].visible = true;
+        // setProperties(actor[i], j);
+      }
+
+      // for (var i = j, l = actors.length; i < l; i++) {
+      //   actors[i].visible = false;
+      // }
     });
   }
 
@@ -238,11 +274,6 @@ define([
       }
 
       root.hero.rotation = angle;
-      // graphics.pivot.set(50, 50);
-      var scale = 1.5 + Math.sin(t) * 0.1;
-      root.hero.scale.set(scale, scale);
-
-
 
       root.hero.position.set(ox + dx * 5 + Math.sin(t*2) * 5 * dy,
                              oy + dy * 5 + Math.sin(t*2) * 5 * -dx);
@@ -252,7 +283,7 @@ define([
 
       var actors = Actor.getActors();
       for (var i = 0; i < actors.length; i++) {
-        actors[i].update(1000.0 / 60.0);
+        actors[i].update(1.0 / 60.0);
       }
 
       st.end();
@@ -350,13 +381,13 @@ define([
 //     }
 //   }
 
-//   function coordinate(x, coord, g) {
-//     return (-(x - coord) + g * 0.5) * step;
-//   }
+  function coordinate(x, coord, g) {
+    return (-(x - coord) + g * 0.5) * step;
+  }
 
-//   function UnCoordinate(x, coord, g) {
-//     return coord / step - g * 0.5 + x;
-//   }
+  function UnCoordinate(x, coord, g) {
+    return coord / step - g * 0.5 + x;
+  }
 
 //   function createActors(start) {
 //     var frameIndex = 31;
@@ -368,30 +399,6 @@ define([
 //       sprite.anchor.setTo(0.5, 0.5);
 //       sprite.inputEnabled = true;
 //       actors.push(sprite);
-//     }
-//   }
-
-//   function renderActors(actor) {
-//     actors[0].id = id_;
-//     actors[0].name = 'player';
-//     actors[0].x = coordinate(gPlayerX, gPlayerX, columnCount);
-//     actors[0].y = coordinate(gPlayerY, gPlayerY, rowCount);
-//     actors[0].visible = true;
-//     var frameIndex = route;
-//     actors[0].loadTexture('player', frameIndex);
-//     for (var i = 0, j = 1, l = actor.length; i < l; i++, j++) {
-//       if (j === actors[j].length) {
-//         createActors(actors[j].length / columnCount * rowCount);
-//       }
-//       actors[j].id = actor[i].id;
-//       actors[j].name = actor[i].name;
-//       actors[j].x = coordinate(gPlayerX, actor[i].x, columnCount);
-//       actors[j].y = coordinate(gPlayerY, actor[i].y, rowCount);
-//       actors[j].visible = true;
-//       setProperties(actor[i], j);
-//     }
-//     for (var i = j, l = actors.length; i < l; i++) {
-//       actors[i].visible = false;
 //     }
 //   }
 
