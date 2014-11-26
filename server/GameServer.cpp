@@ -749,9 +749,9 @@ void GameServer::HandleStopTesting_(const QVariantMap& request, QVariantMap& res
     WriteResult_(response, EFEMPResult::BAD_ACTION);
     return;
   }
-  testingStageActive_ = false;
-  playerVelocity_ = 0.25f;
+
   storage_.Reset();
+  testingStageActive_ = false;
 }
 
 //==============================================================================
