@@ -26,23 +26,11 @@
 <body>
 
 <div class="pure-g">
-  <div class="pure-u-1-3"></div>
-  <div class="pure-u-1-3">
-    <form id="test-form" class="pure-form">
-      <legend>Select test set</legend>
-      <select id="tests-drop-down" name="tests">
-        <option selected value="register">register</option>
-        <option value="websocket">websocket</option>
-        <option value="items">items</option>
-        <option value="mobs">mobs</option>
-        <option value="players">players</option>
-        <option value="players">projectile</option>
-      </select>
-      <input type="button" value="Run Tests" id="run-tests"
-             class="pure-button pure-button-primary" autofocus/>
-    </form>
+  <div class="pure-u-1-5"></div>
+  <div class="pure-u-3-5">
+    <button id="run-tests" class="pure-button pure-button-primary" autofocus/>Run Tests</button>
   </div>
-  <div class="pure-u-1-3"></div>
+  <div class="pure-u-1-5"></div>
 
   <div class="pure-u-1-5"></div>
   <div class="pure-u-3-5" id="mocha"></div>

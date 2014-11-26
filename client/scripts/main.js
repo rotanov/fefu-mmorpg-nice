@@ -94,6 +94,10 @@ require([
     audio.stop();
   })
 
+  $('#run-tests').onClick(function () {
+    window.open('/test.html');
+  })
+
   $(function () {
     $('#server-address').onChange(function () {
       api.setServerAddress($('#server-address').val());

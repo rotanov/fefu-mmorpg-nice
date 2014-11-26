@@ -3,43 +3,45 @@
 require([
   'minified',
   'lib/mocha',
+  'game/api',
+  'lib/bluebird',
 
-  'test/register',
-  'test/websocket',
-  'test/items',
-  'test/mobs',
-  'test/players',
-  'test/projectile'
-
-], function (mini, m, tr, tw, ti, tm, tp, tpro) {
+], function (mini, m, api, Promise) {
   var $ = mini.$;
 
+  function test(testsuit) {
+    return new Promise(function (resolve, reject) {
+      require(['test/' + testsuit], function () {
+        resolve();
+      })
+    });
+  }
+
+  mocha.setup({
+    ui: 'bdd',
+    asyncOnly: true
+  });
+
+  var ready = false;
+
+  Promise.join(
+    test('register'),
+    test('websocket'),
+    test('items'),
+    test('mobs'),
+    test('players'),
+    test('projectile'),
+    function() {
+      mocha.checkLeaks();
+      ready = true;
+      mocha.run();
+  });
+
   $('#run-tests').onClick(function () {
-    var testsetName = $('option').find(function (e, i) {
-      if (e.selected)
-        {
-          return $(e);
-        }
-    }).get('innerHTML');
-
-    $('#mocha').fill();
-
-    mocha.setup('bdd');
-
-    ({'register': tr,
-      'websocket': tw,
-      'items': ti,
-      'mobs': tm,
-      'players': tp,
-      'projectile': tpro
-    })[testsetName].run();
+    if (ready) {
+      $('#mocha').fill();
+      mocha.run();
+    }
   });
 
-  $('#mute-volume').onClick(function () {
-    audio.stop();
-  })
-
-  $(function () {
-
-  });
 });
