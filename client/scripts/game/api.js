@@ -10,7 +10,11 @@ define([
 //  See http://tavendo.com/blog/post/dissecting-websocket-overhead/ for more
 //  details
 
-  var serverAddress_ = 'http://localhost:6543';
+  var serverAddress_ = location.origin;
+  if (location.protocol === 'file:') {
+    serverAddress_ = 'http://localhost:6543';
+  }
+
   var sid_;
   var wsURI_;
   var tickHandler_;
