@@ -4,6 +4,18 @@
 #include "Monster.hpp"
 #include "Item.hpp"
 
+struct UserData
+{
+  QString id;
+  QString login;
+  QString pass;
+  QString salt;
+  QString heroClass;
+  QString sid;
+  float x;
+  float y;
+};
+
 class PermaStorage
 {
 public:
@@ -13,28 +25,14 @@ public:
   void Reset();
   void DropAll();
   void InitSchema();
-  void AddUser(const QString login, const QString passHash, const QString salt, const QString heroClass);
-  QString GetSalt(const QString login);
-  QString GetPassHash(const QString login);
-  QString GetClass(const QString login);
+  void AddUser(const QString login, const QString passHash,
+               const QString salt, const QString heroClass);
+  bool GetUser(const QString login, UserData& userData);
   void GetMonster(Monster* m, const int id);
   void GetItem (Item* i, const int id );
-  bool IfLoginPresent(const QString login);
 
 private:
   QSqlDatabase db_;
-  QMap <QString,EStatConst> Stats
-  {
-    {"STR", EStatConst::STRENGTH },
-    {"INT", EStatConst::INTELLIGENCE},
-    {"DEF", EStatConst::DEFENSE},
-    {"DEX", EStatConst::DEXTERITY},
-    {"MR", EStatConst::MAGIC_RESISTANCE},
-    {"SPEED", EStatConst::SPEED},
-    {"CAP", EStatConst::CAPACITY},
-    {"HP", EStatConst::MAX_HP},
-    {"MP", EStatConst::MAX_MP},
-  };
   bool ExecQuery_(QSqlQuery& query);
   bool ExecQuery_(QString query);
 };

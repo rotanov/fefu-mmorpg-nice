@@ -123,7 +123,8 @@ void GameServer::HandleRegister_(const QVariantMap& request, QVariantMap& respon
     }
   }
 
-  if (storage_.IfLoginPresent(login))
+  UserData userData;
+  if (storage_.GetUser(login, userData))
   {
     WriteResult_(response, EFEMPResult::LOGIN_EXISTS);
   }
@@ -672,15 +673,15 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
 {
   auto login = request["login"].toString();
   auto password = request["password"].toString();
-  // qDebug() << login;
-  if (!storage_.IfLoginPresent(login))
+  UserData userData;
+  if (!storage_.GetUser(login, userData))
   {
     WriteResult_(response, EFEMPResult::INVALID_CREDENTIALS);
     return;
   }
 
-  QByteArray salt = QByteArray::fromBase64(storage_.GetSalt(login).toLatin1());
-  QByteArray refPassHash = QByteArray::fromBase64(storage_.GetPassHash(login).toLatin1());
+  QByteArray salt = QByteArray::fromBase64(userData.salt.toLatin1());
+  QByteArray refPassHash = QByteArray::fromBase64(userData.pass.toLatin1());
 
   QByteArray passwordWithSalt = password.toUtf8();
   passwordWithSalt.append(salt);
@@ -702,7 +703,7 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
 
   sid = sid.toHex();
 
-  Player* player = CreatePlayer_(login);
+  Player* player = CreatePlayer_(login, userData.heroClass);
   sidToPlayer_.insert(sid, player);
   response["sid"] = sid;
   response["webSocket"] = wsAddress_;
@@ -1630,7 +1631,7 @@ void GameServer::GenMonsters_()
 }
 
 //==============================================================================
-Player* GameServer::CreatePlayer_(const QString login)
+Player* GameServer::CreatePlayer_(const QString login, const QString heroClass)
 {
   Player* player = CreateActor_<Player>();
   Player& p = *player;
@@ -1661,7 +1662,6 @@ Player* GameServer::CreatePlayer_(const QString login)
     }
   }
   player->SetSpeed(playerVelocity_);
-  QString heroClass = storage_.GetClass(login);
   player->SetClass(heroClass);
   SetActorPosition_(player, Vector2(x + 0.5f, y + 0.5f));
 

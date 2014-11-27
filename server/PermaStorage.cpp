@@ -62,7 +62,7 @@ void PermaStorage::InitSchema()
       login varchar(36) NOT NULL UNIQUE,
       pass varchar(128) NOT NULL,
       salt varchar(64) NOT NULL,
-      class varchar(64) NOT NULL,
+      hero_class varchar(64) NOT NULL,
       sid varchar(40) NOT NULL DEFAULT '',
       x real NOT NULL DEFAULT 0.0,
       y real NOT NULL DEFAULT 0.0
@@ -75,66 +75,41 @@ void PermaStorage::AddUser(const QString login, const QString passHash
 {
   QSqlQuery q;
   q.prepare(R"=(
-    INSERT INTO users (login, pass, salt, class)
-    VALUES (:login, :passhash, :salt, :class)
+    INSERT INTO users (login, pass, salt, hero_class)
+    VALUES (:login, :passhash, :salt, :hero_class)
   )=");
 
   q.bindValue(":login", login);
   q.bindValue(":passhash", passHash);
   q.bindValue(":salt", salt);
-  q.bindValue(":class", heroClass);
+  q.bindValue(":hero_class", heroClass);
   ExecQuery_(q);
 }
 
-QString PermaStorage::GetSalt(const QString login)
+bool PermaStorage::GetUser(const QString login, UserData& userData)
 {
   QSqlQuery q;
-  q.prepare("SELECT salt FROM users WHERE login = :login");
+  q.prepare("SELECT * FROM users WHERE login = :login");
   q.bindValue(":login", login);
-  if (ExecQuery_(q))
+
+  if (ExecQuery_(q)
+      && q.next())
   {
-    q.next();
-    return q.value("salt").toString();
+    UserData& r = userData;
+    r.id = q.value("id").toString();
+    r.login = login;
+    r.pass = q.value("pass").toString();
+    r.salt = q.value("salt").toString();
+    r.heroClass = q.value("hero_class").toString();
+    r.sid = q.value("sid").toString();
+    r.x = q.value("x").toFloat();
+    r.y = q.value("y").toFloat();
+    return true;
   }
-  else
-  {
-    return "";
-  }
+  return false;
 }
 
-QString PermaStorage::GetPassHash(const QString login)
-{
-  QSqlQuery q;
-  q.prepare("SELECT pass FROM users WHERE login = :login");
-  q.bindValue(":login", login);
-  if (ExecQuery_(q))
-  {
-    q.next();
-    return q.value("pass").toString();
-  }
-  else
-  {
-    return "";
-  }
-}
-
-QString PermaStorage::GetClass(const QString login)
-{
-  QSqlQuery q;
-  q.prepare("SELECT class FROM users WHERE login = :login");
-  q.bindValue(":login", login);
-  if (ExecQuery_(q))
-  {
-    q.next();
-    return q.value("class").toString();
-  }
-  else
-  {
-    return "";
-  }
-}
-
-void PermaStorage::GetMonster (Monster* m, const int id)
+void PermaStorage::GetMonster(Monster* m, const int id)
 {
     QSqlQuery q;
     q.prepare("SELECT * FROM monsters WHERE id = :id");
@@ -166,6 +141,19 @@ void PermaStorage::GetMonster (Monster* m, const int id)
 
 void PermaStorage::GetItem(Item* i, const int id )
 {
+  const QMap <QString,EStatConst> strToStat
+  {
+    {"STR", EStatConst::STRENGTH },
+    {"INT", EStatConst::INTELLIGENCE},
+    {"DEF", EStatConst::DEFENSE},
+    {"DEX", EStatConst::DEXTERITY},
+    {"MR", EStatConst::MAGIC_RESISTANCE},
+    {"SPEED", EStatConst::SPEED},
+    {"CAP", EStatConst::CAPACITY},
+    {"HP", EStatConst::MAX_HP},
+    {"MP", EStatConst::MAX_MP},
+  };
+
   QSqlQuery q;
   q.prepare("SELECT * FROM items WHERE id = :id");
   q.bindValue(":id", id);
@@ -187,7 +175,7 @@ void PermaStorage::GetItem(Item* i, const int id )
       {
         for (auto j: k[1].split("|"))
         {
-          i->bonuses[Stats[j]]["value"] = k[0];
+          i->bonuses[strToStat[j]]["value"] = k[0];
         }
       }
     }
@@ -213,20 +201,6 @@ void PermaStorage::GetItem(Item* i, const int id )
     }
   }
 }
-
-bool PermaStorage::IfLoginPresent(const QString login)
-{
-  QSqlQuery q;
-  q.prepare("SELECT login FROM users WHERE login = :login");
-  q.bindValue(":login", login);
-  ExecQuery_(q);
-  if (q.next())
-  {
-    return true;
-  }
-  return false;
-}
-
 
 bool PermaStorage::ExecQuery_(QSqlQuery& query)
 {

@@ -143,7 +143,7 @@ private:
   void LoadLevelFromImage_(const QString filename);
   void GenMonsters_();
   void GetItems(Creature* actor);
-  Player* CreatePlayer_(const QString login);
+  Player* CreatePlayer_(const QString login, const QString heroClass);
   void SetActorPosition_(Actor* actor, const Vector2& position);
   void SetItemDescription(const QVariantMap &request, Item* item);
   bool IsPositionWrong(float x, float y, Actor *actor);
