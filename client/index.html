@@ -20,113 +20,134 @@
 
 </head>
 
-<body>
+<body style="background-color: #234455;">
+
+  <style type="text/css">
+    @font-face {
+      font-family: 'Press Start 2P';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Press Start 2P'), local('PressStart2P-Regular'), url('assets/Press+Start+2P.woff') format('woff');
+    }
+  </style>
+
+<div class="pure-menu pure-menu-open pure-menu-horizontal" style="background-color:#004358">
+  <ul>
+    <style type="text/css">
+      .pure-menu > ul > li > a {
+        color: #bedb39;
+      }
+    </style>
+    <li><a href="#" id="sign-in">Sign In</a></li>
+    <li><a href="test.html" id="run-tests">Run Tests</a></li>
+    <li><a href="#" id="mute-volume">Mute Volume</a></li>
+  </ul>
+</div>
 
 <div class="pure-g">
-  <div class="pure-u-1">
-    <form id="form-register" class="pure-form">
-      <fieldset>
-        <label for="server-address">Server</label>
-        <input id="server-address" type="url" value="http://localhost:6543"/>
+  <div class="pure-u-1" id="login-form" style="background-color:#fd7400; box-shadow: inset 0px 8px 8px -8px #003247, inset 0px -8px 8px -8px #003247;">
+    <div style="margin-left: 25%; margin-right: 25%; width: 100wv;">
+      <form id="form-register" class="pure-form pure-form-aligned">
+        <fieldset>
+          <div class="pure-control-group">
+            <label for="server-address">Server</label>
+            <input id="server-address" type="url" value="http://localhost:6543"/>
+          </div>
 
-        <label for="username">Login</label>
-        <input type="text" id="username" name="login" value="aa"/>
+          <div class="pure-control-group">
+            <label for="username">Login</label>
+            <input type="text" id="username" name="login" value="aa"/>
+          </div>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" value="aaaaaa"/>
+          <div class="pure-control-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" value="aaaaaa"/>
+          </div>
 
-        <label for="player-classes">Player Class</label>
-        <select id="player-classes" name="player-classes">
-          <option selected value="warrior">warrior</option>
-          <option value="rogue">rogue</option>
-          <option value="mage">mage</option>
-        </select>
+          <div class="pure-control-group">
+            <label for="player-classes">Player Class</label>
+            <select id="player-classes" name="player-classes">
+              <option selected value="warrior">warrior</option>
+              <option value="rogue">rogue</option>
+              <option value="mage">mage</option>
+            </select>
+          </div>
 
-        <input type="button" value="Register" id="register" class="pure-button"/>
-        <input type="button" value="Sign in" id="login" class="pure-button pure-button-primary" autofocus/>
-
-        <button id="mute-volume" class="pure-button">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-volume-up fa-stack-1x"></i>
-            <i class="fa fa-ban fa-stack-2x text-danger"></i>
-          </span>
-        </button>
-
-        <button id="run-tests" class="pure-button pure-button-primary">Run Tests</button>
-      </fieldset>
-    </form>
-  </div>
-
-  <div class="pure-u-7-24" id="left-panel"></div>
-  <div class="pure-u-10-24" id="game-screen" style="height:100%"></div>
-  <div class="pure-u-7-24">
-    <h3>Options</h3>
-
-    <div>
-      <a href="/index.html"><input type="button" value="home" name="submit"/></a>
-    </div>
-
-
-    <div>
-      <input type="button" id="logout" value="exit"/>
-    </div>
-
-    <h3>Information</h3>
-    <div id="items">
-      <select id="items" name="items"></select></br>
-      <input type="button" value="use" id="use"/>
-      <input type="button" value="destroyItem" id="destroyItem"/>
-      <input type="button" value="drop" id="drop"/>
-      <input type="button" value="equip" id="equip"/>
-      <input type="button" value="reload" id="reload"/>
-    </div>
-    <div id="inf-about-obj"></div>
-    <div id="msg"></div>
-
-    <div id="slots">
-      <input type="radio" name="slot" value="left-hand">left-hand</input></br>
-      <input type="radio" name="slot" value="right-hand">right-hand</input></br>
-      <input type="radio" name="slot" value="ammo">ammo</input></br>
-      <input type="radio" name="slot" value="left-finger">left-finger</input></br>
-      <input type="radio" name="slot" value="right-finger">right-finger</input></br>
-      <input type="radio" name="slot" value="neck">neck</input></br>
-      <input type="radio" name="slot" value="body">body</input></br>
-      <input type="radio" name="slot" value="head">head</input></br>
-      <input type="radio" name="slot" value="forearm">forearm</input></br>
-      <input type="radio" name="slot" value="feet">feet</input></br>
-      <input type="button" value="ok" id="ok">
-      <input type="button" value="reset" id="reset">
-      <input type="button" value="close" id="close">
-    </div>
-
-    <div id="p-slots">
-      <input type="radio" name="slot" value="left-hand">left-hand: </input><div id="left-hand"></div></br>
-      <input type="radio" name="slot" value="right-hand">right-hand: </input><div id="right-hand"></div></br>
-      <input type="radio" name="slot" value="ammo">ammo: </input><div id="ammo"></div></br>
-      <input type="radio" name="slot" value="left-finger">left-finger: </input><div id="left-finger"></div></br>
-      <input type="radio" name="slot" value="right-finger">right-finger: <div id="right-finger"></div></input></br>
-      <input type="radio" name="slot" value="neck">neck: </input><div id="neck"></div></br>
-      <input type="radio" name="slot" value="body">body: </input><div id="body"></div></br>
-      <input type="radio" name="slot" value="head">head: </input><div id="head"></div></br>
-      <input type="radio" name="slot" value="forearm">forearm: </input><div id="forearm"></div></br>
-      <input type="radio" name="slot" value="feet">feet: </input><div id="feet"></div></br>
-      <input type="button" value="unequip" id="unequip"/>
+          <div class="pure-controls">
+            <input type="button" value="Register" id="register" class="pure-button"/>
+            <input type="button" value="Sign in" id="login" class="pure-button pure-button-primary" autofocus/>
+          </div>
+        </fieldset>
+      </form>
     </div>
   </div>
 
-  <div class="pure-u-7-24"></div>
-  <div class="pure-u-10-24" style="height:100%;display:inline-block">
-    <p>Bacon ipsum dolor amet filet mignon hamburger capicola shank, flank rump prosciutto pancetta doner turducken biltong swine boudin. Meatball drumstick short ribs swine andouille chicken porchetta sausage ham hock. T-bone filet mignon beef ribs, strip steak ham turkey flank pork capicola pig short ribs landjaeger. Ground round kielbasa prosciutto, fatback chuck pork chop alcatra ham hock short ribs. Pork chop ham hock jowl hamburger t-bone pancetta leberkas. Pork loin pastrami corned beef tail doner. Chuck drumstick beef prosciutto.</p>
+  <div class="pure-u-7-24" id="left-panel" style="height: 0vh; background-color: #234455;"></div>
+  <div class="pure-u-10-24" id="game-screen" style="height: 0vh; background-color: #234444;"></div>
+  <div class="pure-u-7-24" id="right-panel" style="height: 0vh; background-color: #234455;">
+    <div style="display: none;">
+      <h3>Information</h3>
+      <div id="items">
+        <select id="items" name="items"></select></br>
+        <input type="button" value="use" id="use"/>
+        <input type="button" value="destroyItem" id="destroyItem"/>
+        <input type="button" value="drop" id="drop"/>
+        <input type="button" value="equip" id="equip"/>
+        <input type="button" value="reload" id="reload"/>
+      </div>
+      <div id="inf-about-obj"></div>
+      <div id="msg"></div>
 
-    <p>Jowl boudin turkey ham, fatback shank ham hock frankfurter tongue. Salami frankfurter tail rump boudin. Sausage sirloin chuck beef ribs. Pastrami jerky pork chop, sausage cow ham tail ribeye frankfurter meatball chicken spare ribs andouille capicola tri-tip. Alcatra cow shankle, pork chop meatball kielbasa bresaola short loin bacon ball tip corned beef cupim flank pancetta. Kielbasa pork shank, corned beef frankfurter ball tip kevin pork chop flank swine.</p>
+      <div id="slots">
+        <input type="radio" name="slot" value="left-hand">left-hand</input></br>
+        <input type="radio" name="slot" value="right-hand">right-hand</input></br>
+        <input type="radio" name="slot" value="ammo">ammo</input></br>
+        <input type="radio" name="slot" value="left-finger">left-finger</input></br>
+        <input type="radio" name="slot" value="right-finger">right-finger</input></br>
+        <input type="radio" name="slot" value="neck">neck</input></br>
+        <input type="radio" name="slot" value="body">body</input></br>
+        <input type="radio" name="slot" value="head">head</input></br>
+        <input type="radio" name="slot" value="forearm">forearm</input></br>
+        <input type="radio" name="slot" value="feet">feet</input></br>
+        <input type="button" value="ok" id="ok">
+        <input type="button" value="reset" id="reset">
+        <input type="button" value="close" id="close">
+      </div>
 
-    <p>Capicola hamburger bresaola venison pastrami. Beef pastrami sirloin short loin chuck capicola pork chop hamburger. Kielbasa ground round spare ribs alcatra salami beef ribs shank chicken ham hock turducken pork capicola meatloaf t-bone. Picanha flank fatback capicola sausage kielbasa, doner shankle pastrami kevin pig ham hock meatball.</p>
-
-    <p>Pig chuck boudin, capicola ball tip flank turkey rump strip steak t-bone turducken pork belly. Beef pastrami tail pancetta tenderloin flank meatball salami. Spare ribs ground round pastrami corned beef. Pork chop pork pig boudin cow.</p>
-
-    <p>Kielbasa ground round cupim short ribs hamburger cow sausage pancetta jerky pork ribeye salami. Tri-tip tail fatback shoulder biltong andouille turkey salami turducken boudin jowl spare ribs brisket. Porchetta spare ribs cow hamburger landjaeger pastrami tenderloin. Brisket biltong meatball pork. Venison pork belly bacon, tenderloin ham drumstick short loin. Cupim venison pork loin, t-bone chicken ball tip shankle swine.</p>
+      <div id="p-slots">
+        <input type="radio" name="slot" value="left-hand">left-hand: </input><div id="left-hand"></div></br>
+        <input type="radio" name="slot" value="right-hand">right-hand: </input><div id="right-hand"></div></br>
+        <input type="radio" name="slot" value="ammo">ammo: </input><div id="ammo"></div></br>
+        <input type="radio" name="slot" value="left-finger">left-finger: </input><div id="left-finger"></div></br>
+        <input type="radio" name="slot" value="right-finger">right-finger: <div id="right-finger"></div></input></br>
+        <input type="radio" name="slot" value="neck">neck: </input><div id="neck"></div></br>
+        <input type="radio" name="slot" value="body">body: </input><div id="body"></div></br>
+        <input type="radio" name="slot" value="head">head: </input><div id="head"></div></br>
+        <input type="radio" name="slot" value="forearm">forearm: </input><div id="forearm"></div></br>
+        <input type="radio" name="slot" value="feet">feet: </input><div id="feet"></div></br>
+        <input type="button" value="unequip" id="unequip"/>
+      </div>
+    </div>
   </div>
-  <div class="pure-u-7-24"></div>
+
+
+  <style type="text/css">
+    #message {
+      height: 141px;
+      overflow: hidden;
+      background-color: #004358;
+      border: 5px solid #ffe11a;
+    }
+    #message > p {
+      margin-left: 10px;
+      font-family: 'Press Start 2P', cursive;
+      color: #ffe11a;
+    }
+  </style>
+  <div class="pure-u-1" id="message">
+    <p>Hello, player!</p>
+  </div>
+
 </div>
 
 </div>
