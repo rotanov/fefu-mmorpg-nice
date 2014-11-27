@@ -4,6 +4,7 @@ define([
   'minified',
   'lib/pixi',
   'lib/stats',
+  'audio',
   'utils',
   'game/api',
   'game/actor',
@@ -11,9 +12,12 @@ define([
   'game/hero',
   'game/emitter'
 
-], function (mini, pixi, stats, utils, api, Actor, HealthBar, Hero, Emitter) {
+], function (mini, pixi, stats, audio, utils, api, Actor, HealthBar, Hero, Emitter) {
 
   var $ = mini.$;
+  var EE = mini.EE;
+  var $$ = mini.$$;
+  var running = false;
   var msg;
   var heroesBuffer = [];
   var heroesCount = 0;
@@ -37,6 +41,7 @@ define([
   var fireBall = 283;
 
   var requestServerDataIntervalId;
+  var animFrameId;
   var pixiStage
   // root render container
   var root;
@@ -80,12 +85,16 @@ define([
 
     fxLayerFar = new pixi.DisplayObjectContainer();
     root.addChild(fxLayerFar);
+    Emitter.setFxLayer(fxLayerFar);
 
     // setup heroes
     var hero = new Hero();
     root.addChild(hero);
     root.hero = hero;
     hero.position.set(288, 224);
+
+    var emitter = new Emitter();
+    hero.addChild(emitter);
 
     for (var i = 0; i < 256; i++) {
       var hero = new Hero();
@@ -111,11 +120,6 @@ define([
     border.drawRect(0, 0, step / 2, step * rowCount);
     border.drawRect(step * columnCount - step / 2, 0, step / 2, step * rowCount);
     border.endFill();
-  }
-
-  function cleanUp() {
-    window.clearInterval(requestServerDataIntervalId);
-    requestServerDataIntervalId = undefined;
   }
 
   function requestLook() {
@@ -204,44 +208,40 @@ define([
   }
 
   function start(data) {
-    id_ = data.id;
-    fistId = data.fistId;
+    return new Promise(function (resolve, reject) {
+      id_ = data.id;
+      fistId = data.fistId;
 
-    api.setTickHandler(onTick);
-    api.connect()
-    .then(function () {
-      api.getConst()
-      .then(function (data) {
-        columnCount = data.screenColumnCount;
-        rowCount = data.screenRowCount;
+      api.setTickHandler(onTick);
+      return api.connect()
+      .then(function () {
+        api.getConst()
+        .then(function (data) {
+          columnCount = data.screenColumnCount;
+          rowCount = data.screenRowCount;
+        });
+
+        return requestLook()
+        .then(function () {
+          return startMore(data, resolve, reject);
+        });
       });
-
-      requestLook()
-      .then(startMore);
     });
   }
 
-  function startMore(data) {
+  function startMore(data, resolve, reject) {
     // $('#p-slots').css({
     //   'left': step * columnCount + 100 + 'px',
     //   'position': 'fixed'
     // }).show();
+    audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3');
 
     pixiStage = new pixi.Stage(0x000000);
 
     var renderer = pixi.autoDetectRenderer(step * columnCount,
                                            step * rowCount,
                                            { antialias: true });
-    renderer.view.style.display = 'block';
-    renderer.view.style.width = "100%";//$('#game-screen').get('$width');
-    $('#game-screen').add(renderer.view);
-
-    window.addEventListener("resize", function () {
-      // renderer.width = $('#game-screen').get('$width', true);
-      // renderer.view.style.width = $('#game-screen').get('$width');
-    });
-
-    // renderer.width = $('#game-screen').get('$width', true);
+    //!? renderer.width = $('#game-screen').get('$width', true);
 
     var st = new Stats();
     st.setMode(0);
@@ -257,12 +257,14 @@ define([
     var oy = 224;
     var angle = Math.PI / 4.0;
 
-    requestAnimFrame(animate);
+    animFrameId = requestAnimFrame(animate);
     function animate() {
       st.begin();
 
       root.field.position.set(-(gPlayerX * step % step - step / 2),
                               -(gPlayerY * step % step - step / 2));
+
+      fxLayerFar.position.set(gPlayerX, gPlayerY);
 
       var dx = keys[39] - keys[37];
       var dy = keys[40] - keys[38];
@@ -334,6 +336,9 @@ define([
         api.endMove(keyToDirection[e.keyCode], tick_);
       }
     }
+
+    running = true;
+    return resolve(renderer.view);
   }
 //   function onCreate() {
 
@@ -497,11 +502,19 @@ define([
   // });
 
   function stop() {
-    cleanUp();
+    running = false;
+    window.clearInterval(requestServerDataIntervalId);
+    requestServerDataIntervalId = undefined;
+    cancelAnimationFrame(animFrameId);
+    animFrameId = animFrameId;
+    audio.stop();
   }
 
   return {
     start: start,
-    stop: stop
+    stop: stop,
+    isRunning: function () {
+      return running;
+    }
   }
 });

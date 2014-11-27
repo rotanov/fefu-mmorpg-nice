@@ -35,9 +35,6 @@ define([
     }
 
     this.phase = Math.random() * Math.PI * 2;
-
-    var emitter = new Emitter();
-    this.addChild(emitter);
   }
 
   Hero.prototype = Object.create(Actor.prototype);

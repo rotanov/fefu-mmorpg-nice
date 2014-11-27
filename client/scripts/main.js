@@ -4,78 +4,92 @@ require([
   'minified',
   'audio',
   'game/api',
-  'game/game'
+  'game/game',
+  'lib/bluebird'
 
-], function (mini, audio, api, game) {
+], function (mini, audio, api, game, Promise) {
   var $ = mini.$;
+  var $$ = mini.$$;
+  var EE = mini.EE;
 
-  function onLogin(data) {
-    if (data.result === 'ok') {
-      // $('#server-answer').text('Authentication is successful.').css('color', 'green');
-      // $('#content, #test-form').hide();
-      // $('#logout, #items, #items select').show();
+  var rpgMsg = function (text) {
+    var p = EE('p', {$overflow: 'hidden', '$white-space': 'nowrap'}, text);
+    $('#message').add(p);
+    $('#message').animate({scrollTop: $$('#message').scrollHeight}, 400);
+    $(p).set({$width: '0px'})
+    .animate({$width: '100%'}, 400);
+  }
 
-      game.start(data);
+  function toggleGameScreen() {
+    return new Promise(function (resolve, reject) {
+      var height = 'calc(100vh - 141px - 20px - 1.5em - 5px)'
+      var time = 400;
+      Promise.join(
+        $('#left-panel').animate({$height: height}, time),
+        $('#right-panel').animate({$height: height}, time),
+        $('#game-screen').animate({$height: height}, time),
+        function () {
+          resolve();
+        }
+      );
+    });
+  }
 
-    } else if (data.result === 'invalidCredentials') {
-      $('#password').val('');
-      $('#server-answer').text('Invalid login or password.').css('color', 'red');
-    }
+  function login() {
+    return api.login($$('#username').value
+                   , $$('#password').value)
+    .then(function (data) {
+      rpgMsg('Signed in.');
+
+      game.start(data)
+      .then(function (view) {
+        $('#game-screen').add(view);
+        $(view).set({$height: '0vh', $display: 'block', $width: '100%'});
+
+        $('#login-form').animate({$$slide: 0}, 400)
+        .then(toggleGameScreen)
+        .then(function () {
+          $(view).animate({$height: '60vh'}, 200);
+        });
+
+        $('#sign-in').fill('Sign Out');
+        window.addEventListener('resize', function () {
+          // renderer.view.style.width = $('#game-screen').get('$width');
+          $('#message').set({scrollTop: $$('#message').scrollHeight});
+        });
+      });
+    })
+    .catch(function (data) {
+      rpgMsg("Invalid login or password.");
+    });
   }
 
   $('#register').onClick(function () {
-    //$('#server-answer').set('value', '');
-    api.register($('#username').get('@value')
-               , $('#password').get('@value')
+    api.register($$('#username').value
+               , $$('#password').value
                , $('option').filter(function (e, i) {
                   return e.selected && $(e).up($('#player-classes')).length > 0;
                 }).get('@value'))
     .then(function (data) {
-      var serverAnswer = $('#server-answer');
-      if (data === null) {
-        serverAnswer.text('Data is null, request might be failed.').css('color', 'red');
-      }
-
-      switch (data.result) {
-      case 'ok':
-        api.login($('#username').get('@value')
-                , $('#password').get('@value'))
-        .then(onLogin);
-        break;
-
-      case 'loginExists':
-        serverAnswer.text('This login already exists.').css('color', 'red');
-        break;
-
-      case 'badLogin':
-        serverAnswer.text('Login: minimal length is 2 symbols and '
-      + 'maximum length is 36 symbols. Allowed charset is '
-      + 'latin symbols and numbers.').css('color', 'red');
-        break;
-
-      case 'badPassword':
-        serverAnswer.text('Password: minimal length is 6 symbols and '
-      + 'maximum length is 36 symbols.').css('color', 'red');
-        break;
-
-      case 'badClass':
-        serverAnswer.text('Class: one of the following options: '
-      + 'warrior, rogue, mage.').css('color', 'red');
-        break;
-
-      }
+      login();
+    })
+    .catch(function (data) {
+      var resultToText = {
+        loginExists: 'This login already exists.',
+        badLogin: 'Invalid Login: length must be 2 to 36 latin symbols or numbers.',
+        badPassword: 'Invalid Password: length must be 6 to 36 symbols.',
+        badClass: 'Invalid Class: must be one of: warror, mage, rogue.'
+      };
+      console.log(data.result);
+      rpgMsg(resultToText[data.result]);
     });
   });
 
   $('#login').onClick(function (data) {
-    // $('#server-answer').empty();
-    api.login($('#username').get('value')
-            , $('#password').get('value'))
-    .then(onLogin);
+    login();
   });
 
   $('#logout').onClick(function (data) {
-    // $('#server-answer').empty();
     game.stop();
     api.logout()
     .then(function (data) {
@@ -94,8 +108,17 @@ require([
     audio.stop();
   })
 
-  $('#run-tests').onClick(function () {
-    window.open('/test.html');
+  $('#sign-in').onClick(function () {
+    if (game.isRunning()) {
+      api.logout()
+      .then(function () {
+        $('#sign-in').fill('Sign In');
+        rpgMsg('Logged out.');
+        game.stop();
+        location.reload();
+      });
+    }
+
   })
 
   $(function () {
@@ -104,9 +127,6 @@ require([
     });
 
     audio.init();
-    //audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3');
-
-    // $('#login').setFocus();
 
     var serverAddress = location.origin;
     if (location.protocol === 'file:') {
