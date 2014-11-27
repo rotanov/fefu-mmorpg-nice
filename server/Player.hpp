@@ -6,31 +6,32 @@
 #include "Creature.hpp"
 #include "Item.hpp"
 
-enum Slot
+enum class ESlot
 {
-  left_hand,
-  right_hand,
-  ammo,
-  left_finger,
-  right_finger,
-  neck,
-  body,
-  head,
-  forearm,
-  feet,
+  AMMO,
+  HEAD,
+  NECK,
+  BODY,
+  FOREARM,
+  LEFT_HAND,
+  RIGHT_HAND,
+  LEFT_FINGER,
+  RIGHT_FINGER,
+  FEET,
 };
-enum Class
+
+enum class EHeroClass
 {
-  warrior,
-  rouge,
-  mage
+  MAGE,
+  ROGUE,
+  WARRIOR,
 };
 
 class Player : public Creature
 {
 public:
   Blow blows;
-  QVector<Item*> items_;
+  QVector<Item*> items;
 
   Player();
   virtual ~Player();
@@ -41,9 +42,9 @@ public:
   unsigned GetClientTick() const;
   void SetClientTick(const unsigned clientTick);
 
-  Item* GetSlot(Slot st);
-  bool SetSlot(Slot st, Item* item);
-  bool SetSlot(Slot st);
+  Item* GetSlot(ESlot st);
+  bool SetSlot(ESlot st, Item* item);
+  bool SetSlot(ESlot st);
 
   void SetBlows();
   void SetExperience(int exp);
@@ -72,8 +73,8 @@ public:
 private:
   QString login_;
   unsigned clientTick_ = 0;
-  QMap<Slot, Item*> slots_;
+  QMap<ESlot, Item*> slots_;
   int experience_ = 0;
   int level_ = 1;
-  Class class_;
+  EHeroClass heroClass_;
 };

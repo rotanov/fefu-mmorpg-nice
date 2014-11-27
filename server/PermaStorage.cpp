@@ -62,7 +62,7 @@ void PermaStorage::InitSchema()
       login varchar(36) NOT NULL UNIQUE,
       pass varchar(128) NOT NULL,
       salt varchar(64) NOT NULL,
-      class_ varchar(64) NOT NULL,
+      class varchar(64) NOT NULL,
       sid varchar(40) NOT NULL DEFAULT '',
       x real NOT NULL DEFAULT 0.0,
       y real NOT NULL DEFAULT 0.0
@@ -71,18 +71,18 @@ void PermaStorage::InitSchema()
 }
 
 void PermaStorage::AddUser(const QString login, const QString passHash
-                         , const QString salt, const QString class_)
+                         , const QString salt, const QString heroClass)
 {
   QSqlQuery q;
   q.prepare(R"=(
-    INSERT INTO users (login, pass, salt, class_)
-    VALUES (:login, :passhash, :salt, :class_)
+    INSERT INTO users (login, pass, salt, class)
+    VALUES (:login, :passhash, :salt, :class)
   )=");
 
   q.bindValue(":login", login);
   q.bindValue(":passhash", passHash);
   q.bindValue(":salt", salt);
-  q.bindValue(":class_", class_);
+  q.bindValue(":class", heroClass);
   ExecQuery_(q);
 }
 
@@ -121,12 +121,12 @@ QString PermaStorage::GetPassHash(const QString login)
 QString PermaStorage::GetClass(const QString login)
 {
   QSqlQuery q;
-  q.prepare("SELECT class_ FROM users WHERE login = :login");
+  q.prepare("SELECT class FROM users WHERE login = :login");
   q.bindValue(":login", login);
   if (ExecQuery_(q))
   {
     q.next();
-    return q.value("class_").toString();
+    return q.value("class").toString();
   }
   else
   {
@@ -134,7 +134,7 @@ QString PermaStorage::GetClass(const QString login)
   }
 }
 
-void PermaStorage::GetMonster (Monster * m, const int id)
+void PermaStorage::GetMonster (Monster* m, const int id)
 {
     QSqlQuery q;
     q.prepare("SELECT * FROM monsters WHERE id = :id");

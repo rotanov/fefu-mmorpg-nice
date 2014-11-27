@@ -54,7 +54,6 @@ private:
   {
     "garment",
     "consumable",
-
   };
 
   std::vector<QString> type =

@@ -201,18 +201,18 @@ private:
     "setLocation",
   };
 
-  QMap <QString, Slot> SlotToString =
+  QMap <QString, ESlot> EquipSlotToString =
   {
-    {"ammo", ammo},
-    {"body", body},
-    {"feet", feet},
-    {"forearm", forearm},
-    {"head", head},
-    {"left-finger", left_finger},
-    {"left-hand", left_hand},
-    {"neck", neck},
-    {"right-finger", right_finger},
-    {"right-hand", right_hand}
+    {"ammo", ESlot::AMMO},
+    {"body", ESlot::BODY},
+    {"feet", ESlot::FEET},
+    {"forearm", ESlot::FOREARM},
+    {"head", ESlot::HEAD},
+    {"left-finger", ESlot::LEFT_FINGER},
+    {"left-hand", ESlot::LEFT_HAND},
+    {"neck", ESlot::NECK},
+    {"right-finger", ESlot::RIGHT_FINGER},
+    {"right-hand", ESlot::RIGHT_HAND}
   };
 
   QMap <QString, EStatConst> StringToStat =

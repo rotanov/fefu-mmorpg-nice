@@ -72,13 +72,13 @@ QVariantMap Player::atack(Creature* actor, int id)
   int n = blows.damage->count, m = blows.damage->to;
   if (id == 1)
   {
-    Item* item = GetSlot(left_hand);
+    Item* item = GetSlot(ESlot::LEFT_HAND);
     n = item->damage.count;
     m = item->damage.to;
   }
   else if (id == 2)
   {
-    Item* item = GetSlot(right_hand);
+    Item* item = GetSlot(ESlot::RIGHT_HAND);
     n = item->damage.count;
     m = item->damage.to;
   }
@@ -94,37 +94,47 @@ QVariantMap Player::atack(Creature* actor, int id)
   return ans1;
 }
 
-Item* Player::GetSlot(Slot st)
+Item* Player::GetSlot(ESlot st)
 {
   return slots_[st];
 }
 
-bool Player::SetSlot(Slot st, Item* item)
+bool Player::SetSlot(ESlot st, Item* item)
 {
   bool result = false;
-  if ((st == left_hand || st == right_hand) &&
-      (item->GetTypeItem() == "weapon" || item->GetTypeItem() == "shield"))
+  if ((st == ESlot::LEFT_HAND
+       || st == ESlot::RIGHT_HAND) &&
+      (item->GetTypeItem() == "weapon"
+       || item->GetTypeItem() == "shield"))
     result = true;
-  else if ((st == left_finger || st == right_finger) && (item->GetTypeItem() == "ring"))
+  else if ((st == ESlot::LEFT_FINGER
+            || st == ESlot::RIGHT_FINGER)
+           && (item->GetTypeItem() == "ring"))
     result = true;
-  else if (st == ammo && item->GetTypeItem() == "expendable")
+  else if (st == ESlot::AMMO
+           && item->GetTypeItem() == "expendable")
     result = true;
-  else if (st == neck && item->GetTypeItem() == "eamulet")
+  else if (st == ESlot::NECK
+           && item->GetTypeItem() == "eamulet")
     result = true;
-  else if (st == body && item->GetTypeItem() == "armor")
+  else if (st == ESlot::BODY
+           && item->GetTypeItem() == "armor")
     result = true;
-  else if (st == head && item->GetTypeItem() == "helm")
+  else if (st == ESlot::HEAD
+           && item->GetTypeItem() == "helm")
     result = true;
-  else if (st == forearm && item->GetTypeItem() == "gloves")
+  else if (st == ESlot::FOREARM
+           && item->GetTypeItem() == "gloves")
     result = true;
-  else if (st == feet && item->GetTypeItem() == "boots")
+  else if (st == ESlot::FEET
+           && item->GetTypeItem() == "boots")
     result = true;
   if (result)
     slots_[st] = item;
   return result;
 }
 
-bool Player::SetSlot(Slot st)
+bool Player::SetSlot(ESlot st)
 {
   slots_[st] = 0;
   return true;
@@ -152,18 +162,18 @@ int Player::GetLevel()
 void Player::SetClass(QString clas)
 {
   if (clas == "warrior")
-   class_ = warrior;
+   heroClass_ = EHeroClass::WARRIOR;
   else if (clas == "rouge")
-   class_ = rouge;
+   heroClass_ = EHeroClass::ROGUE;
   else
-   class_ = mage;
+   heroClass_ = EHeroClass::MAGE;
 }
 
 QString Player::GetClass()
 {
-  if (class_ == warrior)
+  if (heroClass_ == EHeroClass::WARRIOR)
    return  "warrior";
-  else if (class_ == rouge)
+  else if (heroClass_ == EHeroClass::ROGUE)
    return "rouge";
   else
    return "mage";
@@ -171,19 +181,19 @@ QString Player::GetClass()
 
 void Player::AddStat()
 {
-  if (class_ == warrior)
+  if (heroClass_ == EHeroClass::WARRIOR)
   {
     SetStat(EStatConst::STRENGTH, GetStatValue(EStatConst::STRENGTH) + 2);
     SetStat(EStatConst::INTELLIGENCE, GetStatValue(EStatConst::INTELLIGENCE) + 1);
     SetStat(EStatConst::DEXTERITY, GetStatValue(EStatConst::DEXTERITY) + 1);
   }
-  if (class_ == rouge)
+  if (heroClass_ == EHeroClass::ROGUE)
   {
     SetStat(EStatConst::STRENGTH, GetStatValue(EStatConst::STRENGTH) + 1);
     SetStat(EStatConst::INTELLIGENCE, GetStatValue(EStatConst::INTELLIGENCE) + 2);
     SetStat(EStatConst::DEXTERITY, GetStatValue(EStatConst::DEXTERITY) + 1);
   }
-  if (class_ == mage)
+  if (heroClass_ == EHeroClass::MAGE)
   {
     SetStat(EStatConst::STRENGTH, GetStatValue(EStatConst::STRENGTH) + 1);
     SetStat(EStatConst::INTELLIGENCE, GetStatValue(EStatConst::INTELLIGENCE) + 1);
@@ -203,7 +213,7 @@ void Player::UpdateStat()
 
 bool Player::GetItemId(int id)
 {
-  for (auto& item: items_)
+  for (auto& item: items)
   {
     if (item->GetId() == id)
     {
@@ -217,7 +227,7 @@ bool Player::GetItemId(int id)
 int Player::GetTotalWeigh()
 {
   int totalWeigh = 0;
-  for (auto& item: items_)
+  for (auto& item: items)
   {
     totalWeigh += item->GetWeight();
   }
