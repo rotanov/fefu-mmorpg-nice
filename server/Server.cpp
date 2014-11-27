@@ -178,6 +178,9 @@ void Server::processNewWSConnection()
   // Get the connecting socket
   QWebSocket* socket = wsServer_->nextPendingConnection();
 
+  qDebug() << socket->localAddress() << socket->localPort();
+  qDebug() << socket->peerName() << socket->peerAddress() << socket->peerPort();
+
   // Create a new thread and giving to him the socket
   SocketThread* thread = new SocketThread(socket);
 
