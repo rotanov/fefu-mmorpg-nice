@@ -1,6 +1,7 @@
 'use strict';
 
 define([
+  'lib/bluebird',
   'minified',
   'lib/pixi',
   'lib/stats',
@@ -12,7 +13,7 @@ define([
   'game/hero',
   'game/emitter'
 
-], function (mini, pixi, stats, audio, utils, api, Actor, HealthBar, Hero, Emitter) {
+], function (Promise, mini, pixi, stats, audio, utils, api, Actor, HealthBar, Hero, Emitter) {
 
   var $ = mini.$;
   var EE = mini.EE;
@@ -48,6 +49,8 @@ define([
   var fxLayerNear;
   var fxLayerFar;
   var healthBar;
+
+  var bgMusic;
 
   function composeScene() {
     root = new pixi.Graphics();
@@ -234,7 +237,13 @@ define([
     //   'left': step * columnCount + 100 + 'px',
     //   'position': 'fixed'
     // }).show();
-    audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3');
+    Promise.join(
+      audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3', 'bg1'),
+      audio.loadSoundFile('assets/footstep.wav', 'step'),
+      function () {
+        // bgMusic = audio.play('bg1', {volume: 0.5, loop: true});
+      }
+    );
 
     pixiStage = new pixi.Stage(0x000000);
 
@@ -320,21 +329,36 @@ define([
       40: 'south'
     };
 
+    var stepSound = undefined;
+
+    var changeStepSoundState = function () {
+      var dx = keys[39] - keys[37];
+      var dy = keys[40] - keys[38];
+      if (dx !== 0 || dy !== 0) {
+        if (stepSound === undefined) {
+          stepSound = audio.play('step', {delay: 0.72});
+        }
+      } else if (stepSound !== undefined) {
+        stepSound.terminate();
+        stepSound = undefined;
+      }
+    }
+
     function onKeyDown(e) {
-      if (keyToDirection[e.keyCode] != undefined &&
+      if (keyToDirection[e.keyCode] !== undefined &&
           keys[e.keyCode] === 0) {
         api.beginMove(keyToDirection[e.keyCode], tick_);
       }
-
       keys[e.keyCode] = 1;
+      changeStepSoundState();
     }
 
     function onKeyUp(e) {
       keys[e.keyCode] = 0;
-
       if (keyToDirection[e.keyCode] != undefined) {
         api.endMove(keyToDirection[e.keyCode], tick_);
       }
+      changeStepSoundState();
     }
 
     running = true;
@@ -507,7 +531,7 @@ define([
     requestServerDataIntervalId = undefined;
     cancelAnimationFrame(animFrameId);
     animFrameId = animFrameId;
-    audio.stop();
+    bgMusic.stop();
   }
 
   return {

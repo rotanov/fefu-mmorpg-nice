@@ -142,8 +142,6 @@ require([
 
     $('#login-form').animate({$height: '40vh'}, 300);
 
-    $('#login-form').animate({$height: '40vh'}, 300);
-
     var serverAddress = location.origin;
     if (location.protocol === 'file:') {
       serverAddress = 'http://localhost:6543';
