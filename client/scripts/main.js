@@ -107,7 +107,17 @@ require([
   });
 
   $('#mute-volume').onClick(function () {
-    audio.stop();
+    if (!audio.isMuted()) {
+      audio.mute();
+      $('#mute-volume').set({title: 'Unmute'})
+      .fill([EE('i', {$: 'fa fa-volume-off'}),
+             EE('i', {$: 'fa fa-ban fa-stacked',
+              $color: '#004358', $position: 'relative', $left: '-10px'})]);
+    } else {
+      audio.unmute();
+      $('#mute-volume').set({title: 'Mute'})
+      .fill(EE('i', {$: 'fa fa-volume-up'}));
+    }
   })
 
   $('#sign-in').onClick(function () {
