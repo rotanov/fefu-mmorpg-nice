@@ -12,8 +12,8 @@ define([
     Actor.call(this);
 
     this.particles = [];
-    this.maxCount = 100;
-    this.emission = 10;
+    this.maxCount = 1000;
+    this.emission = 100;
     this.particleLife = 1.2;
     this.particleLifeSpread = 0.05;
     this.count = 0;
@@ -42,7 +42,7 @@ define([
       fxLayer_.addChild(p);
       p.life = this.particleLife + Math.random() * this.particleLifeSpread * 0.5 - this.particleLifeSpread * 0.25;
       var globalZero = this.toGlobal(new pixi.Point(0, 0));
-      var angle = Math.atan2(-1, 1);
+      var angle = Math.atan2(1, -1);
       var angleDev = Math.PI / 6;
       var resultAngle = angle + Math.random() * angleDev * 0.5 - angleDev * 0.25;
       var vDir = new pixi.Point(Math.cos(resultAngle) * 20, Math.sin(resultAngle) * 20);
@@ -51,7 +51,7 @@ define([
       p.position = globalZero;
       // SUDDEN PERFORMANCE DEGRADATION
       // I HAVE NO IDEA WHY THOUGH
-      // p.position = fxLayer_.toLocal(globalZero);
+      p.position = fxLayer_.toLocal(globalZero);
     }
 
     this.count = this.count + toEmitCount;

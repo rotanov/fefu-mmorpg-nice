@@ -29,6 +29,8 @@ define([
 
   var gPlayerX;
   var gPlayerY;
+  var gPlayerXPrev;
+  var gPlayerYPrev;
   var id_;
   var tick_;
   var fistId;
@@ -51,6 +53,7 @@ define([
   var healthBar;
 
   var bgMusic;
+  var stepSound = undefined;
 
   function composeScene() {
     root = new pixi.Graphics();
@@ -115,22 +118,35 @@ define([
     healthBar.position.set(36, 36);
 
     // overlay border, covering half tile size
-    var border = new pixi.Graphics();
-    root.addChild(border);
-    border.beginFill(0x00FFFF, 0xFF);
-    border.drawRect(0, 0, step * columnCount, step / 2);
-    border.drawRect(0, step * rowCount - step / 2, step * columnCount, step / 2);
-    border.drawRect(0, 0, step / 2, step * rowCount);
-    border.drawRect(step * columnCount - step / 2, 0, step / 2, step * rowCount);
-    border.endFill();
+    // var border = new pixi.Graphics();
+    // root.addChild(border);
+    // border.beginFill(0x00FFFF, 0xFF);
+    // border.drawRect(0, 0, step * columnCount, step / 2);
+    // border.drawRect(0, step * rowCount - step / 2, step * columnCount, step / 2);
+    // border.drawRect(0, 0, step / 2, step * rowCount);
+    // border.drawRect(step * columnCount - step / 2, 0, step / 2, step * rowCount);
+    // border.endFill();
   }
 
   function requestLook() {
     return api.look()
     .then(function (data) {
       utils.assert(data.result === 'ok');
+      // gPlayerXPrev = gPlayerX;
+      // gPlayerYPrev = gPlayerY;
       gPlayerX = data.x;
       gPlayerY = data.y;
+
+      // attempt to stop step sound when we're not moving despite pressing move keys
+      // but server collision resolution jitters player position wehn pressing to the wall
+      // var delta = Math.abs(gPlayerX - gPlayerXPrev) + Math.abs(gPlayerY - gPlayerYPrev);
+      // console.log(delta);
+      // if (delta === 0) {
+      //   if (stepSound !== undefined) {
+      //     stepSound.stop();
+      //     stepSound = undefined;
+      //   }
+      // }
 
       for (var i = 0; i < rowCount; i++) {
         for (var j = 0; j < columnCount; j++) {
@@ -247,8 +263,8 @@ define([
 
     pixiStage = new pixi.Stage(0x000000);
 
-    var renderer = pixi.autoDetectRenderer(step * columnCount,
-                                           step * rowCount,
+    var renderer = pixi.autoDetectRenderer(step * (columnCount - 1),
+                                           step * (rowCount - 1),
                                            { antialias: true });
     //!? renderer.width = $('#game-screen').get('$width', true);
 
@@ -262,18 +278,19 @@ define([
 
     var t = 0.0;
 
-    var ox = 288;
-    var oy = 224;
+    var ox = renderer.width * 0.5;
+    var oy = renderer.height * 0.5;
     var angle = Math.PI / 4.0;
 
     animFrameId = requestAnimFrame(animate);
     function animate() {
       st.begin();
 
-      root.field.position.set(-(gPlayerX * step % step - step / 2),
-                              -(gPlayerY * step % step - step / 2));
+      root.field.position.set(-(gPlayerX * step % step),
+                              -(gPlayerY * step % step));
 
-      fxLayerFar.position.set(gPlayerX, gPlayerY);
+      fxLayerFar.position.set(-((columnCount - 1) * 0.5 + gPlayerX) * step
+                             ,-((rowCount - 1) * 0.5 + gPlayerY) * step);
 
       var dx = keys[39] - keys[37];
       var dy = keys[40] - keys[38];
@@ -329,14 +346,12 @@ define([
       40: 'south'
     };
 
-    var stepSound = undefined;
-
     var changeStepSoundState = function () {
       var dx = keys[39] - keys[37];
       var dy = keys[40] - keys[38];
       if (dx !== 0 || dy !== 0) {
         if (stepSound === undefined) {
-          stepSound = audio.play('step', {delay: 0.72});
+          stepSound = audio.play('step', {delay: 0.3});
         }
       } else if (stepSound !== undefined) {
         stepSound.terminate();
@@ -418,11 +433,11 @@ define([
 //   }
 
   function coordinate(x, coord, g) {
-    return (-(x - coord) + g * 0.5) * step;
+    return (coord - x + (g - 1) * 0.5) * step;
   }
 
   function UnCoordinate(x, coord, g) {
-    return coord / step - g * 0.5 + x;
+    return coord / step - (g - 1) * 0.5 + x;
   }
 
 //   function createActors(start) {
