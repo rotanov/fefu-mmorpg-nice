@@ -36,6 +36,7 @@ require([
   }
 
   function login() {
+    $('#login').set({disabled: true});
     return api.login($$('#username').value
                    , $$('#password').value)
     .then(function (data) {
@@ -61,6 +62,7 @@ require([
     })
     .catch(function (data) {
       rpgMsg("Invalid login or password.");
+      $('#login').set({disabled: false});
     });
   }
 
