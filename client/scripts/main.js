@@ -47,7 +47,7 @@ require([
         $('#game-screen').add(view);
         $(view).set({$height: '0vh', $display: 'block', $width: '100%'});
 
-        $('#login-form').animate({$$slide: 0}, 400)
+        $('#login-form').animate({$height: '0px'}, 400)
         .then(toggleGameScreen)
         .then(function () {
           $(view).animate({$height: '60vh'}, 200);
@@ -139,6 +139,10 @@ require([
     });
 
     audio.init();
+
+    $('#login-form').animate({$height: '40vh'}, 300);
+
+    $('#login-form').animate({$height: '40vh'}, 300);
 
     var serverAddress = location.origin;
     if (location.protocol === 'file:') {
