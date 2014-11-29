@@ -300,6 +300,7 @@ define([
         var l = Math.sqrt(dx*dx + dy*dy);
         dx /= l;
         dy /= l;
+        root.hero.lastDir = new pixi.Point(dx, dy);
       }
 
       // ox = gPlayerX * step;
@@ -309,7 +310,11 @@ define([
         angle = Math.PI / 4 + Math.atan2(dy, dx);
       }
 
-      root.hero.rotation = angle;
+      var angleDelta = angle - root.hero.rotation;
+      if (angleDelta > Math.PI) {
+        angleDelta = -Math.PI * 2 + angleDelta;
+      }
+      root.hero.rotation += angleDelta * 0.16;
 
       root.hero.position.set(ox + dx * 5 + Math.sin(t*2) * 5 * dy,
                              oy + dy * 5 + Math.sin(t*2) * 5 * -dx);
