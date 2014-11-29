@@ -256,8 +256,9 @@ define([
     Promise.join(
       audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3', 'bg1'),
       audio.loadSoundFile('assets/footstep.wav', 'step'),
+      audio.loadSoundFile('assets/attack.wav', 'attack'),
       function () {
-        // bgMusic = audio.play('bg1', {volume: 0.5, loop: true});
+        bgMusic = audio.play('bg1', {volume: 0.5, loop: true});
       }
     );
 
@@ -374,6 +375,21 @@ define([
         api.endMove(keyToDirection[e.keyCode], tick_);
       }
       changeStepSoundState();
+
+      if (e.keyCode === 90) {
+        audio.play('attack');
+
+          var p = root.hero.lastDir;
+          api.use(fistId, p.x + gPlayerX, p.y + gPlayerY)
+          .then(function (data) {
+          });
+
+          // p.x -= (columnCount - 1) * 0.5;
+          // p.y -= (rowCount - 1) * 0.5;
+          // var emitter = new Emitter({position: p,
+          //   angle: Math.PI / 2});
+          // hero.addChild(emitter);
+      }
     }
 
     running = true;
