@@ -8,21 +8,30 @@ define([
 
   var fxLayer_;
 
-  var Emitter = function() {
+  var Emitter = function(options) {
     Actor.call(this);
-
+    options = options || {};
     this.particles = [];
-    this.maxCount = 1000;
-    this.emission = 100;
-    this.particleLife = 1.2;
-    this.particleLifeSpread = 0.05;
+    this.maxCount = options.maxCount || 1000;
+    this.emission = options.emission || 100;
+    this.particleLife = options.particleLife || 1.2;
+    this.particleLifeSpread = options.particleLifeSpread || 0.05;
+    this.particleSize = options.size || 4;
+    this.alphaBegin = options.alphaBegin || 1.0;
+    this.alphaEnd = options.alphaEnd || 0.0;
+    this.angle = options.angle || Math.atan2(1, -1);
+    this.angleSpread = options.angleSpread || Math.PI;
+    this.emitterposition = options.position || new pixi.Point(0, 0);
+
     this.count = 0;
 
     for (var i = 0; i < this.maxCount; i++) {
       var p = new pixi.Sprite.fromImage('assets/particle.png');
-      p.width = 2;
-      p.height = 2;
-      p.velocity = new pixi.Point(Math.random() * 10 - 5, Math.random() * 10 - 5);
+      p.width = this.particleSize;
+      p.height = this.particleSize;
+      p.alpha = this.alphaBegin;
+      p.velocityScalar = 20;
+      p.velocity = new pixi.Point();
       this.particles.push(p);
     }
 
@@ -41,14 +50,12 @@ define([
       var p = this.particles[i];
       fxLayer_.addChild(p);
       p.life = this.particleLife + Math.random() * this.particleLifeSpread * 0.5 - this.particleLifeSpread * 0.25;
-      var globalZero = this.toGlobal(new pixi.Point(0, 0));
-      var angle = Math.atan2(1, -1);
-      var angleDev = Math.PI / 6;
-      var resultAngle = angle + Math.random() * angleDev * 0.5 - angleDev * 0.25;
-      var vDir = new pixi.Point(Math.cos(resultAngle) * 20, Math.sin(resultAngle) * 20);
+      var globalZero = this.toGlobal(this.emitterposition);
+      var resultAngle = this.angle + Math.random() * this.angleSpread * 0.5 - this.angleSpread * 0.25;
+      var vDir = new pixi.Point(Math.cos(resultAngle), Math.sin(resultAngle));
       var globalVDest = this.toGlobal(vDir);
       p.velocity.set(globalVDest.x - globalZero.x, globalVDest.y - globalZero.y);
-      p.position = globalZero;
+      // p.position = globalZero;
       // SUDDEN PERFORMANCE DEGRADATION
       // I HAVE NO IDEA WHY THOUGH
       p.position = fxLayer_.toLocal(globalZero);
@@ -58,9 +65,10 @@ define([
     var prevCount = this.count;
     for (var i = 0; i < this.count; i++) {
       var p = this.particles[i];
+      p.alpha = p.life / this.particleLife;
       p.life -= dt;
-      p.position.set(p.position.x + dt * p.velocity.x,
-                     p.position.y + dt * p.velocity.y);
+      p.position.set(p.position.x + dt * p.velocity.x * p.velocityScalar,
+                     p.position.y + dt * p.velocity.y * p.velocityScalar);
 
       if (p.life <= 0.0) {
         var temp = fxLayer_.children[i];
@@ -75,7 +83,7 @@ define([
       }
 
     }
-    // this.removeChildren(this.count);
+    // fxLayer_.removeChildren(this.count);
   }
 
   Emitter.setFxLayer = function(fxLayer) {
