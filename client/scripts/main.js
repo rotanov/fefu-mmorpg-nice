@@ -5,20 +5,14 @@ require([
   'audio',
   'game/api',
   'game/game',
-  'lib/bluebird'
+  'lib/bluebird',
+  'utils'
 
-], function (mini, audio, api, game, Promise) {
+], function (mini, audio, api, game, Promise, utils) {
   var $ = mini.$;
   var $$ = mini.$$;
   var EE = mini.EE;
-
-  var rpgMsg = function (text) {
-    var p = EE('p', {$overflow: 'hidden', '$white-space': 'nowrap'}, text);
-    $('#message').add(p);
-    $('#message').animate({scrollTop: $$('#message').scrollHeight}, 400);
-    $(p).set({$width: '0px'})
-    .animate({$width: '100%'}, 400);
-  }
+  var rpgMsg = utils.rpgMsg;
 
   function toggleGameScreen() {
     return new Promise(function (resolve, reject) {
