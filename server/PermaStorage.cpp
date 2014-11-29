@@ -130,12 +130,12 @@ void PermaStorage::GetMonster(Monster* m, const int id)
         m->Blows << st.split("@");
         QStringList s;
         s << q.value("info").toString().split("|");
-        m->SetSpeed (s[0].toFloat());
-        m->SetAlertness (s[1].toFloat());
+        m->SetSpeed(s[0].toFloat());
+        m->SetAlertness(s[1].toFloat());
         st = q.value("base_hp").toString();
         m->SetMaxHealth(st.toFloat());
         m->SetHealth(st.toFloat());
-        m->SetRace ();
+        m->SetRace();
     }
 }
 

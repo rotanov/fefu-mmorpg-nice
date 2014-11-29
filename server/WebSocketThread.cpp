@@ -76,12 +76,18 @@ void SocketThread::processMessage(QString message, bool lastFrame)
   //   socket->write(QString::fromLatin1(responseJSON));
   QString textMessage = QString::fromLatin1(responseJSON);
   qint64 bytesSent = socket->sendTextMessage(textMessage);
-  if (bytesSent != textMessage.size())
+  // TODO: there are cases when it's != but sent is more than we had
+  if (bytesSent < textMessage.size())
   {
     qDebug() << "Data was not sent. Data size: "
              << textMessage.size()
              << " Sent size: "
-             << bytesSent;
+             << bytesSent
+             << textMessage;
+  }
+  else
+  {
+//    qDebug() << textMessage;
   }
   //   socket->sendBinaryMessage(responseJSON);
 }

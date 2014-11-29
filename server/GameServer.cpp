@@ -304,10 +304,10 @@ void GameServer::tick()
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
+    collideWithGrid(actor);
     auto v = actor->GetDirectionVector();
     actor->SetVelocity(v * playerVelocity_);
     actor->Update(dt);
-    collideWithGrid(actor);
     levelMap_.IndexActor(actor);
   }
 
@@ -318,7 +318,7 @@ void GameServer::tick()
   emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
   tick_++;
 
-  return;
+//  return;
 
   for (Actor* actor: actors_)
   {
@@ -495,7 +495,8 @@ void GameServer::tick()
       Player* player = dynamic_cast<Player*>(actor);
       if (player->GetHealth() < player->GetMaxHealth())
       {
-        player->SetHealth(player->GetHealth() + 1);
+        // TODO: ?
+//        player->SetHealth(player->GetHealth() + 1);
       }
     }
 
@@ -829,6 +830,11 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
     actor["y"] = a->GetPosition().y;
     actor["id"] = a->GetId();
 
+    if (a->GetType() == EActorType::PLAYER)
+    {
+      actor["class"] = dynamic_cast<Player*>(a)->GetClass();
+    }
+
     if (actor["type"] == "monster")
     {
       auto m = dynamic_cast<Monster*>(a);
@@ -1137,7 +1143,8 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
   Item* item = dynamic_cast<Item*>(idToActor_[request["id"].toInt()]);
   if (item)
   {
-    if (request.find("x") == request.end() && request.find("y") == request.end())
+    if (request.find("x") == request.end()
+        && request.find("y") == request.end())
     {
       if (item->GetSubtype() != "consumable")
       {
@@ -1166,7 +1173,8 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
     return;
   }
 
-  if (!request["x"].toFloat() || !request["y"].toFloat())
+  if (!request["x"].toFloat()
+      || !request["y"].toFloat())
   {
     WriteResult_(response, EFEMPResult::BAD_PLACING);
     return;
@@ -1186,7 +1194,7 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
         float distance2 = Sqr(player_pos.x - target_pos.x)
                         + Sqr(player_pos.y - target_pos.y);
 
-        if (distance2 <= Sqr(pickUpRadius_))
+        if (distance2 <= Sqr(1.5)) // TODO: WAS pickUpRadius_
         {
           QVariantMap a = p->atack(target, id);
           events_ << a;
@@ -1622,8 +1630,9 @@ void GameServer::GenMonsters_()
           monster->SetType(EActorType::MONSTER);
           Monster& m = *monster;
           SetActorPosition_(monster, Vector2(j + 0.5f, i + 0.5f));
-          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
+//          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
           storage_.GetMonster(monster, monster->GetId() % 32 + 1);
+          m.OnCollideWorld();
         }
       }
     }

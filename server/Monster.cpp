@@ -15,8 +15,8 @@ void Monster::OnCollideWorld()
 {
   if (Flags.lastIndexOf("PASS_WALL") == -1)
   {
-    SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
-    return;
+    Stop();
+    SetDirection(static_cast<EActorDirection>(rand() % 4), true);
   }
 }
 
@@ -28,7 +28,7 @@ bool Monster::OnCollideActor(Actor* /*actor*/)
 
 void Monster::Update(float dt)
 {
-  if (Flags.lastIndexOf("CAN_MOVE") != -1)
+//  if (Flags.lastIndexOf("CAN_MOVE") != -1)
   {
     Actor::Update(dt);
   }
@@ -82,7 +82,7 @@ QVariantMap Monster::atack(Creature* actor)
 {
   int val = rand();
   val = 2.0f;
-  if (Flags.lastIndexOf("CAN_BLOW") != -1)
+//  if (Flags.lastIndexOf("CAN_BLOW") != -1)
   {
     actor->SetHealth(actor->GetHealth() - val);
   }
