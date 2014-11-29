@@ -163,7 +163,7 @@ void Player::SetClass(QString clas)
 {
   if (clas == "warrior")
    heroClass_ = EHeroClass::WARRIOR;
-  else if (clas == "rouge")
+  else if (clas == "rogue")
    heroClass_ = EHeroClass::ROGUE;
   else
    heroClass_ = EHeroClass::MAGE;
@@ -174,7 +174,7 @@ QString Player::GetClass()
   if (heroClass_ == EHeroClass::WARRIOR)
    return  "warrior";
   else if (heroClass_ == EHeroClass::ROGUE)
-   return "rouge";
+   return "rogue";
   else
    return "mage";
 }
