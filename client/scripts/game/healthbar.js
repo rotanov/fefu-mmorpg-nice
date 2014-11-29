@@ -15,12 +15,18 @@ define([
     barBorder.drawRect(-2, -2, 128 + 4, 16 + 4);
     barBorder.endFill();
 
+    var blackBar = new pixi.Graphics();
+    this.addChild(blackBar);
     var bar = new pixi.Graphics();
     this.addChild(bar);
 
-    bar.beginFill(0xFF0000, 1.0);
+    bar.beginFill(0xfd7400, 1.0);
     bar.drawRect(0, 0, 128, 16);
     bar.endFill();
+
+    blackBar.beginFill(0x000000, 1.0);
+    blackBar.drawRect(0, 0, 128, 16);
+    blackBar.endFill();
 
     var text = new pixi.Text('', {font: 'bold 14px Consolas'});
     this.addChild(text);
@@ -42,8 +48,6 @@ define([
   }
 
   HealthBar.prototype.update = function(dt) {
-    this.t += 20 * dt;
-    this.text.position.set(4, 2.0 * Math.sin(this.t));
   }
 
   return HealthBar;

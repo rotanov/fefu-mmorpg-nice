@@ -60,16 +60,16 @@ define([
     pixiStage.addChild(root);
 
     // draw background (grid)
-    root.lineStyle(1, 0xFFFFFF, 0.1);
-    for (var i = 1; i < columnCount; i++) {
-      root.moveTo(i * step, 0.0);
-      root.lineTo(i * step, step * rowCount);
-    }
+    // root.lineStyle(1, 0xFFFFFF, 0.1);
+    // for (var i = 1; i < columnCount; i++) {
+    //   root.moveTo(i * step, 0.0);
+    //   root.lineTo(i * step, step * rowCount);
+    // }
 
-    for (var i = 1; i < rowCount; i++) {
-      root.moveTo(0.0, i * step);
-      root.lineTo(step * columnCount, i * step);
-    }
+    // for (var i = 1; i < rowCount; i++) {
+    //   root.moveTo(0.0, i * step);
+    //   root.lineTo(step * columnCount, i * step);
+    // }
 
     // level map cells
     var cells = [];
@@ -81,7 +81,7 @@ define([
     for (var i = 0; i < rowCount; i++) {
       for (var j = 0; j < columnCount; j++) {
         var c = new pixi.Graphics();
-        c.beginFill(0x555555, 1.0);
+        c.beginFill(0xbedb39, 1.0);
         c.drawRect(j * step, i * step, step, step);
         c.endFill();
         field.addChild(c);
@@ -90,7 +90,6 @@ define([
     }
 
     fxLayerFar = new pixi.DisplayObjectContainer();
-    root.addChild(fxLayerFar);
     Emitter.setFxLayer(fxLayerFar);
 
     // setup heroes
@@ -99,7 +98,7 @@ define([
     root.hero = hero;
     hero.position.set(288, 224);
 
-    var emitter = new Emitter();
+    var emitter = new Emitter({});
     hero.addChild(emitter);
 
     for (var i = 0; i < 256; i++) {
@@ -109,13 +108,14 @@ define([
       root.addChild(hero);
     }
 
+    root.addChild(fxLayerFar);
     fxLayerNear = new pixi.DisplayObjectContainer();
     root.addChild(fxLayerNear);
 
     // interface
     healthBar = new HealthBar();
     root.addChild(healthBar);
-    healthBar.position.set(36, 36);
+    healthBar.position.set(2, 2);
 
     // overlay border, covering half tile size
     // var border = new pixi.Graphics();
@@ -161,6 +161,7 @@ define([
       // actors[0].x = coordinate(gPlayerX, gPlayerX, columnCount);
       // actors[0].y = coordinate(gPlayerY, gPlayerY, rowCount);
       // actors[0].visible = true;
+      try {
       for (var i = 0; i < heroesBuffer.length; i++) {
         heroesBuffer[i].visible = false;
       }
@@ -168,26 +169,33 @@ define([
       var iSkip = 0;
       for (var i = 0; i < l; i++) {
         var a = data.actors[i];
-        var hero = heroesBuffer[i - iSkip];
+        var h = heroesBuffer[i - iSkip];
         //actors[j].id = actor[i].id;
         //actors[j].name = actor[i].name;
-        if (a.id == id_) {
+        if (a.id === id_) {
+          root.hero.setColor(0xffffff, a.class);
           iSkip = 1;
           continue;
         }
         if (a.type === 'monster') {
-          hero.setColor(0xFF0000);
+          h.setColor(0xfd7400, 'monster');
         }
         else if (a.type === 'player') {
-          hero.setColor(0x00FF00);
+          h.setColor(0xbedb39, a.class);
         }
-        hero.position.x = coordinate(gPlayerX, data.actors[i].x, columnCount);
-        hero.position.y = coordinate(gPlayerY, data.actors[i].y, rowCount);
-        hero.visible = true;
+        else if (a.type === 'item') {
+          h.setColor(0x1f8a70, 'item');
+        }
+        h.position.x = coordinate(gPlayerX, data.actors[i].x, columnCount);
+        h.position.y = coordinate(gPlayerY, data.actors[i].y, rowCount);
+        h.visible = true;
         heroesCount = i + 1;
         // actors[j].visible = true;
         // setProperties(actor[i], j);
       }
+    } catch (e) {
+      console.log(e);
+    }
 
       // for (var i = j, l = actors.length; i < l; i++) {
       //   actors[i].visible = false;
@@ -219,6 +227,16 @@ define([
 
   function onTick(data) {
     tick_ = data.tick;
+
+    try {
+    if (data.events !== undefined
+        && data.events.length !== 0) {
+      utils.rpgMsg(JSON.stringify(data.events));
+    }
+    }
+    catch (e) {
+      console.log(e);
+    }
     // for (var i = 0, l = data.events.length; i < l; ++i) {
     //   if (data.events[i].attaker !== id_) {
     //     curr_h -= data.events[i].dealtDamage; // NO
@@ -262,7 +280,7 @@ define([
       }
     );
 
-    pixiStage = new pixi.Stage(0x000000);
+    pixiStage = new pixi.Stage(0x004358);
 
     var renderer = pixi.autoDetectRenderer(step * (columnCount - 1),
                                            step * (rowCount - 1),
