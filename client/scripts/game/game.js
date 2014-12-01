@@ -276,7 +276,7 @@ define([
       audio.loadSoundFile('assets/footstep.wav', 'step'),
       audio.loadSoundFile('assets/attack.wav', 'attack'),
       function () {
-        bgMusic = audio.play('bg1', {volume: 0.5, loop: true});
+        bgMusic = audio.play('bg1', {volume: 0.05, loop: true});
       }
     );
 

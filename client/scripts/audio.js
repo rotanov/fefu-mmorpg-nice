@@ -7,7 +7,6 @@ define([
 
   var context;
   var masterGainNode;
-  var masterDelayNode;
   var muted = false;
   var audio = {};
   var buffers = {};
@@ -32,22 +31,7 @@ define([
     var c = context;
 
     masterGainNode = c.createGain();
-    // masterGainNode.connect(c.destination);
-
-    masterDelayNode = c.createDelay();
-    masterDelayNode.delayTime.value = 0.2;
-    // masterDelayNode.connect(masterGainNode);
-    masterGainNode.connect(masterDelayNode);
-    masterDelayNode.connect(c.destination);
-
-    var echoGain = c.createGain();
-    echoGain.gain.value = 0.7;
-    var filter = c.createBiquadFilter();
-    filter.frequency.value = 1000;
-
-    masterDelayNode.connect(filter);
-    filter.connect(echoGain);
-    echoGain.connect(masterDelayNode);
+    masterGainNode.connect(c.destination);
   }
 
   audio.loadSoundFile = function (url, name) {
