@@ -7,7 +7,6 @@ define([
 ], function (pixi, Actor, Emitter) {
 
   function drawBody(base, tail, color, heroClass) {
-    // base.lineStyle(10, 0xFF0000, 0.5);
     base.clear();
     base.beginFill(color, 1.0);
     switch (heroClass) {
@@ -28,8 +27,29 @@ define([
         break;
 
       default:
-        base.drawPolygon(-10, -10, 10, -10, 0, 10);
-        base.drawPolygon(-10, 10, 10, 10, 0, -10);
+        base.lineStyle(2, 0x000000, 1.0);
+        base.beginFill(0xff0000, 1.0);
+        base.drawCircle(0, 0, 14);
+        base.beginFill(color, 1.0);
+        base.drawRect(-17, -8, 10, 16);
+        base.drawRect(7, -8, 10, 16);
+        base.endFill();
+
+        for (var i = 0; i < 4; i++) {
+          base.moveTo(-17, -4 + i * 4);
+          base.lineTo(-7, -4 + i * 4)
+        }
+        for (var i = 0; i < 4; i++) {
+          base.moveTo(7, -4 + i * 4);
+          base.lineTo(17, -4 + i * 4)
+        }
+
+        tail.clear();
+        tail.beginFill(0x550000, 1.0);
+        tail.drawCircle(0, 0, 10);
+        tail.position.set(0, 0);
+        tail.endFill();
+        return;
         break;
     }
     base.endFill();
