@@ -223,76 +223,9 @@ void GameServer::tick()
     float x = p.GetPosition().x;
     float y = p.GetPosition().y;
 
-    bool collided = false;
-
-//    if ((levelMap_.GetCell(x + 0.49f, y - 0.51f) != '.'
-//        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
-//        && levelMap_.GetCell(x - slideThreshold_+ 0.5f, y) == '.'
-//        && (direction == EActorDirection::NORTH
-//        || direction == EActorDirection::SOUTH))
-//    {
-//      p.SetPosition(Vector2(x - slideThreshold_+ 0.0001f, p.GetPosition().y));
-//    }
-
-//    if (levelMap_.GetCell(x + slideThreshold_- 0.5f, y) == '.'
-//        &&((levelMap_.GetCell(x - 0.5f, y - 0.51f) != '.'
-//        || levelMap_.GetCell(x - 0.5f, y + 0.49f) != '.')
-//        && (direction == EActorDirection::NORTH
-//        || direction == EActorDirection::SOUTH)))
-//    {
-//      p.SetPosition(Vector2(x + slideThreshold_- 0.0001f, p.GetPosition().y));
-//    }
-
-//    if (levelMap_.GetCell(x, y - slideThreshold_ + 0.5f) == '.'
-//        && (levelMap_.GetCell(x - 0.51f, y + 0.49f) != '.'
-//        || levelMap_.GetCell(x + 0.49f, y + 0.49f) != '.')
-//        && (direction == EActorDirection::EAST
-//        || direction == EActorDirection::WEST))
-//    {
-//      p.SetPosition(Vector2(p.GetPosition().x, y - slideThreshold_+ 0.0001f));
-//    }
-
-//    if ((levelMap_.GetCell(x + 0.49f, y - 0.5f) != '.'
-//        || levelMap_.GetCell(x - 0.51f, y - 0.5f) != '.')
-//        && levelMap_.GetCell(x, y + slideThreshold_- 0.5f) == '.'
-//        && (direction == EActorDirection::EAST
-//        || direction == EActorDirection::WEST))
-//    {
-//      p.SetPosition(Vector2(p.GetPosition().x, y + slideThreshold_ - 0.001f));
-//    }
-
-    if (levelMap_.GetCell(x + 0.5f, y) != '.')
-    {
-      p.SetPosition(Vector2(round(x + 0.5f) - 0.5f, p.GetPosition().y));
-      collided = true;
-    }
-
-    if (levelMap_.GetCell(x - 0.51f, y) != '.')
-    {
-      p.SetPosition(Vector2(round(x - 0.5f) + 0.5f, p.GetPosition().y));
-      collided = true;
-    }
-
-    if (levelMap_.GetCell(x, y + 0.5f) != '.')
-    {
-      p.SetPosition(Vector2(p.GetPosition().x, round(y + 0.5f) - 0.5f));
-      collided = true;
-    }
-
-    if (levelMap_.GetCell(x, y - 0.51f) != '.')
-    {
-      p.SetPosition(Vector2(p.GetPosition().x, round(y - 0.5f) + 0.5f));
-      collided = true;
-    }
-
-    collided = false;
-
     auto cellPos = actor->GetPosition() + actor->GetDirectionVector() * 0.5;
+    bool collided = levelMap_.GetCell(cellPos) != '.';
 
-    if (levelMap_.GetCell(cellPos) != '.')
-    {
-      collided = true;
-    }
     if (collided)
     {
       actor->OnCollideWorld();
@@ -302,6 +235,8 @@ void GameServer::tick()
   float dt = (time_.elapsed() - lastTime_) * 0.001f;
   lastTime_ = time_.elapsed();
 
+  std::vector<Actor*> deadActors;
+
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
@@ -310,18 +245,29 @@ void GameServer::tick()
     actor->SetVelocity(v * playerVelocity_);
     actor->Update(dt);
     levelMap_.IndexActor(actor);
+
+    Creature* creature = dynamic_cast<Creature*>(actor);
+    if (creature
+        && creature->GetHealth() <= 0)
+    {
+      if (actor->GetType() == EActorType::MONSTER)
+      {
+        deadActors.push_back(actor);
+      }
+      else if (actor->GetType() == EActorType::PLAYER)
+      {
+
+      }
+    }
   }
 
-  QVariantMap tickMessage;
-  tickMessage["tick"] = tick_;
-  tickMessage["events"] = events_;
-  events_.clear();
-  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
-  tick_++;
+  for (auto actor : deadActors)
+  {
+    Actor* a = actor;
+    KillActor_(a);
+  }
 
-//  return;
-
-  for (Actor* actor: actors_)
+  for (Actor* actor : actors_)
   {
     if (actor->GetType() == EActorType::MONSTER)
     {
@@ -407,17 +353,6 @@ void GameServer::tick()
             }
           }
         }
-      }
-    }
-
-    if (actor->GetType() == EActorType::MONSTER
-        || actor->GetType() == EActorType::PLAYER)
-    {
-      Creature* monster = dynamic_cast<Creature*>(actor);
-      if (monster->GetHealth() <= 0)
-      {
-        KillActor_(actor);
-        break;
       }
     }
   }
@@ -588,6 +523,13 @@ void GameServer::tick()
       levelMap_.IndexActor(actor);
     }
   }
+
+  QVariantMap tickMessage;
+  tickMessage["tick"] = tick_;
+  tickMessage["events"] = events_;
+  events_.clear();
+  emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
+  tick_++;
 }
 
 //==============================================================================
@@ -851,7 +793,7 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
     rows.push_back(row);
   }
 
-  for (auto& a : actorsInArea)
+  for (auto a : actorsInArea)
   {
     QVariantMap actor;
     actor["type"] = TypeToString[a->GetType()];
