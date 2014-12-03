@@ -19,7 +19,7 @@ define([
   var wsURI_;
   var tickHandler_;
   var socket;
-  var resolvers = {};
+  var promiseHandlers = {};
 
   function getServerAddress() {
     return serverAddress_;
@@ -40,10 +40,10 @@ define([
       utils.assert(sid_ !== undefined);
       utils.assert(socket !== undefined);
       message.sid = sid_;
-      if (resolvers[action] === undefined) {
-        resolvers[action] = [];
+      if (promiseHandlers[action] === undefined) {
+        promiseHandlers[action] = [];
       }
-      resolvers[action].push(resolve);
+      promiseHandlers[action].push({resolve: resolve, reject: reject});
       socket.send(JSON.stringify(message));
     });
   }
@@ -56,13 +56,20 @@ define([
 
       oReq.onreadystatechange = function () {
         if (oReq.readyState === 4) {
-          utils.assert(oReq.status === 200);
+          switch (oReq.status) {
+            case 200:
+              if (oReq.response.result === 'ok') {
+                resolve(oReq.response);
+              } else {
+                utils.logError(JSON.stringify(oReq.response));
+                reject(oReq.response);
+              }
+            break;
 
-          if (oReq.response.result === 'ok') {
-            resolve(oReq.response);
-          } else {
-            utils.logError(JSON.stringify(oReq.response));
-            reject(oReq.response);
+            default:
+              console.log('readyState is 4 and status = ', oReq.status);
+              reject(oReq.response);
+            break;
           }
         }
       };
@@ -99,7 +106,7 @@ define([
       action: 'register',
       login: login,
       password: password,
-      'class': heroType
+      class: heroType
     });
   }
 
@@ -163,7 +170,7 @@ define([
     .then(function () {
       sid_ = undefined;
       tickHandler_ = undefined;
-      resolvers = {};
+      promiseHandlers = {};
       if (socket !== undefined) {
         socket.close();
       }
@@ -316,15 +323,16 @@ define([
           }
 
         } else {
+          var queue = promiseHandlers[data.action];
+          if (queue === undefined || queue.length === 0) {
+            // TODO: unexpected error
+          }
+          var handler = queue.shift();
           if (data.result === 'ok') {
-            var queue = resolvers[data.action];
-            if (queue !== undefined && queue.length != 0) {
-              var resolve = queue.shift();
-              resolve(data);
-            }
+            handler.resolve(data);
           } else {
             utils.logError(event.data);
-            reject(data);
+            handler.reject(data);
           }
         }
       };
