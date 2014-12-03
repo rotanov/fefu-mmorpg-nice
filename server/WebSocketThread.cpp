@@ -31,7 +31,8 @@ void SocketThread::run()
                .toStdString() << std::endl;
 
   // Connecting the socket signals here to exec the slots in the new thread
-  QObject::connect(socket, SIGNAL(textFrameReceived(QString, bool)), this, SLOT(processMessage(QString, bool)));
+  connect(socket, &QWebSocket::textMessageReceived
+        , this, &SocketThread::processMessage);
   QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
   //    QObject::connect(socket, SIGNAL(pong(quint64)), this, SLOT(processPong(quint64)));
   QObject::connect(this, SIGNAL(finished()), this, SLOT(finished()), Qt::DirectConnection);
@@ -46,12 +47,8 @@ void SocketThread::finished()
   this->deleteLater();
 }
 
-void SocketThread::processMessage(QString message, bool lastFrame)
+void SocketThread::processMessage(QString message)
 {
-  if (!lastFrame)
-  {
-    qDebug() << "ws: non last frame";
-  }
   // ANY PROCESS HERE IS DONE IN THE SOCKET THREAD !
   //    std::cout << tr("thread 0x%1 | %2")
   //        .arg(QString::number((unsigned int)QThread::currentThreadId(), 16))

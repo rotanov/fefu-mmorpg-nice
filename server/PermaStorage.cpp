@@ -63,7 +63,7 @@ void PermaStorage::InitSchema()
       pass varchar(128) NOT NULL,
       salt varchar(64) NOT NULL,
       hero_class varchar(64) NOT NULL,
-      sid varchar(40) NOT NULL DEFAULT '',
+      sid varchar(40) NOT NULL DEFAULT 'virgin',
       x real NOT NULL DEFAULT 0.0,
       y real NOT NULL DEFAULT 0.0
     )
@@ -107,6 +107,19 @@ bool PermaStorage::GetUser(const QString login, UserData& userData)
     return true;
   }
   return false;
+}
+
+void PermaStorage::UpdateUser(const QString login, const QString sid
+                            , float x, float y)
+{
+  QSqlQuery q;
+  q.prepare("UPDATE users SET (sid, x, y) = (:sid, :x, :y) WHERE login = :login");
+  q.bindValue(":sid", sid);
+  q.bindValue(":x", x);
+  q.bindValue(":y", y);
+  q.bindValue(":login", login);
+
+  ExecQuery_(q);
 }
 
 void PermaStorage::GetMonster(Monster* m, const int id)

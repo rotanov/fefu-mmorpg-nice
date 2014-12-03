@@ -21,7 +21,7 @@ public:
   void run();
 
 private slots:
-  void processMessage(QString message, bool lastFrame);
+  void processMessage(QString message);
   void sendMessage(QString message);
   void processPong(quint64 elapsedTime);
   void socketDisconnected();

@@ -28,8 +28,9 @@ public:
   void AddUser(const QString login, const QString passHash,
                const QString salt, const QString heroClass);
   bool GetUser(const QString login, UserData& userData);
+  void UpdateUser(const QString login, const QString sid, float x, float y);
   void GetMonster(Monster* m, const int id);
-  void GetItem (Item* i, const int id );
+  void GetItem(Item* i, const int id );
 
 private:
   QSqlDatabase db_;

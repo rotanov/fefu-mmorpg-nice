@@ -695,22 +695,41 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
     return;
   }
 
+  Player* player = nullptr;
   QByteArray sid;
 
-  do
+  bool virgin = userData.sid == "virgin";
+
+  if (sidToPlayer_.find(userData.sid.toLatin1()) == sidToPlayer_.end())
   {
-    QByteArray id = QString::number(qrand()).toLatin1();
-    sid = QCryptographicHash::hash(id, QCryptographicHash::Sha1);
-  } while (sidToPlayer_.find(sid) != sidToPlayer_.end());
+    do
+    {
+      QByteArray id = QString::number(qrand()).toLatin1();
+      sid = QCryptographicHash::hash(id, QCryptographicHash::Sha1);
+    } while (sidToPlayer_.find(sid) != sidToPlayer_.end());
 
-  sid = sid.toHex();
+    sid = sid.toHex();
 
-  Player* player = CreatePlayer_(login, userData.heroClass);
-  sidToPlayer_.insert(sid, player);
+    player = CreatePlayer_(login, userData.heroClass);
+    sidToPlayer_.insert(sid, player);
+    if (!virgin)
+    {
+      player->SetPosition(Vector2(userData.x, userData.y));
+    }
+  }
+  else
+  {
+    sid = userData.sid.toLatin1();
+    player = *sidToPlayer_.find(sid);
+  }
+  auto p = player->GetPosition();
+  storage_.UpdateUser(login, sid, p.x, p.y);
+
   response["sid"] = sid;
   response["webSocket"] = wsAddress_;
   response["fistId"] = FistId_;
   response["id"] = player->GetId();
+
   qDebug() << "Logged in, login: " << player->GetLogin();
 }
 
@@ -721,10 +740,18 @@ void GameServer::HandleLogout_(const QVariantMap& request, QVariantMap& response
 
   auto sid = request["sid"].toByteArray();
   auto it = sidToPlayer_.find(sid);
-  Player* p = it.value();
-  qDebug() << "Logged out, login: " << p->GetLogin();
+  if (it == sidToPlayer_.end())
+  {
+    qDebug() << "User with sid " << sid << " already logged out.";
+    return;
+  }
+
+  Player* player = it.value();
+  auto p = player->GetPosition();
+  storage_.UpdateUser(player->GetLogin(), "logged-out", p.x, p.y);
+  qDebug() << "Logged out, login: " << player->GetLogin();
   sidToPlayer_.erase(it);
-  KillActor_(p);
+  KillActor_(player);
 }
 
 //==============================================================================
