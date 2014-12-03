@@ -36,24 +36,37 @@ require([
 
       game.start(data)
       .then(function (view) {
-        $('#game-screen').add(view);
-        $(view).set({$height: '0vh', $display: 'block', $width: 'auto', '$margin-left': 'auto', '$margin-right': 'auto'});
+        try {
+          $('#game-screen').add(view);
+          $(view).set({$height: '0vh', $display: 'block', $width: 'auto',
+            '$margin-left': 'auto', '$margin-right': 'auto'});
 
-        $('#login-form').animate({$height: '0px'}, 400)
-        .then(toggleGameScreen)
-        .then(function () {
-          $(view).animate({$height: '100%'}, 200);
-        });
+          $('#login-form').animate({$height: '0px'}, 400)
+          .then(toggleGameScreen)
+          .then(function () {
+            $(view).animate({$height: '100%'}, 200);
+          })
+          .catch(function (e) {
+            console.log(e, e.stack);
+          });
 
-        $('#sign-in').fill('Sign Out');
-        window.addEventListener('resize', function () {
-          // renderer.view.style.width = $('#game-screen').get('$width');
-          $('#message').set({scrollTop: $$('#message').scrollHeight});
-        });
+          $('#sign-in').fill('Sign Out');
+          window.addEventListener('resize', function () {
+            // renderer.view.style.width = $('#game-screen').get('$width');
+            $('#message').set({scrollTop: $$('#message').scrollHeight});
+          });
+        } catch (e) {
+          console.log(e, e.stack);
+        }
       });
     })
     .catch(function (data) {
-      rpgMsg('Invalid login or password.');
+      if (data.result === 'invalidCredentials') {
+        rpgMsg('Invalid login or password.');
+      } else {
+        rpgMsg('Unknown error');
+        console.log(data, JSON.stringify(data));
+      }
       $('#login').set({disabled: false});
     });
   }

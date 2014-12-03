@@ -36,9 +36,9 @@ define([
   function sendWS(message) {
     return new Promise(function (resolve, reject) {
       var action = message.action;
-      utils.assert(action !== undefined);
-      utils.assert(sid_ !== undefined);
-      utils.assert(socket !== undefined);
+      utils.assert(action !== undefined, 'action is undefined');
+      utils.assert(sid_ !== undefined, 'sid is undefined');
+      utils.assert(socket !== undefined, 'socket is undefined');
       message.sid = sid_;
       if (promiseHandlers[action] === undefined) {
         promiseHandlers[action] = [];
@@ -309,8 +309,8 @@ define([
 
   function connect() {
     return new Promise(function (resolve, reject) {
-      utils.assert(sid_ !== undefined);
-      utils.assert(wsURI_ !== undefined);
+      utils.assert(sid_ !== undefined, 'sid is undefined');
+      utils.assert(wsURI_ !== undefined, 'wsURI is undefined');
 
       socket = new WebSocket(wsURI_);
 

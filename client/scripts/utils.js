@@ -19,9 +19,10 @@ define([
     console.log("Error: ", message, e.stack);
   }
 
-  function assert(expression) {
+  function assert(expression, message) {
+    message = message || 'no detailed information available';
     if (!expression) {
-      reportError("assertion failed");
+      reportError("assertion failed: " + message);
     }
   }
 
