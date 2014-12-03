@@ -100,14 +100,20 @@ require([
     });
   });
 
+  var muteAudio = function () {
+    audio.mute();
+    $('#mute-volume').set({title: 'Unmute'})
+    .fill([EE('i', {$: 'fa fa-volume-off'}),
+           EE('i', {$: 'fa fa-ban fa-stacked',
+            $color: '#004358', $position: 'relative', $left: '-10px'})]);
+  }
+
   $('#mute-volume').onClick(function () {
     if (!audio.isMuted()) {
-      audio.mute();
-      $('#mute-volume').set({title: 'Unmute'})
-      .fill([EE('i', {$: 'fa fa-volume-off'}),
-             EE('i', {$: 'fa fa-ban fa-stacked',
-              $color: '#004358', $position: 'relative', $left: '-10px'})]);
+      localStorage.setItem('muted', true);
+      muteAudio();
     } else {
+      localStorage.setItem('muted', false);
       audio.unmute();
       $('#mute-volume').set({title: 'Mute'})
       .fill(EE('i', {$: 'fa fa-volume-up'}));
@@ -133,6 +139,11 @@ require([
     });
 
     audio.init();
+
+    var muted = localStorage.getItem('muted');
+    if (muted !== undefined && muted === "true") {
+      muteAudio();
+    }
 
     $('#login-form').animate({$height: '60vh'}, 300);
 
