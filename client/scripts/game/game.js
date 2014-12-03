@@ -289,9 +289,10 @@ define([
 
     var st = new Stats();
     st.setMode(0);
-    st.domElement.style.left = '0px';
+    st.domElement.style.left = 'calc(100vw - 96px)';
     st.domElement.style.top = '0px';
-    $('#left-panel').add(st.domElement);
+    st.domElement.style.position = 'absolute';
+    $('#game-screen').add(st.domElement);
 
     composeScene();
 

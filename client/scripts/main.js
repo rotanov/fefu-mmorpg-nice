@@ -39,12 +39,12 @@ require([
       game.start(data)
       .then(function (view) {
         $('#game-screen').add(view);
-        $(view).set({$height: '0vh', $display: 'block', $width: '100%'});
+        $(view).set({$height: '0vh', $display: 'block', $width: 'auto', '$margin-left': 'auto', '$margin-right': 'auto'});
 
         $('#login-form').animate({$height: '0px'}, 400)
         .then(toggleGameScreen)
         .then(function () {
-          $(view).animate({$height: '60vh'}, 200);
+          $(view).animate({$height: '100%'}, 200);
         });
 
         $('#sign-in').fill('Sign Out');
@@ -55,7 +55,7 @@ require([
       });
     })
     .catch(function (data) {
-      rpgMsg("Invalid login or password.");
+      rpgMsg('Invalid login or password.');
       $('#login').set({disabled: false});
     });
   }
@@ -134,7 +134,7 @@ require([
 
     audio.init();
 
-    $('#login-form').animate({$height: '40vh'}, 300);
+    $('#login-form').animate({$height: '60vh'}, 300);
 
     var serverAddress = location.origin;
     if (location.protocol === 'file:') {
