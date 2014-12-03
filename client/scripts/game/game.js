@@ -388,7 +388,7 @@ define([
       changeStepSoundState();
 
       if (e.keyCode === 90) {
-        audio.play('attack');
+        audio.play('attack', {volume: 0.2});
 
           var p = root.hero.lastDir;
           api.use(fistId, p.x + gPlayerX, p.y + gPlayerY)
