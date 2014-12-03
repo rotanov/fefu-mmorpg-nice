@@ -19,8 +19,6 @@ require([
       var height = 'calc(100vh - 141px - 20px - 1.5em - 5px)'
       var time = 400;
       Promise.join(
-        $('#left-panel').animate({$height: height}, time),
-        $('#right-panel').animate({$height: height}, time),
         $('#game-screen').animate({$height: height}, time),
         function () {
           resolve();
@@ -134,6 +132,7 @@ require([
   })
 
   $(function () {
+    $('body').set({$display: 'block'});
     $('#server-address').onChange(function () {
       api.setServerAddress($('#server-address').val());
     });

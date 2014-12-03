@@ -20,7 +20,7 @@
 
 </head>
 
-<body style="background-color: #234455;">
+<body style="background-color: #234455; display: none;">
 
   <style type="text/css">
     @font-face {
@@ -55,40 +55,38 @@
     }
   </style>
   <div class="pure-u-1" id="login-form">
-    <div style="margin-left: 25%; margin-right: 25%; width: 100wv;">
-      <form id="form-register" class="pure-form pure-form-aligned">
-        <fieldset>
-          <div class="pure-control-group">
-            <label for="server-address">Server</label>
-            <input id="server-address" type="url" value="http://localhost:6543"/>
-          </div>
+    <form id="form-register" class="pure-form pure-form-aligned" style="margin-left:auto; margin-right:auto; width: auto">
+      <fieldset>
+        <div class="pure-control-group">
+          <label for="server-address">Server</label>
+          <input id="server-address" type="url" value="http://localhost:6543"/>
+        </div>
 
-          <div class="pure-control-group">
-            <label for="username">Login</label>
-            <input type="text" id="username" name="login" value="aa"/>
-          </div>
+        <div class="pure-control-group">
+          <label for="username">Login</label>
+          <input type="text" id="username" name="login" value="aa"/>
+        </div>
 
-          <div class="pure-control-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" value="aaaaaa"/>
-          </div>
+        <div class="pure-control-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" value="aaaaaa"/>
+        </div>
 
-          <div class="pure-control-group">
-            <label for="player-classes">Player Class</label>
-            <select id="player-classes" name="player-classes">
-              <option selected value="warrior">warrior</option>
-              <option value="rogue">rogue</option>
-              <option value="mage">mage</option>
-            </select>
-          </div>
+        <div class="pure-control-group">
+          <label for="player-classes">Player Class</label>
+          <select id="player-classes" name="player-classes">
+            <option selected value="warrior">warrior</option>
+            <option value="rogue">rogue</option>
+            <option value="mage">mage</option>
+          </select>
+        </div>
 
-          <div class="pure-controls">
-            <input type="button" value="Register" id="register" class="pure-button"/>
-            <input type="button" value="Sign in" id="login" class="pure-button pure-button-primary" autofocus/>
-          </div>
-        </fieldset>
-      </form>
-    </div>
+        <div class="pure-controls">
+          <input type="button" value="Register" id="register" class="pure-button"/>
+          <input type="button" value="Sign in" id="login" class="pure-button pure-button-primary" autofocus/>
+        </div>
+      </fieldset>
+    </form>
   </div>
 
   <div class="pure-u-1" id="game-screen" style="height: 0vh; background-color: #1f8a70;"></div>
