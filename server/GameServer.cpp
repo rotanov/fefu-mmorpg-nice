@@ -285,14 +285,14 @@ void GameServer::tick()
           if (abs(m_pos.x - t_pos.x - 1.0f) < playerVelocity_
               && m_pos.x - t_pos.x - 1.0f != 0)
           {
-            monster->SetPosition(Vector2(t_pos.x + 1.0f, m_pos.y));
+            SetActorPosition_(monster, Vector2(t_pos.x + 1.0f, m_pos.y));
             monster->Stop();
           }
 
           if (abs(m_pos.y - t_pos.y + 1.0f) < playerVelocity_
               && m_pos.y - t_pos.y + 1.0f != 0)
           {
-            monster->SetPosition(Vector2(m_pos.x, t_pos.y - 1.0f));
+            SetActorPosition_(monster, Vector2(m_pos.x, t_pos.y - 1.0f));
             monster->Stop();
           }
 
@@ -499,7 +499,7 @@ void GameServer::tick()
         }
         else if (neighbour->GetType() != EActorType::ITEM)
         {
-          actor->SetPosition(old_pos);
+          SetActorPosition_(actor, Vector2(old_pos));
         }
       }
     }
@@ -657,7 +657,7 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
     sidToPlayer_.insert(sid, player);
     if (!virgin)
     {
-      player->SetPosition(Vector2(userData.x, userData.y));
+      SetActorPosition_(player, Vector2(userData.x, userData.y));
     }
   }
   else
@@ -1209,13 +1209,13 @@ void GameServer::HandleUseSkill_(const QVariantMap& request, QVariantMap& respon
     WriteResult_(response, EFEMPResult::BAD_PLACING);
     return;
   }
-  Projectile* project = CreateActor_<Projectile>();
-  project->SetPosition(Vector2(p->GetPosition().x, p->GetPosition().y));
-  project->SetPoint(Vector2(x, y));
-  project->SetPlayer(p);
-  project->GetCoord ();
-  project->SetDirection(EActorDirection::EAST, true);
-  levelMap_.IndexActor(project);
+  Projectile* projectile = CreateActor_<Projectile>();
+  SetActorPosition_(projectile, Vector2(p->GetPosition().x, p->GetPosition().y));
+  projectile->SetPoint(Vector2(x, y));
+  projectile->SetPlayer(p);
+  // Was not indexed in level map properly
+  projectile->GetCoord();
+  projectile->SetDirection(EActorDirection::EAST, true);
   WriteResult_(response, EFEMPResult::OK);
   return;
 }
@@ -1245,8 +1245,7 @@ void GameServer::HandleDrop_(const QVariantMap& request, QVariantMap& response)
     {
       //idToActor_[item->GetId()] = item;
       actors_.push_back(item);
-      item->SetPosition(p->GetPosition());
-      levelMap_.IndexActor(item);
+      SetActorPosition_(item, p->GetPosition());
       item->SetOnTheGround(true);
       p->items.erase(std::remove(p->items.begin(), p->items.end(), item)
                     , p->items.end());
@@ -1655,7 +1654,7 @@ void GameServer::GetItems(Creature* actor)
   {
     for(Item* item: dynamic_cast<Player*>(actor)->items)
     {
-      item->SetPosition(actor->GetPosition());
+      SetActorPosition_(item, actor->GetPosition());
       actors_.push_back(item);
     }
   }

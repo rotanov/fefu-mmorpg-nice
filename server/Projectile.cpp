@@ -68,8 +68,9 @@ void Projectile::GetCoord()
 {
   float shift = 1.2f;
   float alpha = atan2(point_attack_.GetY()- position_.GetY(), point_attack_.GetX() - position_.GetX());
-  position_.x += shift * cos(alpha),
-  position_.y += shift * sin(alpha);
+  // TODO: index in map
+  //  position_.x += shift * cos(alpha),
+  //  position_.y += shift * sin(alpha);
   //if (point_attack_.GetY()- position_.GetY() > 0)
     signy_ = point_attack_.GetY()- position_.GetY() > 0;
 //   else

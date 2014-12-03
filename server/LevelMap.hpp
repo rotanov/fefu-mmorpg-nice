@@ -23,6 +23,8 @@ public:
   int GetCell(const Vector2& p) const;
   void SetCell(int column, int row, int value);
 
+  std::vector<std::pair<int, int> > HasActor(Actor* actor);
+
   const std::vector<Actor*>& GetActors(int column, int row) const;
 
   void Resize(int columnCount, int rowCount);

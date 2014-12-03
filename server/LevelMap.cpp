@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <utility>
 
 #include <QtGui/QImage>
 
@@ -65,6 +66,23 @@ void LevelMap::SetCell(int column, int row, int value)
   data_[row * columnCount_ + column] = value;
 }
 
+std::vector<std::pair<int, int>> LevelMap::HasActor(Actor* actor)
+{
+  unsigned n = columnCount_ * rowCount_;
+  std::vector<std::pair<int, int>> result;
+  for (unsigned i = 0; i < n; i++)
+  {
+    auto& a = actors_[i];
+    if (std::find(a.begin(), a.end(), actor) != a.end())
+    {
+      auto c = i % columnCount_;
+      auto r = i / columnCount_;
+      result.push_back(std::make_pair(c, r));
+    }
+  }
+  return result;
+}
+
 const std::vector<Actor*>& LevelMap::GetActors(int column, int row) const
 {
   if (column < 0
@@ -110,7 +128,7 @@ void LevelMap::RemoveActor(const Actor* actor)
   assert(actor != nullptr);
 
   auto cells = actor->GetOccupiedCells();
-  for (auto p: cells)
+  for (auto p : cells)
   {
     int column = p.first;
     int row = p.second;
