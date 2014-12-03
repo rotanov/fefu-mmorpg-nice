@@ -6,8 +6,23 @@ define([
   'game/emitter'
 ], function (pixi, Actor, Emitter) {
 
-  function drawBody(base, tail, color, heroClass) {
+  function drawBody(hero, color, heroClass) {
+    var base = hero.base;
+    var tail = hero.tail;
+    var hud = hero.hud;
     base.clear();
+
+    // base.lineStyle(1, 0x000000, 1.0);
+    // base.drawRect(-16, -16, 32, 32);
+
+    hud.clear();
+    if (heroClass !== 'item') {
+      hud.lineStyle(2, 0x000000, 1.0);
+      hud.drawRect(-32, -32, 64, 6);
+      hud.lineStyle(2, 0xfd7400, 1.0);
+      hud.drawRect(-30, -30, 60 * hero.health / hero.maxHealth, 2);
+    }
+
     base.beginFill(color, 1.0);
     switch (heroClass) {
       case 'warrior':
@@ -67,16 +82,30 @@ define([
     Actor.call(this);
 
     this.heroClass = heroClass;
+    this.health = 100;
+    this.maxHealth = 100;
+    this.targetAngle = 0;
+
+    var body = new pixi.Graphics();
+    this.addChild(body);
 
     var base = new pixi.Graphics();
-    this.addChild(base);
+    body.addChild(base);
     var tail = new pixi.Graphics();
-    this.addChild(tail);
+    body.addChild(tail);
 
-    drawBody(base, tail, 0xFFFFFF);
+    var hud = new pixi.Graphics();
+    this.addChild(hud);
+    this.hud = hud;
+
+    this.body = body;
+    this.base = base;
+    this.tail = tail;
+
+    drawBody(this, 0xFFFFFF);
 
     this.drawBody = function(color) {
-      drawBody(base, tail, color, this.heroClass);
+      drawBody(this, color, this.heroClass);
     }
 
     this.phase = Math.random() * Math.PI * 2;
@@ -90,13 +119,37 @@ define([
     var t = this.phase;
     var scale = 1.5 + Math.sin(t) * 0.1;
     if (this.heroClass !== 'item') {
-      this.scale.set(scale, scale);
+      this.body.scale.set(scale, scale);
     }
+
+    var angleDelta = this.targetAngle - this.body.rotation;
+    if (angleDelta > Math.PI) {
+      angleDelta = -Math.PI * 2 + angleDelta;
+    }
+    this.body.rotation += angleDelta * dt * 10;
   }
 
   Hero.prototype.setColor = function (color, heroClass) {
     this.heroClass = heroClass;
     this.drawBody(color);
+  }
+
+  Hero.prototype.setHealth = function (health, maxHealth) {
+    this.health = health;
+    this.maxHealth = maxHealth;
+  }
+
+  Hero.prototype.setHeroDeltas = function (dx, dy) {
+    if (dx * dy != 0.0) {
+      var l = Math.sqrt(dx*dx + dy*dy);
+      dx /= l;
+      dy /= l;
+      this.lastDir = new pixi.Point(dx, dy);
+    }
+
+    if (dx != 0 || dy != 0) {
+      this.targetAngle = Math.PI / 4 + Math.atan2(dy, dx);
+    }
   }
 
   return Hero;

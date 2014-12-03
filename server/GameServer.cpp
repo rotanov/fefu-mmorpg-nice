@@ -686,7 +686,8 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
 
   QByteArray passwordWithSalt = password.toUtf8();
   passwordWithSalt.append(salt);
-  QByteArray passHash = QCryptographicHash::hash(passwordWithSalt, QCryptographicHash::Sha3_256);
+  QByteArray passHash = QCryptographicHash::hash(passwordWithSalt,
+    QCryptographicHash::Sha3_256);
 
   if (passHash != refPassHash)
   {

@@ -81,7 +81,7 @@ float Monster::GetAlertness()
 QVariantMap Monster::atack(Creature* actor)
 {
   int val = rand();
-  val = 2.0f;
+  val = 100.0f;
 //  if (Flags.lastIndexOf("CAN_BLOW") != -1)
   {
     actor->SetHealth(actor->GetHealth() - val);

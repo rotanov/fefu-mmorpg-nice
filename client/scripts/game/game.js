@@ -174,11 +174,13 @@ define([
         //actors[j].id = actor[i].id;
         //actors[j].name = actor[i].name;
         if (a.id === id_) {
+          root.hero.setHealth(a.health, a.maxHealth);
           root.hero.setColor(0xffffff, a.class);
           iSkip = 1;
           continue;
         }
         if (a.type === 'monster') {
+          h.setHealth(a.health, a.maxHealth);
           h.setColor(0xfd7400, 'monster');
         }
         else if (a.type === 'player') {
@@ -294,8 +296,6 @@ define([
 
     composeScene();
 
-    var t = 0.0;
-
     var ox = renderer.width * 0.5;
     var oy = renderer.height * 0.5;
     var angle = Math.PI / 4.0;
@@ -313,30 +313,12 @@ define([
       var dx = keys[39] - keys[37];
       var dy = keys[40] - keys[38];
 
-      if (dx * dy != 0.0) {
-        var l = Math.sqrt(dx*dx + dy*dy);
-        dx /= l;
-        dy /= l;
-        root.hero.lastDir = new pixi.Point(dx, dy);
-      }
+      root.hero.setHeroDeltas(dx, dy);
 
-      // ox = gPlayerX * step;
-      // oy = gPlayerY * step;
+      // root.hero.position.set(ox + dx * 5 + Math.sin(t*2) * 5 * dy,
+                             // oy + dy * 5 + Math.sin(t*2) * 5 * -dx);
+      root.hero.position.set(ox, oy);
 
-      if (dx != 0 || dy != 0) {
-        angle = Math.PI / 4 + Math.atan2(dy, dx);
-      }
-
-      var angleDelta = angle - root.hero.rotation;
-      if (angleDelta > Math.PI) {
-        angleDelta = -Math.PI * 2 + angleDelta;
-      }
-      root.hero.rotation += angleDelta * 0.16;
-
-      root.hero.position.set(ox + dx * 5 + Math.sin(t*2) * 5 * dy,
-                             oy + dy * 5 + Math.sin(t*2) * 5 * -dx);
-
-      t += 0.1;
       renderer.render(pixiStage);
 
       var actors = Actor.getActors();

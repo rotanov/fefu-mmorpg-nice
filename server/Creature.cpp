@@ -1,5 +1,7 @@
 #include "Creature.hpp"
 
+#include "2de_Math.h"
+
 Creature::Creature()
 {
 
@@ -17,7 +19,7 @@ float Creature::GetHealth() const
 
 void Creature::SetHealth(const float health)
 {
-  Stat[EStatConst::HP] = health;
+  Stat[EStatConst::HP] = Deku2D::Clamp<float>(health, 0.0f, health);
 }
 
 float Creature::GetMaxHealth() const
