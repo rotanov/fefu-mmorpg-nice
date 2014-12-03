@@ -53,7 +53,7 @@ public:
 
   QString GetName();
 
-  virtual QVariantMap atack(Creature* actor);
+  virtual QVariantMap attack(Creature* actor);
 
   QString name;
   QString symbol;

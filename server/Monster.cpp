@@ -78,7 +78,7 @@ float Monster::GetAlertness()
   return alertness_;
 }
 
-QVariantMap Monster::atack(Creature* actor)
+QVariantMap Monster::attack(Creature* actor)
 {
   int val = rand();
   val = 100.0f;

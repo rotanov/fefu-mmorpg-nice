@@ -66,7 +66,7 @@ void Player::SetDamage(QString str, bool b)
   blows.damage = result;
 }
 
-QVariantMap Player::atack(Creature* actor, int id)
+QVariantMap Player::attack(Creature* actor, int id)
 {
   int val = rand();
   int n = blows.damage->count, m = blows.damage->to;

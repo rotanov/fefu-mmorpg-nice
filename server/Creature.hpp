@@ -37,7 +37,7 @@ public:
 
   float GetCarryingSapacity();
 
-  virtual QVariantMap atack(Creature* actor);
+  virtual QVariantMap attack(Creature* actor);
   virtual void SetRace();
   virtual QString GetRace();
 

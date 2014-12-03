@@ -449,8 +449,8 @@ void GameServer::tick()
 
         if (distance2 <= Sqr(pickUpRadius_))
         {
-          events_ << monster->atack(target);
-          events_ << target->atack(monster);
+          events_ << monster->attack(target);
+          events_ << target->attack(monster);
         }
       }
     }
@@ -1143,7 +1143,7 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
 
         if (distance2 <= Sqr(1.5)) // TODO: WAS pickUpRadius_
         {
-          QVariantMap a = p->atack(target, id);
+          QVariantMap a = p->attack(target, id);
           events_ << a;
 
           if (target->GetHealth() <= 0)
@@ -1151,16 +1151,16 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
             GetItems(target);
             p->SetExperience(p->GetExperience () + 300);
             int lev = p->GetLevel();
-            p->SetLevel (p->GetExperience() / 1000);
+            p->SetLevel(p->GetExperience() / 1000);
             if (lev < p->GetLevel())
             {
-              p->AddStat ();
+              p->AddStat();
               p->UpdateStat();
             }
           }
           else
           {
-            a = target->atack(p);
+            a = target->attack(p);
             events_ << a;
           }
           WriteResult_(response, EFEMPResult::OK);
@@ -1628,7 +1628,7 @@ void GameServer::GetItems(Creature* actor)
 {
   if (actor->GetType() == EActorType::PLAYER)
   {
-    for(Item* item: dynamic_cast<Player*>(actor)->items)
+    for(Item* item : dynamic_cast<Player*>(actor)->items)
     {
       SetActorPosition_(item, actor->GetPosition());
       actors_.push_back(item);

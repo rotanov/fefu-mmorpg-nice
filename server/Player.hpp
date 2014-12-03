@@ -68,7 +68,7 @@ public:
 
   virtual void SetRace();
 
-  virtual QVariantMap atack(Creature* actor, int id);
+  virtual QVariantMap attack(Creature* actor, int id);
 
 private:
   QString login_;
