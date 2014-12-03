@@ -831,23 +831,7 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
       actor["name"] = "fireball_projectile";
     }
 
-    if (actor["health"] <= 0
-        && (actor["type"] == "monster"))
-    {
-      Creature* b = dynamic_cast<Creature*>(a);
-      idToActor_.erase(b->GetId());
-      levelMap_.RemoveActor(b);
-      actors_.erase(std::remove(actors_.begin(), actors_.end(), b), actors_.end());
-      delete b;
-      b = nullptr;
-    }
-
-    if (actor["type"] == "projectile"
-        || actor["type"] == "item"
-        || actor["health"] > 0)
-    {
-      actors << actor;
-    }
+    actors << actor;
   }
 
   response["map"] = rows;
