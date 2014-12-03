@@ -907,14 +907,6 @@ void GameServer::HandleExamine_(const QVariantMap& request, QVariantMap& respons
     response["maxHealth"] = m->GetMaxHealth();
   }
 
-  if (response["health"] <= 0
-      && response["type"] != "item"
-      && response["type"] != "projectile")
-  {
-    WriteResult_ (response, EFEMPResult::BAD_ID);
-    return;
-  }
-
   if (actor->GetType() == EActorType::MONSTER)
   {
     auto m = dynamic_cast<Monster*>(actor);
