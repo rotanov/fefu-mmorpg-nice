@@ -22,10 +22,11 @@ GameServer::GameServer()
   srand(3);
 
   timer_ = new QTimer(this);
+  timer_->setTimerType(Qt::PreciseTimer);
   connect(timer_
-          , &QTimer::timeout
-          , this
-          , &GameServer::tick);
+        , &QTimer::timeout
+        , this
+        , &GameServer::tick);
   timer_->setInterval(1000.0f / static_cast<float>(ticksPerSecond_));
 
   GenRandSmoothMap(levelMap_);
