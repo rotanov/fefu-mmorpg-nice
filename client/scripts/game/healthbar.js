@@ -11,7 +11,7 @@ define([
 
     var barBorder = new pixi.Graphics();
     this.addChild(barBorder);
-    barBorder.beginFill(0xEEEEEE, 1.0);
+    barBorder.beginFill(0xeeeeee, 1.0);
     barBorder.drawRect(-2, -2, 128 + 4, 16 + 4);
     barBorder.endFill();
 
@@ -28,7 +28,7 @@ define([
     blackBar.drawRect(0, 0, 128, 16);
     blackBar.endFill();
 
-    var text = new pixi.Text('', {font: 'bold 14px Consolas'});
+    var text = new pixi.Text('', {font: 'bold 14px Consolas', fill: '#ffffff'});
     this.addChild(text);
 
     text.position.set(4, 2);

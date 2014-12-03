@@ -15,6 +15,8 @@ define([
 
 ], function (Promise, mini, pixi, stats, audio, utils, api, Actor, HealthBar, Hero, Emitter) {
 
+  var rpgMsg = utils.rpgMsg;
+
   var $ = mini.$;
   var EE = mini.EE;
   var $$ = mini.$$;
@@ -60,16 +62,16 @@ define([
     pixiStage.addChild(root);
 
     // draw background (grid)
-    // root.lineStyle(1, 0xFFFFFF, 0.1);
-    // for (var i = 1; i < columnCount; i++) {
-    //   root.moveTo(i * step, 0.0);
-    //   root.lineTo(i * step, step * rowCount);
-    // }
+    root.lineStyle(1, 0xFFFFFF, 0.1);
+    for (var i = 1; i < columnCount; i++) {
+      root.moveTo(i * step, 0.0);
+      root.lineTo(i * step, step * rowCount);
+    }
 
-    // for (var i = 1; i < rowCount; i++) {
-    //   root.moveTo(0.0, i * step);
-    //   root.lineTo(step * columnCount, i * step);
-    // }
+    for (var i = 1; i < rowCount; i++) {
+      root.moveTo(0.0, i * step);
+      root.lineTo(step * columnCount, i * step);
+    }
 
     // level map cells
     var cells = [];
@@ -161,7 +163,6 @@ define([
       // actors[0].x = coordinate(gPlayerX, gPlayerX, columnCount);
       // actors[0].y = coordinate(gPlayerY, gPlayerY, rowCount);
       // actors[0].visible = true;
-      try {
       for (var i = 0; i < heroesBuffer.length; i++) {
         heroesBuffer[i].visible = false;
       }
@@ -193,9 +194,6 @@ define([
         // actors[j].visible = true;
         // setProperties(actor[i], j);
       }
-    } catch (e) {
-      console.log(e);
-    }
 
       // for (var i = j, l = actors.length; i < l; i++) {
       //   actors[i].visible = false;
