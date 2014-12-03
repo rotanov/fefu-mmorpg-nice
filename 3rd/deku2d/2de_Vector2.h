@@ -176,10 +176,16 @@ namespace Deku2D
 			const Vector2 V2_MIDDLE = Vector2(0.5f, 0.5f);
 			const Vector2 V2_BOTTOM_LEFT = Vector2(-1.0f, -1.0f);
 			const Vector2 V2_BOTTOM_RIGHT = Vector2(1.0f, -1.0f);
-			const Vector2 V2_TOP_LEFT = Vector2(1.0f, -1.0f);
+      const Vector2 V2_TOP_LEFT = Vector2(-1.0f, 1.0f);
 			const Vector2 V2_TOP_RIGHT = Vector2(1.0f, 1.0f);
 			const Vector2 V2_DIRECTIONS[4] = {V2_LEFT, V2_DOWN, V2_RIGHT, V2_UP,};
-			const Vector2 V2_DIRECTIONS_DIAG[4] = {V2_BOTTOM_LEFT, V2_BOTTOM_RIGHT, V2_TOP_RIGHT, V2_TOP_LEFT,};
+      const Vector2 V2_DIRECTIONS_DIAG[4] =
+      {
+        V2_BOTTOM_LEFT,
+        V2_BOTTOM_RIGHT,
+        V2_TOP_RIGHT,
+        V2_TOP_LEFT,
+      };
 		}	//	namespace Math
 
 	}	//	namespace Const
