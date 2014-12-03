@@ -200,6 +200,10 @@ define([
       // for (var i = j, l = actors.length; i < l; i++) {
       //   actors[i].visible = false;
       // }
+    })
+    .catch(function (data) {
+      console.log(data);
+      location.href = api.getServerAddress();
     });
   }
 
@@ -222,6 +226,9 @@ define([
         inventory = data.inventory;
         healthBar.setHealth(data.health, data.maxHealth);
       }
+    })
+    .catch(function (data) {
+      location.href = api.getServerAddress();
     });
   }
 
