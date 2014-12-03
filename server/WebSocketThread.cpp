@@ -8,72 +8,54 @@
 SocketThread::SocketThread(QWebSocket *wsSocket)
   : socket(wsSocket)
 {
-  // Set this thread as parent of the socket
-  // This will push the socket in the good thread when using moveToThread on the parent
-  //    if (socket)
-  //    {
-  //        socket->setParent(this);
-  //    }
-
-  // Move this thread object in the thread himsleft
-  // Thats necessary to exec the event loop in this thread
-  //    moveToThread(this);
-}
-
-SocketThread::~SocketThread()
-{
-}
-
-void SocketThread::run()
-{
   std::cout << tr("connect done in thread : 0x%1")
                .arg(QString::number((unsigned int)QThread::currentThreadId(), 16))
                .toStdString() << std::endl;
 
-  // Connecting the socket signals here to exec the slots in the new thread
   connect(socket, &QWebSocket::textMessageReceived
         , this, &SocketThread::processMessage);
-  QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
-  //    QObject::connect(socket, SIGNAL(pong(quint64)), this, SLOT(processPong(quint64)));
-  QObject::connect(this, SIGNAL(finished()), this, SLOT(finished()), Qt::DirectConnection);
 
-  // Launch the event loop to exec the slots
-  exec();
+  connect(socket, &QWebSocket::disconnected
+        , this, &SocketThread::socketDisconnected);
+
+  connect(socket, &QWebSocket::pong
+        , this, &SocketThread::processPong);
+
+  connect(socket, SIGNAL(error(QAbstractSocket::SocketError))
+        , this, SLOT(onError(QAbstractSocket::SocketError)));
 }
 
-void SocketThread::finished()
+SocketThread::~SocketThread()
 {
-  this->moveToThread(QCoreApplication::instance()->thread());
-  this->deleteLater();
+  delete socket;
+}
+
+void SocketThread::run()
+{
+
+}
+
+void SocketThread::onError(QAbstractSocket::SocketError error)
+{
+  Q_UNUSED(error);
+  qDebug() << "socket error: " << socket->errorString();
 }
 
 void SocketThread::processMessage(QString message)
 {
-  // ANY PROCESS HERE IS DONE IN THE SOCKET THREAD !
-  //    std::cout << tr("thread 0x%1 | %2")
-  //        .arg(QString::number((unsigned int)QThread::currentThreadId(), 16))
-  //        .arg(QString(message)).toStdString() << std::endl;
+//  std::cout << tr("thread 0x%1 | %2")
+//      .arg(QString::number((unsigned int)QThread::currentThreadId(), 16))
+//      .arg(QString(message)).toStdString() << std::endl;
 
+//  qDebug() << message;
   auto request = QJsonDocument::fromJson(message.toLatin1()).toVariant().toMap();
   QVariantMap response;
   emit newFEMPRequest(request, response);
   auto responseJSON = QJsonDocument::fromVariant(response).toJson();
-  //   qDebug() << "response JSON: " << responseJSON;
-
-  //    static int pes = 1;
-  //    pes++;
-  //    while (true)
-  //    {
-  //        std::cerr << pes << std::endl;
-  //        Sleep(1000);
-  //        WaitForSingleObject(nullptr, 0);
-  //    }
-  //    pes++;
-  //    std::cerr << "pes interruprt" << pes << std::endl;
-  //   socket->write(QString::fromLatin1(responseJSON));
+//  qDebug() << "response JSON: " << responseJSON;
   QString textMessage = QString::fromLatin1(responseJSON);
   qint64 bytesSent = socket->sendTextMessage(textMessage);
-  // TODO: there are cases when it's != but sent is more than we had
+//  TODO: there are cases when it's != but sent is more than we had
   if (bytesSent < textMessage.size())
   {
     qDebug() << "Data was not sent. Data size: "
@@ -81,32 +63,28 @@ void SocketThread::processMessage(QString message)
              << " Sent size: "
              << bytesSent
              << textMessage;
+    qDebug() << socket->errorString();
   }
-  else
+  else if (bytesSent > textMessage.size())
   {
-//    qDebug() << textMessage;
+    qDebug() << socket->errorString();
+    qDebug() << textMessage;
   }
-  //   socket->sendBinaryMessage(responseJSON);
 }
 
 void SocketThread::sendMessage(QString message)
 {
-  //    socket->write(message);
   socket->sendTextMessage(message);
 }
 
-void SocketThread::processPong(quint64 elapsedTime)
+void SocketThread::processPong(quint64 elapsedTime, const QByteArray& payload)
 {
-  std::cout << tr("ping: %1 ms").arg(elapsedTime).toStdString() << std::endl;
+  qDebug() << tr("ping: %1 ms").arg(elapsedTime);
+  qDebug() << payload;
 }
 
 void SocketThread::socketDisconnected()
 {
   std::cout << tr("Client disconnected, thread finished").toStdString() << std::endl;
-
-  // Prepare the socket to be deleted after last events processed
-  socket->deleteLater();
-
-  // finish the thread execution (that quit the event loop launched by exec)
-  quit();
+  this->deleteLater();
 }

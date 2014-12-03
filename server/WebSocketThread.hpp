@@ -23,9 +23,9 @@ public:
 private slots:
   void processMessage(QString message);
   void sendMessage(QString message);
-  void processPong(quint64 elapsedTime);
+  void processPong(quint64 elapsedTime, const QByteArray& payload);
   void socketDisconnected();
-  void finished();
+  void onError(QAbstractSocket::SocketError error);
 
 signals:
   void messageReceived(QString frame);
