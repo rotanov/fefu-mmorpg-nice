@@ -274,14 +274,11 @@ define([
   }
 
   function startMore(data, resolve, reject) {
-    // $('#p-slots').css({
-    //   'left': step * columnCount + 100 + 'px',
-    //   'position': 'fixed'
-    // }).show();
     Promise.join(
       audio.loadSoundFile('assets/526679_RR-Pac-Land-Theme.mp3', 'bg1'),
       audio.loadSoundFile('assets/footstep.wav', 'step'),
       audio.loadSoundFile('assets/attack.wav', 'attack'),
+      audio.loadSoundFile('assets/coin.wav', 'coin'),
       function () {
         bgMusic = audio.play('bg1', {volume: 0.05, loop: true});
       }
