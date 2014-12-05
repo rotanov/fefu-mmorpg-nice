@@ -235,20 +235,21 @@ define([
   function onTick(data) {
     tick_ = data.tick;
 
-    try {
-    if (data.events !== undefined
-        && data.events.length !== 0) {
-      utils.rpgMsg(JSON.stringify(data.events));
+    if (data.events.length > 0) {
+      console.log(JSON.stringify(data.events));
     }
+
+    var events = data.events;
+    for (var i = 0; i < events.length; i++) {
+      var e = events[i];
+      switch (e.event){
+        case "attack":
+        break;
+
+        case "bonus":
+        break;
+      }
     }
-    catch (e) {
-      console.log(e);
-    }
-    // for (var i = 0, l = data.events.length; i < l; ++i) {
-    //   if (data.events[i].attaker !== id_) {
-    //     curr_h -= data.events[i].dealtDamage; // NO
-    //   }
-    // }
   }
 
   function start(data) {
