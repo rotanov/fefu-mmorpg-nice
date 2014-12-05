@@ -57,6 +57,19 @@ define([
   var bgMusic;
   var stepSound = undefined;
 
+  function getActorById(id) {
+    for (var i = 0; i < heroesCount; i++) {
+      if (heroesBuffer[i].id === id) {
+        return heroesBuffer[i];
+      }
+    }
+    if (root.hero.id === id) {
+      return root.hero;
+    }
+
+    return undefined;
+  }
+
   function composeScene() {
     root = new pixi.Graphics();
     pixiStage.addChild(root);
