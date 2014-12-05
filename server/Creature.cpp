@@ -84,10 +84,9 @@ void Creature::SetStat(EStatConst key, float value)
   Stat[key] = value;
 }
 
-QVariantMap Creature::attack(Creature* /*actor*/)
+QVariantList Creature::attack(Creature* /*actor*/)
 {
-  QVariantMap ans;
-  ans["ok"] = "ok";
+  QVariantList ans;
   return ans;
 }
 

@@ -1143,8 +1143,7 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
 
         if (distance2 <= Sqr(1.5)) // TODO: WAS pickUpRadius_
         {
-          QVariantMap a = p->attack(target, id);
-          events_ << a;
+          events_ << p->attack(target, id);
 
           if (target->GetHealth() <= 0)
           {
@@ -1160,8 +1159,7 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
           }
           else
           {
-            a = target->attack(p);
-            events_ << a;
+            events_ << target->attack(p);
           }
           WriteResult_(response, EFEMPResult::OK);
           return;

@@ -78,7 +78,7 @@ float Monster::GetAlertness()
   return alertness_;
 }
 
-QVariantMap Monster::attack(Creature* actor)
+QVariantList Monster::attack(Creature* actor)
 {
   int val = rand();
   val = 100.0f;
@@ -91,8 +91,9 @@ QVariantMap Monster::attack(Creature* actor)
   ans["target"] = actor->GetId();
   ans["blowType"] = "BITE";
   ans["attacker"] = GetId();
-  QVariantMap ans1;
-  ans1["attack"] = ans;
+  ans["event"] = "attack";
+  QVariantList ans1;
+  ans1 << ans;
   return ans1;
 }
 

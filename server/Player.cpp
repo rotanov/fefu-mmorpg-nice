@@ -66,7 +66,7 @@ void Player::SetDamage(QString str, bool b)
   blows.damage = result;
 }
 
-QVariantMap Player::attack(Creature* actor, int id)
+QVariantList Player::attack(Creature* actor, int id)
 {
   int val = rand();
   int n = blows.damage->count, m = blows.damage->to;
@@ -89,8 +89,9 @@ QVariantMap Player::attack(Creature* actor, int id)
   ans["target"] = actor->GetId();
   ans["blowType"] = blows.attack;
   ans["attacker"] = GetId();
-  QVariantMap ans1;
-  ans1["attack"] = ans;
+  ans["event"] = "attack";
+  QVariantList ans1;
+  ans1 << ans;
   return ans1;
 }
 
