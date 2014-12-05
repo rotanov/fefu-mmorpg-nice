@@ -1,16 +1,10 @@
 # FEFU MMORPG
 
-A university study of high load server side collaborative development
-
-## Third Party Libraries Used
-
-https://github.com/antlafarge/QtWebsocket
-
-https://github.com/nikhilm/qhttpserver
-
-Qt
+A fork of fefu-mmorpg project which is now actually neither mmo nor rpg. It is dedicated to transforming a thing we've got at the end of the course at FEFU to some playable online game with multiple players playing game in browser.
 
 ## Credits
+
+https://github.com/nikhilm/qhttpserver
 
 RR: Pac-Land Theme by http://jamesmanng.newgrounds.com/
 
