@@ -152,5 +152,21 @@ define([
     }
   }
 
+  Hero.prototype.bleedFor = function (damage) {
+    var blood = new Emitter({
+      angleSpread: Math.PI * 2,
+      texture: 'particle-blood',
+      velocityBase: 100,
+      life: 0.1,
+      size: 16,
+      particleLife: 0.1
+    });
+    this.body.addChild(blood);
+
+    // var text = new pixi.Text('', {font: 'bold 14px Consolas', fill: '#ffffff'});
+    // text.setText('-' + damage);
+    // text.position.set(-16, -64);
+    // this.addChild(text);
+  }
   return Hero;
 });

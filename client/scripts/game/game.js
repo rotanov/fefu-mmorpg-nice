@@ -257,6 +257,10 @@ define([
       var e = events[i];
       switch (e.event){
         case "attack":
+          var target = getActorById(e.target);
+          if (target !== undefined) {
+            target.bleedFor(e.dealtDamage);
+          }
         break;
 
         case "bonus":
