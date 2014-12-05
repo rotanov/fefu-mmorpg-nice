@@ -93,6 +93,10 @@ define([
     root.cells = cells;
     root.field = field;
 
+    fxLayerFar = new pixi.DisplayObjectContainer();
+    Emitter.setFxLayer(fxLayerFar);
+    root.addChild(fxLayerFar);
+
     for (var i = 0; i < rowCount; i++) {
       for (var j = 0; j < columnCount; j++) {
         var c = new pixi.Graphics();
@@ -104,17 +108,15 @@ define([
       }
     }
 
-    fxLayerFar = new pixi.DisplayObjectContainer();
-    Emitter.setFxLayer(fxLayerFar);
-
     // setup heroes
     var hero = new Hero();
     root.addChild(hero);
     root.hero = hero;
     hero.position.set(288, 224);
 
-    var emitter = new Emitter({});
-    hero.addChild(emitter);
+    var emitter = new Emitter();
+    hero.body.addChild(emitter);
+    hero.trail = emitter;
 
     for (var i = 0; i < 256; i++) {
       var hero = new Hero();
@@ -123,7 +125,6 @@ define([
       root.addChild(hero);
     }
 
-    root.addChild(fxLayerFar);
     fxLayerNear = new pixi.DisplayObjectContainer();
     root.addChild(fxLayerNear);
 
@@ -162,6 +163,9 @@ define([
       //     stepSound = undefined;
       //   }
       // }
+      if (root && root.hero) {
+        root.hero.trail.emission = delta * 1000;
+      }
 
       for (var i = 0; i < rowCount; i++) {
         for (var j = 0; j < columnCount; j++) {
@@ -413,11 +417,7 @@ define([
           .then(function (data) {
           });
 
-          // p.x -= (columnCount - 1) * 0.5;
-          // p.y -= (rowCount - 1) * 0.5;
-          // var emitter = new Emitter({position: p,
-          //   angle: Math.PI / 2});
-          // hero.addChild(emitter);
+          // root.hero.attack();
       }
     }
 
