@@ -216,22 +216,6 @@ void GameServer::setWSAddress(QString address)
 //==============================================================================
 void GameServer::tick()
 {
-  auto collideWithGrid = [=](Actor* actor)
-  {
-    auto& p = *actor;
-
-    float x = p.GetPosition().x;
-    float y = p.GetPosition().y;
-
-    auto cellPos = actor->GetPosition() + actor->GetDirectionVector() * 0.5;
-    bool collided = levelMap_.GetCell(cellPos) != '.';
-
-    if (collided)
-    {
-      actor->OnCollideWorld();
-    }
-  };
-
   float dt = (time_.elapsed() - lastTime_) * 0.001f;
   lastTime_ = time_.elapsed();
 
@@ -241,7 +225,7 @@ void GameServer::tick()
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
-    collideWithGrid(actor);
+    CollideWithGrid_(actor);
     auto v = actor->GetDirectionVector();
     actor->SetVelocity(v * playerVelocity_);
     actor->Update(dt);
@@ -421,7 +405,7 @@ void GameServer::tick()
         {
           static_cast<Projectile*>(actor)->death = true;
         }
-        collideWithGrid(actor);
+        CollideWithGrid_(actor);
       }
       else if (levelMap_.GetCell(x , y) != '.'
                && playerVelocity_ >= 1)
@@ -1744,4 +1728,22 @@ bool GameServer::IsPositionWrong(float x, float y, Actor* actor)
     }
   }
   return false;
+}
+
+//==============================================================================
+bool GameServer::CollideWithGrid_(Actor* actor)
+{
+  auto& p = *actor;
+
+  float x = p.GetPosition().x;
+  float y = p.GetPosition().y;
+
+  auto cellPos = actor->GetPosition() + actor->GetDirectionVector() * 0.5;
+  bool collided = levelMap_.GetCell(cellPos) != '.';
+
+  if (collided)
+  {
+    actor->OnCollideWorld();
+  }
+  return collided;
 }
