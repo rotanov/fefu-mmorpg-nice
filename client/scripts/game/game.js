@@ -354,6 +354,7 @@ define([
       for (var i = 0; i < actors.length; i++) {
         actors[i].update(1.0 / 60.0);
       }
+      Actor.cleanUp();
 
       st.end();
       requestAnimFrame(animate);
