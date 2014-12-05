@@ -235,7 +235,8 @@ void GameServer::tick()
   float dt = (time_.elapsed() - lastTime_) * 0.001f;
   lastTime_ = time_.elapsed();
 
-  std::vector<Actor*> deadActors;
+  std::unordered_set<Actor*> deadActors;
+  unsigned monsterCount = 0;
 
   for (auto actor : actors_)
   {
@@ -247,17 +248,27 @@ void GameServer::tick()
     levelMap_.IndexActor(actor);
 
     Creature* creature = dynamic_cast<Creature*>(actor);
-    if (creature
-        && creature->GetHealth() <= 0)
+    switch (actor->GetType())
     {
-      if (actor->GetType() == EActorType::MONSTER)
+      case EActorType::MONSTER:
+        if (creature->GetHealth() <= 0)
+        {
+          deadActors.insert(actor);
+        }
+        else
+        {
+          monsterCount++;
+        }
+        break;
+
+      case EActorType::PLAYER:
       {
         deadActors.push_back(actor);
       }
-      else if (actor->GetType() == EActorType::PLAYER)
-      {
+        break;
 
-      }
+      default:
+        break;
     }
   }
 
@@ -275,11 +286,12 @@ void GameServer::tick()
       Creature* target = monster->target;
       float distance2;
       Vector2 m_pos = actor->GetPosition();
-      if (target && target != nullptr)
+      if (target
+          && target != nullptr)
       {
         Vector2 t_pos = target->GetPosition();
         distance2 = Sqr(m_pos.x - t_pos.x)
-                    + Sqr(m_pos.y - t_pos.y);
+                  + Sqr(m_pos.y - t_pos.y);
         if (distance2 < 25)
         {
           if (abs(m_pos.x - t_pos.x - 1.0f) < playerVelocity_
@@ -440,7 +452,8 @@ void GameServer::tick()
     {
       Monster* monster = dynamic_cast<Monster*>(actor);
       Creature* target = monster->target;
-      if (target && target->GetHealth() > 0)
+      if (target
+          && target->GetHealth() > 0)
       {
         Vector2 m_pos = actor->GetPosition();
         Vector2 t_pos = target->GetPosition();
@@ -522,6 +535,11 @@ void GameServer::tick()
     {
       levelMap_.IndexActor(actor);
     }
+  }
+
+  if (monsterCount < 5)
+  {
+    GenMonsters_();
   }
 
   QVariantMap tickMessage;
