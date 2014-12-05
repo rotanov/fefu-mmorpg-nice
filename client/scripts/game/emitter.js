@@ -22,15 +22,21 @@ define([
     this.angle = options.angle || Math.atan2(1, -1);
     this.angleSpread = options.angleSpread || Math.PI;
     this.emitterposition = options.position || new pixi.Point(0, 0);
+    this.texture = options.texture || 'particle-trail';
+    this.fxLayer = options.layer || fxLayer_;
+    this.velocityBase = options.velocityBase || 20;
+    this.life = options.life || -1;
+
+    this.position = this.emitterposition;
 
     this.count = 0;
 
     for (var i = 0; i < this.maxCount; i++) {
-      var p = new pixi.Sprite.fromImage('assets/particle.png');
+      var p = new pixi.Sprite.fromImage('assets/' + this.texture + '.png');
       p.width = this.particleSize;
       p.height = this.particleSize;
       p.alpha = this.alphaBegin;
-      p.velocityScalar = 20;
+      p.velocityScalar = this.velocityBase;
       p.velocity = new pixi.Point();
       this.particles.push(p);
     }
@@ -42,27 +48,6 @@ define([
   Emitter.prototype.constructor = Emitter;
 
   Emitter.prototype.update = function (dt) {
-    var totalToEmit = this.prevFrameLeft + this.emission * dt;
-    var toEmitCount = Math.trunc(Math.min(totalToEmit, this.maxCount - this.count));
-    this.prevFrameLeft = totalToEmit - toEmitCount;
-
-    for (var i = this.count; i < toEmitCount + this.count; i++) {
-      var p = this.particles[i];
-      fxLayer_.addChild(p);
-      p.life = this.particleLife + Math.random() * this.particleLifeSpread * 0.5 - this.particleLifeSpread * 0.25;
-      var globalZero = this.toGlobal(this.emitterposition);
-      var resultAngle = this.angle + Math.random() * this.angleSpread * 0.5 - this.angleSpread * 0.25;
-      var vDir = new pixi.Point(Math.cos(resultAngle), Math.sin(resultAngle));
-      var globalVDest = this.toGlobal(vDir);
-      p.velocity.set(globalVDest.x - globalZero.x, globalVDest.y - globalZero.y);
-      // p.position = globalZero;
-      // SUDDEN PERFORMANCE DEGRADATION
-      // I HAVE NO IDEA WHY THOUGH
-      p.position = fxLayer_.toLocal(globalZero);
-    }
-
-    this.count = this.count + toEmitCount;
-    var prevCount = this.count;
     for (var i = 0; i < this.count; i++) {
       var p = this.particles[i];
       p.alpha = p.life / this.particleLife;
@@ -71,9 +56,9 @@ define([
                      p.position.y + dt * p.velocity.y * p.velocityScalar);
 
       if (p.life <= 0.0) {
-        var temp = fxLayer_.children[i];
-        fxLayer_.children[i] = fxLayer_.children[this.count - 1];
-        fxLayer_.children[this.count - 1] = temp;
+        var temp = this.fxLayer.children[i];
+        this.fxLayer.children[i] = this.fxLayer.children[this.count - 1];
+        this.fxLayer.children[this.count - 1] = temp;
 
         temp = this.particles[i];
         this.particles[i] = this.particles[this.count - 1];
@@ -83,7 +68,42 @@ define([
       }
 
     }
-    // fxLayer_.removeChildren(this.count);
+
+    if (this.life !== -1) {
+      this.life -= dt;
+      if (this.life <= 0.0) {
+        if (this.count === 0) {
+          for (var i = 0; i < this.particles.length; i++) {
+            this.fxLayer.removeChild(this.particles[i]);
+          }
+          this.kill();
+        }
+        return;
+      }
+    }
+
+    var totalToEmit = this.prevFrameLeft + this.emission * dt;
+    var toEmitCount = Math.trunc(Math.min(totalToEmit, this.maxCount - this.count));
+    this.prevFrameLeft = totalToEmit - toEmitCount;
+
+    for (var i = this.count; i < toEmitCount + this.count; i++) {
+      var p = this.particles[i];
+      this.fxLayer.addChild(p);
+      p.life = this.particleLife + Math.random() * this.particleLifeSpread * 0.5 - this.particleLifeSpread * 0.25;
+      var globalZero = this.toGlobal(this.emitterposition);
+      var resultAngle = this.angle + (Math.random() - 0.5) * this.angleSpread;
+      var vDir = new pixi.Point(Math.cos(resultAngle), Math.sin(resultAngle));
+      var globalVDest = this.toGlobal(vDir);
+      p.velocity.set(globalVDest.x - globalZero.x, globalVDest.y - globalZero.y);
+      // p.position = globalZero;
+      // SUDDEN PERFORMANCE DEGRADATION
+      // I HAVE NO IDEA WHY THOUGH
+      p.position = this.fxLayer.toLocal(globalZero);
+    }
+
+    var prevCount = this.count;
+    this.count = this.count + toEmitCount;
+    // this.fxLayer.removeChildren(this.count);
   }
 
   Emitter.setFxLayer = function(fxLayer) {
