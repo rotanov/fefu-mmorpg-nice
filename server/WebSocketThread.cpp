@@ -67,8 +67,12 @@ void SocketThread::processMessage(QString message)
   }
   else if (bytesSent > textMessage.size())
   {
-    qDebug() << socket->errorString();
-    qDebug() << textMessage;
+//  TODO: investigate what's "Unknown error" here actually is
+//  I suspect characters marked with ?? in item's desc's are involved
+//  as they could be decoded to more bytes at some point
+//    qDebug() << socket->errorString();
+//    qDebug() << textMessage;
+//    socket->close();
   }
 }
 
