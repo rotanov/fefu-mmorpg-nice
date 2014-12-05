@@ -94,7 +94,7 @@ namespace Deku2D
 	}
 
 	__INLINE float DegToRad(float degree)
-	{ 
+	{
 		return static_cast<float>(degree * Const::Math::PI_d180);
 	}
 
@@ -116,8 +116,8 @@ namespace Deku2D
 		}
 	}
 
-    template <typename T>
-    __INLINE T RoundBy(const T& x, float by)
+  template <typename T>
+  __INLINE T RoundBy(const T& x, float by)
 	{
         int integralTimes = static_cast<int>(floor(x / by));
 		float remainder = x - integralTimes * by;
@@ -129,14 +129,14 @@ namespace Deku2D
 		return result;
 	}
 
-	template<typename T>
-	__INLINE T Sqr(const T &x)
+  template<typename T, typename R = float>
+  __INLINE R Sqr(const T& x)
 	{
 		return x * x;
 	}
 
-	template<typename T>
-	__INLINE T Cube(const T &x)
+	template<typename T, typename R = float>
+  __INLINE R Cube(const T& x)
 	{
 		return x * x * x;
 	}
@@ -178,7 +178,7 @@ namespace Deku2D
     }
 
 	/**
-	*	Interpolate between interval [a,b] with t in [0,1].	
+	*	Interpolate between interval [a,b] with t in [0,1].
 	*/
     template <typename T>
     __INLINE T LinearInterpolate(const T& a, const T& b, float t)
@@ -271,7 +271,7 @@ namespace Deku2D
 
 	/**
 	*	CalcConvexHull does exactly how it named.
-	*	Taken from http://www.e-maxx.ru/algo/convex_hull_graham and slightly 
+	*	Taken from http://www.e-maxx.ru/algo/convex_hull_graham and slightly
 	*	modified in order to fit naming conventions and interfaces
 	*/
 	__INLINE void CalcConvexHull (std::vector<Vector2> &a);
