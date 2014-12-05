@@ -263,7 +263,26 @@ void GameServer::tick()
 
       case EActorType::PLAYER:
       {
-        deadActors.push_back(actor);
+        Player* p = static_cast<Player*>(actor);
+        auto cells = p->GetOccupiedCells();
+        for (auto c : cells)
+        {
+          auto& a = levelMap_.GetActors(c.first, c.second);
+          for (auto na : a)
+          {
+            if (na->GetType() == EActorType::ITEM
+                && Sqr(na->GetPosition() - p->GetPosition()) < 0.1f
+                && deadActors.count(na) == 0)
+            {
+              deadActors.insert(na);
+              QVariantMap pUpTaken;
+              pUpTaken["event"] = "bonus";
+              pUpTaken["id"] = p->GetId();
+              p->SetHealth(p->GetHealth() + 100);
+              events_ << pUpTaken;
+            }
+          }
+        }
       }
         break;
 

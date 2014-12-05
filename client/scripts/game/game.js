@@ -264,6 +264,9 @@ define([
         break;
 
         case "bonus":
+          if (e.id === id_) {
+            audio.play('coin', {volume: 0.5});
+          }
         break;
       }
     }
