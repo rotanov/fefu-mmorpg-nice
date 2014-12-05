@@ -19,7 +19,7 @@ float Creature::GetHealth() const
 
 void Creature::SetHealth(const float health)
 {
-  Stat[EStatConst::HP] = Deku2D::Clamp<float>(health, 0.0f, health);
+  Stat[EStatConst::HP] = Deku2D::Clamp<float>(health, 0.0f, GetMaxHealth());
 }
 
 float Creature::GetMaxHealth() const
