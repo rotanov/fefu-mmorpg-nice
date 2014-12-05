@@ -44,7 +44,7 @@ define([
 
   HealthBar.prototype.setHealth = function (health, maxHealth) {
     this.bar.scale.set(health / maxHealth, 1.0);
-    this.text.setText(health + '/' + maxHealth);
+    this.text.setText(Math.round(health) + '/' + maxHealth);
   }
 
   HealthBar.prototype.update = function(dt) {

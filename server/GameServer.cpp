@@ -432,7 +432,7 @@ void GameServer::tick()
       if (player->GetHealth() < player->GetMaxHealth())
       {
         // TODO: ?
-//        player->SetHealth(player->GetHealth() + 1);
+        player->SetHealth(player->GetHealth() + 10 * dt);
       }
     }
 
