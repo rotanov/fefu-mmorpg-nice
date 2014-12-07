@@ -29,9 +29,9 @@ GameServer::GameServer()
         , &GameServer::tick);
   timer_->setInterval(1000.0f / static_cast<float>(ticksPerSecond_));
 
-  GenRandSmoothMap(levelMap_);
-  levelMap_.ExportToImage("generated-level-map.png");
-  LoadLevelFromImage_("generated-level-map.png");
+//  GenRandSmoothMap(levelMap_);
+//  levelMap_.ExportToImage("generated-level-map.png");
+  LoadLevelFromImage_("level-1.png");
 }
 
 //==============================================================================
