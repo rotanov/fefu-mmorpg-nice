@@ -86,6 +86,14 @@ define([
     this.maxHealth = 100;
     this.targetAngle = 0;
 
+    // var attackBody = new pixi.Graphics();
+    // this.attackBody = attackBody;
+    // this.addChild(attackBody);
+
+    // attackBody.beginFill();
+    // attackBody.drawRect(-20, -20, 40, 40);
+    // attackBody.endFill();
+
     var body = new pixi.Graphics();
     this.addChild(body);
 
@@ -168,5 +176,10 @@ define([
     // text.position.set(-16, -64);
     // this.addChild(text);
   }
+
+  Hero.prototype.attack = function () {
+    return this.animate.call(this.attackBody, {position: new pixi.Point(0, 0)}, 500);
+  }
+
   return Hero;
 });

@@ -24,6 +24,7 @@ define([
   var msg;
   var heroesBuffer = [];
   var heroesCount = 0;
+  var actorsData = {};
 
   var columnCount = 9;
   var rowCount = 7;
@@ -132,30 +133,20 @@ define([
     healthBar = new HealthBar();
     root.addChild(healthBar);
     healthBar.position.set(2, 2);
-
-    // overlay border, covering half tile size
-    // var border = new pixi.Graphics();
-    // root.addChild(border);
-    // border.beginFill(0x00FFFF, 0xFF);
-    // border.drawRect(0, 0, step * columnCount, step / 2);
-    // border.drawRect(0, step * rowCount - step / 2, step * columnCount, step / 2);
-    // border.drawRect(0, 0, step / 2, step * rowCount);
-    // border.drawRect(step * columnCount - step / 2, 0, step / 2, step * rowCount);
-    // border.endFill();
   }
 
   function requestLook() {
     return api.look()
     .then(function (data) {
       utils.assert(data.result === 'ok');
-      // gPlayerXPrev = gPlayerX;
-      // gPlayerYPrev = gPlayerY;
+      gPlayerXPrev = gPlayerX;
+      gPlayerYPrev = gPlayerY;
       gPlayerX = data.x;
       gPlayerY = data.y;
 
       // attempt to stop step sound when we're not moving despite pressing move keys
       // but server collision resolution jitters player position wehn pressing to the wall
-      // var delta = Math.abs(gPlayerX - gPlayerXPrev) + Math.abs(gPlayerY - gPlayerYPrev);
+      var delta = Math.abs(gPlayerX - gPlayerXPrev) + Math.abs(gPlayerY - gPlayerYPrev);
       // console.log(delta);
       // if (delta === 0) {
       //   if (stepSound !== undefined) {
@@ -188,11 +179,15 @@ define([
       for (var i = 0; i < l; i++) {
         var a = data.actors[i];
         var h = heroesBuffer[i - iSkip];
+          if (actorsData[a.id] === undefined) {
+            actorsData[a.id] = {};
+          }
         //actors[j].id = actor[i].id;
         //actors[j].name = actor[i].name;
         if (a.id === id_) {
           root.hero.setHealth(a.health, a.maxHealth);
           root.hero.setColor(0xffffff, a.class);
+          root.hero.id = a.id;
           iSkip = 1;
           continue;
         }
@@ -206,6 +201,8 @@ define([
         else if (a.type === 'item') {
           h.setColor(0x1f8a70, 'item');
         }
+        h.id = a.id;
+        actorsData[a.id].position = h.position;
         h.position.x = coordinate(gPlayerX, data.actors[i].x, columnCount);
         h.position.y = coordinate(gPlayerY, data.actors[i].y, rowCount);
         h.visible = true;
@@ -352,6 +349,14 @@ define([
 
       var actors = Actor.getActors();
       for (var i = 0; i < actors.length; i++) {
+        if (actors[i].id !== undefined) {
+          var id = actors[i].id;
+          if (actorsData[id] && actorsData[id].position) {
+            var odx = (actorsData[id].position.x - actors[i].position.x);
+            var ody = (actorsData[id].position.y - actors[i].position.y);
+            actors[i].setHeroDeltas(odx, ody);
+          }
+        }
         actors[i].update(1.0 / 60.0);
       }
       Actor.cleanUp();
