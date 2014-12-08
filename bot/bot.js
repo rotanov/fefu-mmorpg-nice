@@ -45,6 +45,7 @@ function makeClient() {
     action: 'register',
     login: login,
     password: password,
+    class: 'warrior'
   };
 
   postRequest(registerReq, function(response){
