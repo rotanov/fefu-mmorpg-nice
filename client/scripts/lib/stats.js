@@ -7,11 +7,11 @@ var Stats = function () {
   var startTime = Date.now(), prevTime = startTime;
   var ms = 0, msMin = Infinity, msMax = 0;
   var fps = 0, fpsMin = Infinity, fpsMax = 0;
-  var frames = 0, mode = 0;
+  var rtt = 0, rttMin = Infinity, rttMax = 0;
+  var frames = 0;
 
   var container = document.createElement( 'div' );
   container.id = 'stats';
-  container.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); setMode( ++ mode % 2 ) }, false );
   container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer';
 
   var fpsDiv = document.createElement( 'div' );
@@ -40,7 +40,7 @@ var Stats = function () {
 
   var msDiv = document.createElement( 'div' );
   msDiv.id = 'ms';
-  msDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#020;display:none';
+  msDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#020;';
   container.appendChild( msDiv );
 
   var msText = document.createElement( 'div' );
@@ -62,23 +62,29 @@ var Stats = function () {
 
   }
 
-  var setMode = function ( value ) {
+  var rttDiv = document.createElement( 'div' );
+  rttDiv.id = 'rtt';
+  rttDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#200;';
+  container.appendChild( rttDiv );
 
-    mode = value;
+  rttText = document.createElement( 'div' );
+  rttText.id = 'rttText';
+  rttText.style.cssText = 'color:#f00;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+  rttText.innerHTML = 'Round Trip Time';
+  rttDiv.appendChild(rttText);
 
-    switch ( mode ) {
+  var rttGraph = document.createElement( 'div' );
+  rttGraph.id = 'rttGraph';
+  rttGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#f00';
+  rttDiv.appendChild( rttGraph );
 
-      case 0:
-        fpsDiv.style.display = 'block';
-        msDiv.style.display = 'none';
-        break;
-      case 1:
-        fpsDiv.style.display = 'none';
-        msDiv.style.display = 'block';
-        break;
-    }
+  while ( rttGraph.children.length < 74 ) {
 
-  };
+    var bar = document.createElement( 'span' );
+    bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#311';
+    rttGraph.appendChild( bar );
+
+  }
 
   var updateGraph = function ( dom, value ) {
 
@@ -92,8 +98,6 @@ var Stats = function () {
     REVISION: 12,
 
     domElement: container,
-
-    setMode: setMode,
 
     begin: function () {
 
@@ -116,6 +120,12 @@ var Stats = function () {
 
       if ( time > prevTime + 1000 ) {
 
+        rttMin = Math.min( rttMin, rtt );
+        rttMax = Math.max( rttMax, rtt );
+        rttText.textContent = 'RTT: ' + Math.round(rtt) + 'ms (' +
+          Math.round(rttMin) + '-' + Math.round(rttMax) + ')';
+        updateGraph( rttGraph, Math.min( 30, 30 - (rtt / 200) * 30 ) );
+
         fps = Math.round( ( frames * 1000 ) / ( time - prevTime ) );
         fpsMin = Math.min( fpsMin, fps );
         fpsMax = Math.max( fpsMax, fps );
@@ -136,6 +146,10 @@ var Stats = function () {
 
       startTime = this.end();
 
+    },
+
+    pushRttSample: function (rttSample) {
+      rtt = (0.5 * rtt) + (1.0 - 0.5) * rttSample;
     }
 
   }

@@ -58,6 +58,8 @@ define([
   var bgMusic;
   var stepSound = undefined;
 
+  var st = new Stats();
+
   function getActorById(id) {
     for (var i = 0; i < heroesCount; i++) {
       if (heroesBuffer[i].id === id) {
@@ -136,8 +138,10 @@ define([
   }
 
   function requestLook() {
+    var rttSample = window.performance.now();
     return api.look()
     .then(function (data) {
+      st.pushRttSample(window.performance.now() - rttSample);
       utils.assert(data.result === 'ok');
       gPlayerXPrev = gPlayerX;
       gPlayerYPrev = gPlayerY;
@@ -313,8 +317,6 @@ define([
                                            { antialias: true });
     //!? renderer.width = $('#game-screen').get('$width', true);
 
-    var st = new Stats();
-    st.setMode(0);
     st.domElement.style.left = 'calc(100vw - 96px)';
     st.domElement.style.top = '0px';
     st.domElement.style.position = 'absolute';
