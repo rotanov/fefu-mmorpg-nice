@@ -72,9 +72,10 @@ void GenRandSmoothMap(LevelMap& levelMap)
 
 int GridRound(float value)
 {
-  if (value < 0.0f)
-  {
-    value -= 1.0f - 0.00001f;
-  }
-  return static_cast<int>(value);
+  return static_cast<int>(std::floor(value));
+}
+
+Vector2 GridRound(const Vector2& value)
+{
+  return Vector2(std::floor(value.x), std::floor(value.y));
 }
