@@ -225,10 +225,10 @@ void GameServer::tick()
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
-    CollideWithGrid_(actor);
-    auto v = actor->GetDirectionVector();
-    actor->SetVelocity(v * playerVelocity_);
-    actor->Update(dt);
+//    auto v = actor->GetDirectionVector();
+//    actor->SetVelocity(v * playerVelocity_);
+//    actor->Update(dt);
+    CollideWithGrid_(actor, dt);
     levelMap_.IndexActor(actor);
 
     Creature* creature = dynamic_cast<Creature*>(actor);
@@ -1474,19 +1474,107 @@ bool GameServer::IsPositionWrong(float x, float y, Actor* actor)
 }
 
 //==============================================================================
-bool GameServer::CollideWithGrid_(Actor* actor)
+bool GameServer::CollideWithGrid_v0_(Actor* actor)
 {
-  auto& p = *actor;
+  auto& a = *actor;
 
-  float x = p.GetPosition().x;
-  float y = p.GetPosition().y;
+  int vCount = 0;
+  Vector2 n;
 
-  auto cellPos = actor->GetPosition() + actor->GetDirectionVector() * 0.5;
-  bool collided = levelMap_.GetCell(cellPos) != '.';
-
-  if (collided)
+  const Vector2 offs[4] =
   {
-    actor->OnCollideWorld();
+    Vector2(0.0f, 0.0f),
+    Vector2(1.0f, 0.0f),
+    Vector2(1.0f, 1.0f),
+    Vector2(0.0f, 1.0f),
+  };
+
+  Vector2 normals[4] =
+  {
+    Vector2(1.0f, 0.0f),
+    Vector2(-1.0f, 0.0f),
+    Vector2(0.0f, 1.0f),
+    Vector2(0.0f, -1.0f),
+  };
+
+  float mtd[4] =
+  {
+    0.0f, 0.0f, 0.0f, 0.0f
+  };
+
+  for (int i = 0; i < 4; i++)
+  {
+    auto v = 0.5f * a.GetSize() * Deku2D::Const::Math::V2_DIRECTIONS_DIAG[i]
+           + a.GetPosition();
+    if (levelMap_.GetCell(v) == '#')
+    {
+      auto va = GridRound(a.GetPosition());
+      n = v - (va + offs[i]);
+//      if (n.x == 0.0f || n.y == 0.0f)
+//      {
+//        continue;
+//      }
+      vCount++; // ?
+      if (Abs(n.x) < Abs(n.y))
+      {
+        float& d = mtd[n.x > 0.0f];
+        d = std::max(d, Abs(n.x));
+      }
+      else
+      {
+        float& d = mtd[2 + (n.y > 0.0f)];
+        d = std::max(d, Abs(n.y));
+      }
+    }
   }
-  return collided;
+
+  for (int i = 0; i < 4; i++)
+  {
+    a.SetPosition(a.GetPosition() + mtd[i] * normals[i]);
+  }
+
+  if (vCount > 0)
+  {
+    qDebug() << mtd[0] << " " << mtd[1] << " " << mtd[2] << " " << mtd[3];
+  }
+
+  return false;
+}
+
+//==============================================================================
+void GameServer::CollideWithGrid_(Actor* actor, float dt)
+{
+  auto& a = *actor;
+  auto p = a.GetPosition();
+  for (auto& i : {0, 1})
+  {
+    auto v = actor->GetDirectionVector();
+    float d = v[i] * playerVelocity_ * dt;
+    auto s = Sign(d);
+    if (d == 0.0f)
+    {
+      continue;
+    }
+
+    for (auto& j : {-1, +1})
+    {
+      float front = p[i] + s * a.GetSize() * 0.5f;
+      int v = GridRound(p[!i] + j * a.GetSize() * 0.5f);
+      int u0 = GridRound(front);
+      int u1 = GridRound(front + d) + s;
+      for (int u = u0; u != u1 + s; u += s)
+      {
+        if ((i == 0
+             && levelMap_.GetCell(u, v) == '#')
+            || (i == 1
+                && levelMap_.GetCell(v, u) == '#'))
+        {
+          d = s * std::min(s * d, s * (u + (d < 0) - front - s * epsilon_));
+          break;
+        }
+      }
+    }
+    p[i] += d;
+    a.SetPosition(p);
+  }
 }
