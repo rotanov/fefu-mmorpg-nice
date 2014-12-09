@@ -192,6 +192,7 @@ define([
           root.hero.setHealth(a.health, a.maxHealth);
           root.hero.setColor(0xffffff, a.class);
           root.hero.id = a.id;
+          root.hero.setBoxSize(a.size);
           iSkip = 1;
           continue;
         }
@@ -205,6 +206,7 @@ define([
         else if (a.type === 'item') {
           h.setColor(0x1f8a70, 'item');
         }
+        h.setBoxSize(a.size);
         h.id = a.id;
         actorsData[a.id].position = h.position;
         h.position.x = coordinate(gPlayerX, data.actors[i].x, columnCount);
@@ -220,7 +222,7 @@ define([
       // }
     })
     .catch(function (data) {
-      console.log(data);
+      console.log(data, data.stack);
       location.href = api.getServerAddress();
     });
   }

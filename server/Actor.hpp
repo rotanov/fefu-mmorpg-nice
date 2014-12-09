@@ -90,7 +90,7 @@ protected:
   Vector2 position_ = Const::Math::V2_ZERO;
   Vector2 velocity_ = Const::Math::V2_ZERO;
   bool directions_[4] = {false, false, false, false};
-  float size_ = 1.0f;
+  float size_ = 7.0f / 8.0f;
   int id_ = -1;
   EActorType type_ = EActorType::undefined;
 };

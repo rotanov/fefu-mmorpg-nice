@@ -23,6 +23,10 @@ define([
       hud.drawRect(-30, -30, 60 * hero.health / hero.maxHealth, 2);
     }
 
+    hud.lineStyle(1, 0xff0000, 1.0);
+    var size = hero.boxSize * 64;
+    hud.drawRect(-size * 0.5, -size * 0.5, size, size);
+
     base.beginFill(color, 1.0);
     switch (heroClass) {
       case 'warrior':
@@ -85,6 +89,7 @@ define([
     this.health = 100;
     this.maxHealth = 100;
     this.targetAngle = 0;
+    this.boxSize = 1.0;
 
     // var attackBody = new pixi.Graphics();
     // this.attackBody = attackBody;
@@ -179,6 +184,10 @@ define([
 
   Hero.prototype.attack = function () {
     return this.animate.call(this.attackBody, {position: new pixi.Point(0, 0)}, 500);
+  }
+
+  Hero.prototype.setBoxSize = function (boxSize) {
+    this.boxSize = boxSize;
   }
 
   return Hero;

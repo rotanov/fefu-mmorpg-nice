@@ -821,6 +821,7 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
     actor["x"] = a->GetPosition().x;
     actor["y"] = a->GetPosition().y;
     actor["id"] = a->GetId();
+    actor["size"] = a->GetSize();
 
     if (a->GetType() == EActorType::PLAYER)
     {
