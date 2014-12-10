@@ -4,6 +4,7 @@
 Monster::Monster()
 {
   type_ = EActorType::MONSTER;
+  SetSize(0.75f);
 }
 
 Monster::~Monster()

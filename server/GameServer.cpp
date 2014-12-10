@@ -219,25 +219,28 @@ void GameServer::tick()
   float dt = (time_.elapsed() - lastTime_) * 0.001f;
   lastTime_ = time_.elapsed();
 
-  std::unordered_set<Actor*> deadActors;
+  if (dt > 0.02f)
+  {
+    qDebug() << "Warning: dt is too big: " << dt;
+  }
+
+  collisionPairUniqueness_.clear();
+  collisions_.clear();
+  deadActors_.clear();
   unsigned monsterCount = 0;
 
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
-//    auto v = actor->GetDirectionVector();
-//    actor->SetVelocity(v * playerVelocity_);
-//    actor->Update(dt);
-    CollideWithGrid_(actor, dt);
-    levelMap_.IndexActor(actor);
+    FindCollisions_(actor, dt);
 
-    Creature* creature = dynamic_cast<Creature*>(actor);
+    Creature* creature = static_cast<Creature*>(actor);
     switch (actor->GetType())
     {
       case EActorType::MONSTER:
         if (creature->GetHealth() <= 0)
         {
-          deadActors.insert(actor);
+          deadActors_.insert(actor);
         }
         else
         {
@@ -249,43 +252,31 @@ void GameServer::tick()
       {
         Player* p = static_cast<Player*>(actor);
         p->SetHealth(p->GetHealth() + 10 * dt);
-        auto cells = p->GetOccupiedCells();
-        for (auto c : cells)
-        {
-          auto& a = levelMap_.GetActors(c.first, c.second);
-          for (auto na : a)
-          {
-            if (na->GetType() == EActorType::ITEM
-                && Sqr(na->GetPosition() - p->GetPosition()) < 0.1f
-                && deadActors.count(na) == 0)
-            {
-              deadActors.insert(na);
-              QVariantMap pUpTaken;
-              pUpTaken["event"] = "bonus";
-              pUpTaken["id"] = p->GetId();
-              p->SetHealth(p->GetHealth() + 100);
-              events_ << pUpTaken;
             }
-          }
-        }
-      }
         break;
 
       default:
         break;
     }
+
+    levelMap_.IndexActor(actor);
   }
 
-  for (auto actor : deadActors)
+  for (auto& c : collisions_)
+  {
+    ProcessCollision_(c.first, c.second);
+  }
+
+  for (auto actor : deadActors_)
   {
     Actor* a = actor;
     KillActor_(a);
   }
 
-  if (monsterCount < 5)
-  {
-    GenMonsters_();
-  }
+//  if (monsterCount < 5)
+//  {
+//    GenMonsters_();
+//  }
 
   QVariantMap tickMessage;
   tickMessage["tick"] = tick_;
@@ -1341,7 +1332,7 @@ void GameServer::GenMonsters_()
           SetActorPosition_(monster, Vector2(j + 0.5f, i + 0.5f));
 //          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
           storage_.GetMonster(monster, monster->GetId() % 32 + 1);
-          m.OnCollideWorld();
+//          m.OnCollideWorld();
         }
       }
     }
@@ -1475,107 +1466,123 @@ bool GameServer::IsPositionWrong(float x, float y, Actor* actor)
 }
 
 //==============================================================================
-bool GameServer::CollideWithGrid_v0_(Actor* actor)
+void GameServer::FindCollisions_(Actor* actor, float dt)
 {
-  auto& a = *actor;
 
-  int vCount = 0;
-  Vector2 n;
+  auto p = actor->GetPosition();
+  float halfSize = actor->GetSize() * 0.5f;
 
-  const Vector2 offs[4] =
-  {
-    Vector2(0.0f, 0.0f),
-    Vector2(1.0f, 0.0f),
-    Vector2(1.0f, 1.0f),
-    Vector2(0.0f, 1.0f),
-  };
-
-  Vector2 normals[4] =
-  {
-    Vector2(1.0f, 0.0f),
-    Vector2(-1.0f, 0.0f),
-    Vector2(0.0f, 1.0f),
-    Vector2(0.0f, -1.0f),
-  };
-
-  float mtd[4] =
-  {
-    0.0f, 0.0f, 0.0f, 0.0f
-  };
-
-  for (int i = 0; i < 4; i++)
-  {
-    auto v = 0.5f * a.GetSize() * Deku2D::Const::Math::V2_DIRECTIONS_DIAG[i]
-           + a.GetPosition();
-    if (levelMap_.GetCell(v) == '#')
-    {
-      auto va = GridRound(a.GetPosition());
-      n = v - (va + offs[i]);
-//      if (n.x == 0.0f || n.y == 0.0f)
-//      {
-//        continue;
-//      }
-      vCount++; // ?
-      if (Abs(n.x) < Abs(n.y))
-      {
-        float& d = mtd[n.x > 0.0f];
-        d = std::max(d, Abs(n.x));
-      }
-      else
-      {
-        float& d = mtd[2 + (n.y > 0.0f)];
-        d = std::max(d, Abs(n.y));
-      }
-    }
-  }
-
-  for (int i = 0; i < 4; i++)
-  {
-    a.SetPosition(a.GetPosition() + mtd[i] * normals[i]);
-  }
-
-  if (vCount > 0)
-  {
-    qDebug() << mtd[0] << " " << mtd[1] << " " << mtd[2] << " " << mtd[3];
-  }
-
-  return false;
-}
-
-//==============================================================================
-void GameServer::CollideWithGrid_(Actor* actor, float dt)
-{
-  auto& a = *actor;
-  auto p = a.GetPosition();
   for (auto& i : {0, 1})
   {
-    auto v = actor->GetDirectionVector();
-    float d = v[i] * playerVelocity_ * dt;
-    auto s = Sign(d);
-    if (d == 0.0f)
-    {
-      continue;
-    }
 
-    for (auto& j : {-1, +1})
-    {
-      float front = p[i] + s * a.GetSize() * 0.5f;
-      int v = GridRound(p[!i] + j * a.GetSize() * 0.5f);
-      int u0 = GridRound(front);
-      int u1 = GridRound(front + d) + s;
-      for (int u = u0; u != u1 + s; u += s)
+    // TODO: move collecting total velocity on actor outside
+    float d = actor->GetDirectionVector()[i] * playerVelocity_ * dt;
+    auto s = Sign(d);
+    float front = p[i] + s * halfSize;
+    int c[2];
+    bool wallHit = false;
+    Actor* hitActor = nullptr;
+    c[!i] = GridRound(p[!i] - halfSize);
+    // iterate over cells between two corners of actor's sqare
+    for (; c[!i] != GridRound(p[!i] + halfSize) + 1; c[!i]++)
+  {
+      c[i] = GridRound(front);
+      // iterate over all grid cells crossed by current corner
+      for (; !hitActor && !wallHit && c[i] != GridRound(front + d) + s; c[i] += s)
       {
-        if ((i == 0
-             && levelMap_.GetCell(u, v) == '#')
-            || (i == 1
-                && levelMap_.GetCell(v, u) == '#'))
+        // clamp movement amount if crossed a solid grid cell
+        if (levelMap_.GetCell(c[0], c[1]) != '.')
         {
-          d = s * std::min(s * d, s * (u + (d < 0) - front - s * epsilon_));
-          break;
+          // distance from front to current cell's nearest edge
+          float du = c[i] + (d < 0) - front - s * epsilon_;
+          if (Abs(du) < Abs(d))
+          {
+            d = du;
+            wallHit = true;
+          }
+        }
+        else
+        {
+          // there may be other actors in this cell
+          // FIXME: assure there is no duplicate pairs of colliding actors
+          auto& actors = levelMap_.GetActors(c[0], c[1]);
+          for (auto a : actors)
+          {
+            Vector2 ap = a->GetPosition();
+            float aHalfSize = a->GetSize() * 0.5f;
+            float da = ap[i] - front - s * (aHalfSize + epsilon_);
+            // TODO: check for actors solidity
+            if (ap[!i] + aHalfSize > p[!i] - halfSize
+                && ap[!i] - aHalfSize < p[!i] + halfSize
+                && Abs(da) < Abs(d))
+            {
+              d = da;
+              hitActor = a;
+            }
+          }
         }
       }
     }
+    if (hitActor != nullptr)
+    {
+      // TODO: add info about collision e.g. normal and penetration depth
+      // TODO: track collisions with walls same way
+      AddCollidedPair_(actor, hitActor);
+    }
+    // apply movement along current axis
     p[i] += d;
-    a.SetPosition(p);
+  }
+  actor->SetPosition(p);
+}
+
+void GameServer::AddCollidedPair_(Actor* lhs, Actor* rhs)
+{
+  int minId = std::min(lhs->GetId(), rhs->GetId());
+  int maxId = std::max(lhs->GetId(), rhs->GetId());
+  quint64 idProduct = minId * lastId_ + maxId;
+  if (collisionPairUniqueness_.find(idProduct) == collisionPairUniqueness_.end())
+  {
+    collisionPairUniqueness_.insert(idProduct);
+  }
+  else
+  {
+    qDebug() << "Duplicate collision: " << minId << " vs. " << maxId;
+    return;
+  }
+  collisions_.push_back(std::make_pair(lhs, rhs));
+}
+
+void GameServer::ProcessCollision_(Actor* lhs, Actor* rhs)
+{
+  Player* player = nullptr;
+  Item* item = nullptr;
+
+  if (lhs->GetType() == EActorType::PLAYER)
+  {
+    player = static_cast<Player*>(lhs);
+  }
+  else if (lhs->GetType() == EActorType::ITEM)
+  {
+    item = static_cast<Item*>(lhs);
+  }
+  if (rhs->GetType() == EActorType::ITEM)
+  {
+    item = static_cast<Item*>(rhs);
+  }
+  else if (rhs->GetType() == EActorType::PLAYER)
+  {
+    player = static_cast<Player*>(player);
+  }
+
+  if (item != nullptr
+      && player != nullptr
+      && deadActors_.count(item) ==0)
+  {
+    deadActors_.insert(item);
+    QVariantMap pUpTaken;
+    pUpTaken["event"] = "bonus";
+    pUpTaken["id"] = player->GetId();
+    player->SetHealth(player->GetHealth() + 100);
+    events_ << pUpTaken;
   }
 }

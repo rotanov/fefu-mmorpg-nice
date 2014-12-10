@@ -4,6 +4,7 @@ Item::Item()
 {
   type_ = EActorType::ITEM;
   isOnTheGround_ = true;
+  SetSize(0.25);
 }
 
 Item::~Item()

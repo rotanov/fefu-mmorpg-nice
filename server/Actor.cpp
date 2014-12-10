@@ -97,6 +97,7 @@ void Actor::SetSize(const float size)
 
 void Actor::Update(float dt)
 {
+  // TODO: remove integrating over time from Update all over Actor hierarchy
   position_ += velocity_ * dt;
 }
 
@@ -133,18 +134,19 @@ void Actor::SetType(EActorType type)
 std::vector<std::pair<int, int>> Actor::GetOccupiedCells() const
 {
   std::vector<std::pair<int, int>> result;
-  Vector2 dp[4];
-  for (int i = 0; i < 4; i++)
+  Vector2 p = GetPosition();
+  float halfSize = 0.5f * GetSize();
+  int c0 = GridRound(p.x - halfSize);
+  int c1 = GridRound(p.x + halfSize);
+  int r0 = GridRound(p.y - halfSize);
+  int r1 = GridRound(p.y + halfSize);
+
+  for (int c = c0; c < c1 + 1; c++)
   {
-    Vector2 p = GetPosition()
-        + GetSize()
-        * 0.5
-        * Deku2D::Const::Math::V2_DIRECTIONS_DIAG[i];
-
-    int column = GridRound(p.x);
-    int row = GridRound(p.y);
-
-    result.push_back(std::make_pair(column, row));
+    for (int r = r0; r < r1 + 1; r++)
+    {
+      result.push_back(std::make_pair(c, r));
+    }
   }
   return result;
 }

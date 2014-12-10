@@ -147,8 +147,13 @@ private:
   void SetActorPosition_(Actor* actor, const Vector2& position);
   void SetItemDescription(const QVariantMap &request, Item* item);
   bool IsPositionWrong(float x, float y, Actor *actor);
-  bool CollideWithGrid_v0_(Actor* actor);
-  void CollideWithGrid_(Actor* actor, float dt);
+  void FindCollisions_(Actor* actor, float dt);
+  void AddCollidedPair_(Actor* lhs, Actor* rhs);
+  void ProcessCollision_(Actor* lhs, Actor* rhs);
+
+  std::unordered_set<quint64> collisionPairUniqueness_;
+  std::vector<std::pair<Actor*, Actor*>> collisions_;
+  std::unordered_set<Actor*> deadActors_;
 
   template <typename T>
   T* CreateActor_();

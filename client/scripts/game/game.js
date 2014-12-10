@@ -204,7 +204,7 @@ define([
           h.setColor(0xbedb39, a.class);
         }
         else if (a.type === 'item') {
-          h.setColor(0x1f8a70, 'item');
+          h.setColor(0xffe11a, 'item');
         }
         h.setBoxSize(a.size);
         h.id = a.id;
