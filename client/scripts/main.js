@@ -33,6 +33,7 @@ require([
                    , $$('#password').value)
     .then(function (data) {
       rpgMsg('Signed in.');
+      rpgMsg('Use arrows to move. Press "Z" to attack.')
 
       game.start(data)
       .then(function (view) {
