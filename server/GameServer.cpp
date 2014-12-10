@@ -1547,29 +1547,25 @@ bool GameServer::CollideWithGrid_v0_(Actor* actor)
 void GameServer::CollideWithGrid_(Actor* actor, float dt)
 {
   auto p = actor->GetPosition();
+  float halfSize = actor->GetSize() * 0.5f;
   // iterate over actor movement: first along x-axis then y-axis
   for (auto& i : {0, 1})
   {
     // wanted magnitude of movement along current axis for this frame's dt
     float d = actor->GetDirectionVector()[i] * playerVelocity_ * dt;
     auto s = Sign(d);
-
-    // iterate over two corners of actor's sqare
-    // FIXME: corners may belong to same cell, iterate over cells instead
-    // FIXME: for size > 1 we may be skipping some cells between corners
-    // FIXME: assure there is no duplicate pairs of colliding actors
-    for (auto& j : {-1, +1})
+    float front = p[i] + s * halfSize;
+    int c[2];
+    c[!i] = GridRound(p[!i] - halfSize);
+    // iterate over cells between two corners of actor's sqare
+    for (; c[!i] != GridRound(p[!i] + halfSize) + 1; c[!i] += 1)
     {
-      int c[2];
-      float halfSize = actor->GetSize() * 0.5f;
-      float front = p[i] + s * halfSize;
-      c[!i] = GridRound(p[!i] + j * halfSize);
       c[i] = GridRound(front);
       // iterate over all grid cells crossed by current corner
       for (int& u = c[i]; u != GridRound(front + d) + s; u += s)
       {
         // clamp movement amount if crossed a solid grid cell
-        if (levelMap_.GetCell(c[0], c[1]) == '#')
+        if (levelMap_.GetCell(c[0], c[1]) != '.')
         {
           d = s * std::min(s * d, s * (u + (d < 0) - front - s * epsilon_));
           break;
@@ -1577,6 +1573,7 @@ void GameServer::CollideWithGrid_(Actor* actor, float dt)
         else
         {
           // there may be other actors in this cell
+          // FIXME: assure there is no duplicate pairs of colliding actors
           auto& actors = levelMap_.GetActors(c[0], c[1]);
           for (auto a : actors)
           {
