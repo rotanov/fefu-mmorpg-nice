@@ -97,6 +97,7 @@ void Actor::SetSize(const float size)
 
 void Actor::Update(float dt)
 {
+  // TODO: remove integrating over time from Update all over Actor hierarchy
   position_ += velocity_ * dt;
 }
 
