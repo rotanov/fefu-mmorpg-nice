@@ -1557,8 +1557,9 @@ void GameServer::CollideWithGrid_(Actor* actor, float dt)
     for (auto& j : {-1, +1})
     {
       int c[2];
-      float front = p[i] + s * a.GetSize() * 0.5f;
-      c[!i] = GridRound(p[!i] + j * a.GetSize() * 0.5f);
+      float halfSize = a.GetSize() * 0.5f;
+      float front = p[i] + s * halfSize;
+      c[!i] = GridRound(p[!i] + j * halfSize);
       c[i] = GridRound(front);
       // iterate over all grid cells crossed by current corner
       for (int& u = c[i]; u != GridRound(front + d) + 2*s; u += s)

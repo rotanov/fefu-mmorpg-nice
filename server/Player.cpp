@@ -7,6 +7,7 @@ Player::Player()
   SetMaxHealth(1000);
   SetHealth(1000);
   SetBlows();
+  SetSize(0.5f);
 }
 
 Player::~Player()
