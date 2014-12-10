@@ -290,6 +290,7 @@ void GameServer::tick()
   QVariantMap tickMessage;
   tickMessage["tick"] = tick_;
   tickMessage["events"] = events_;
+  tickMessage["ts"] = QDateTime::currentMSecsSinceEpoch();
   events_.clear();
   emit broadcastMessage(QString(QJsonDocument::fromVariant(tickMessage).toJson()));
   tick_++;
