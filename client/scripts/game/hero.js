@@ -42,7 +42,9 @@ define([
         break;
 
       case 'item':
-        base.drawCircle(-5, -5, 10, 10);
+        hero.body.rotation = 0;
+        hero.body.scale.set(1, 1);
+        base.drawCircle(0, 0, 8, 8);
         break;
 
       default:
@@ -74,7 +76,7 @@ define([
     base.endFill();
 
     tail.clear();
-    if (heroClass != 'item') {
+    if (heroClass !== 'item') {
       tail.beginFill(0x000000, 1.0);
       tail.drawRect(-2, -2, 4, 4);
       tail.position.set(4, -4);
@@ -133,13 +135,13 @@ define([
     var scale = 1.5 + Math.sin(t) * 0.1;
     if (this.heroClass !== 'item') {
       this.body.scale.set(scale, scale);
-    }
 
-    var angleDelta = this.targetAngle - this.body.rotation;
-    if (angleDelta > Math.PI) {
-      angleDelta = -Math.PI * 2 + angleDelta;
+      var angleDelta = this.targetAngle - this.body.rotation;
+      if (angleDelta > Math.PI) {
+        angleDelta = -Math.PI * 2 + angleDelta;
+      }
+      this.body.rotation += angleDelta * dt * 10;
     }
-    this.body.rotation += angleDelta * dt * 10;
   }
 
   Hero.prototype.setColor = function (color, heroClass) {
