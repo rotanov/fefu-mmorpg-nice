@@ -1340,7 +1340,7 @@ void GameServer::GenMonsters_()
           SetActorPosition_(monster, Vector2(j + 0.5f, i + 0.5f));
 //          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
           storage_.GetMonster(monster, monster->GetId() % 32 + 1);
-          m.OnCollideWorld();
+//          m.OnCollideWorld();
         }
       }
     }
@@ -1544,8 +1544,7 @@ bool GameServer::CollideWithGrid_v0_(Actor* actor)
 //==============================================================================
 void GameServer::CollideWithGrid_(Actor* actor, float dt)
 {
-  auto& a = *actor;
-  auto p = a.GetPosition();
+  auto p = actor->GetPosition();
   // iterate over actor movement: first along x-axis then y-axis
   for (auto& i : {0, 1})
   {
@@ -1554,15 +1553,18 @@ void GameServer::CollideWithGrid_(Actor* actor, float dt)
     auto s = Sign(d);
 
     // iterate over two corners of actor's sqare
+    // FIXME: corners may belong to same cell, iterate over cells instead
+    // FIXME: for size > 1 we may be skipping some cells between corners
+    // FIXME: assure there is no duplicate pairs of colliding actors
     for (auto& j : {-1, +1})
     {
       int c[2];
-      float halfSize = a.GetSize() * 0.5f;
+      float halfSize = actor->GetSize() * 0.5f;
       float front = p[i] + s * halfSize;
       c[!i] = GridRound(p[!i] + j * halfSize);
       c[i] = GridRound(front);
       // iterate over all grid cells crossed by current corner
-      for (int& u = c[i]; u != GridRound(front + d) + 2*s; u += s)
+      for (int& u = c[i]; u != GridRound(front + d) + s; u += s)
       {
         // clamp movement amount if crossed a solid grid cell
         if (levelMap_.GetCell(c[0], c[1]) == '#')
@@ -1570,10 +1572,25 @@ void GameServer::CollideWithGrid_(Actor* actor, float dt)
           d = s * std::min(s * d, s * (u + (d < 0) - front - s * epsilon_));
           break;
         }
+        else
+        {
+          // there may be other actors in this cell
+          auto& actors = levelMap_.GetActors(c[0], c[1]);
+          for (auto a : actors)
+          {
+            float aHalfSize = a->GetSize() * 0.5f;
+            if (a->GetPosition()[!i] + aHalfSize > p[!i] - halfSize
+                && a->GetPosition()[!i] - aHalfSize < p[!i] + halfSize)
+            {
+              d = s * std::min(s * d, s * (a->GetPosition()[i] - s * epsilon_
+                                         - front - aHalfSize * s));
+            }
+          }
+        }
       }
     }
     // apply movement along current axis
     p[i] += d;
   }
-  a.SetPosition(p);
+  actor->SetPosition(p);
 }
