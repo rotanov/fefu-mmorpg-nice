@@ -1476,6 +1476,8 @@ bool GameServer::IsPositionWrong(float x, float y, Actor* actor)
 //==============================================================================
 bool GameServer::CollideWithGrid_v0_(Actor* actor)
 {
+  // this method is an attempt to resolve collision by letting things to
+  // intersect and then resolving this
   auto& a = *actor;
 
   int vCount = 0;

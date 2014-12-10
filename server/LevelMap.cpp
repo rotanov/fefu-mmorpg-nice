@@ -38,10 +38,7 @@ int LevelMap::GetColumnCount() const
 
 int LevelMap::GetCell(int column, int row) const
 {
-  if (column < 0
-      || row < 0
-      || column >= columnCount_
-      || row >= rowCount_)
+  if (!IsValid_(column, row))
   {
     return '#';
   }
@@ -85,10 +82,7 @@ std::vector<std::pair<int, int>> LevelMap::HasActor(Actor* actor)
 
 const std::vector<Actor*>& LevelMap::GetActors(int column, int row) const
 {
-  if (column < 0
-      || row < 0
-      || column >= columnCount_
-      || row >= rowCount_)
+  if (!IsValid_(column, row))
   {
     return emptyActors_;
   }
@@ -113,10 +107,7 @@ void LevelMap::IndexActor(Actor* actor)
   {
     int column = p.first;
     int row = p.second;
-    if (column >= 0
-        && row >= 0
-        && column < columnCount_
-        && row < rowCount_)
+    if (IsValid_(column, row))
     {
       actors_[row * columnCount_ + column].push_back(actor);
     }
@@ -132,10 +123,7 @@ void LevelMap::RemoveActor(const Actor* actor)
   {
     int column = p.first;
     int row = p.second;
-    if (column >= 0
-        && row >= 0
-        && column < columnCount_
-        && row < rowCount_)
+    if (IsValid_(column, row))
     {
       auto& a = actors_[row * columnCount_ + column];
       a.erase(std::remove(a.begin(), a.end(), actor), a.end());
@@ -185,4 +173,12 @@ void LevelMap::InitData_()
   {
     data_[i] = '.';
   }
+}
+
+bool LevelMap::IsValid_(int column, int row) const
+{
+  return column >= 0
+      && row >= 0
+      && column < columnCount_
+      && row < rowCount_;
 }

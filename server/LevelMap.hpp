@@ -36,6 +36,7 @@ public:
 
 private:
   void InitData_();
+  bool IsValid_(int column, int row) const;
 
   int rowCount_;
   int columnCount_;
