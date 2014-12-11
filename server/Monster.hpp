@@ -80,7 +80,9 @@ public:
     "HATE_UNDEAD",
     "HATE_ANIMAL",
   };
+
 private:
   int damage_;
   float alertness_;
+  float decisionTimer_ = 0.0f;
 };

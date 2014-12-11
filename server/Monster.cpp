@@ -29,9 +29,11 @@ bool Monster::OnCollideActor(Actor* /*actor*/)
 
 void Monster::Update(float dt)
 {
-//  if (Flags.lastIndexOf("CAN_MOVE") != -1)
+  decisionTimer_ += dt;
+  if (decisionTimer_ > 0.2f)
   {
-    Actor::Update(dt);
+    decisionTimer_ = 0.0f;
+    SetDirection(static_cast<EActorDirection>(RandomRange(0, 3)), RandomRange(0, 1));
   }
 }
 
