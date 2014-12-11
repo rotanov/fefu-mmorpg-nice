@@ -13,7 +13,6 @@
 #include "PermaStorage.hpp"
 #include "utils.hpp"
 
-//==============================================================================
 GameServer::GameServer()
   : levelMap_(16, 16)
 {
@@ -36,7 +35,6 @@ GameServer::GameServer()
   LoadLevelFromImage_("level-1.png");
 }
 
-//==============================================================================
 GameServer::~GameServer()
 {
   for (auto actor : actors_)
@@ -45,7 +43,6 @@ GameServer::~GameServer()
   }
 }
 
-//==============================================================================
 bool GameServer::Start()
 {
   if (storage_.Connect())
@@ -60,7 +57,6 @@ bool GameServer::Start()
   return false;
 }
 
-//==============================================================================
 void GameServer::Stop()
 {
   storage_.Reset();
@@ -68,7 +64,6 @@ void GameServer::Stop()
   timer_->stop();
 }
 
-//==============================================================================
 void GameServer::handleFEMPRequest(const QVariantMap& request, QVariantMap& response)
 {
   response["action"] = request["action"];
@@ -108,7 +103,6 @@ void GameServer::handleFEMPRequest(const QVariantMap& request, QVariantMap& resp
   }
 }
 
-//==============================================================================
 void GameServer::HandleRegister_(const QVariantMap& request, QVariantMap& response)
 {
   QString login = request["login"].toString();
@@ -156,7 +150,6 @@ void GameServer::HandleRegister_(const QVariantMap& request, QVariantMap& respon
   }
 }
 
-//==============================================================================
 void GameServer::HandleDestroyItem_(const QVariantMap& request, QVariantMap& response)
 {
 #define BAD_ID(COND)\
@@ -209,13 +202,11 @@ void GameServer::HandleDestroyItem_(const QVariantMap& request, QVariantMap& res
 #undef BAD_ID
 }
 
-//==============================================================================
 void GameServer::setWSAddress(QString address)
 {
   wsAddress_ = address;
 }
 
-//==============================================================================
 void GameServer::tick()
 {
   float dt = (time_.elapsed() - lastTime_) * 0.001f;
@@ -290,7 +281,6 @@ void GameServer::tick()
   tick_++;
 }
 
-//==============================================================================
 void GameServer::HandleSetUpConstants_(const QVariantMap& request, QVariantMap& response)
 {
   QString* str = new QString("QString");
@@ -315,7 +305,6 @@ void GameServer::HandleSetUpConstants_(const QVariantMap& request, QVariantMap& 
   pickUpRadius_ = request["pickUpRadius"].toFloat();
 }
 
-//==============================================================================
 void GameServer::HandleSetUpMap_(const QVariantMap& request, QVariantMap& response)
 {
 #define BAD_MAP(COND)\
@@ -357,7 +346,6 @@ void GameServer::HandleSetUpMap_(const QVariantMap& request, QVariantMap& respon
 #undef BAD_MAP
 }
 
-//==============================================================================
 void GameServer::HandleGetConst_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(request);
@@ -370,7 +358,6 @@ void GameServer::HandleGetConst_(const QVariantMap& request, QVariantMap& respon
   response["pickUpRadius"] = pickUpRadius_;
 }
 
-//==============================================================================
 void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
 {
   auto login = request["login"].toString();
@@ -428,13 +415,12 @@ void GameServer::HandleLogin_(const QVariantMap& request, QVariantMap& response)
 
   response["sid"] = sid;
   response["webSocket"] = wsAddress_;
-  response["fistId"] = FistId_;
+  response["fistId"] = static_cast<int>(ESpecId::FIST_ID);
   response["id"] = player->GetId();
 
   qDebug() << "Logged in, login: " << player->GetLogin();
 }
 
-//==============================================================================
 void GameServer::HandleLogout_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(response);
@@ -455,7 +441,6 @@ void GameServer::HandleLogout_(const QVariantMap& request, QVariantMap& response
   KillActor_(player);
 }
 
-//==============================================================================
 void GameServer::HandleStartTesting_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(request);
@@ -470,7 +455,6 @@ void GameServer::HandleStartTesting_(const QVariantMap& request, QVariantMap& re
   testingStageActive_ = true;
 }
 
-//==============================================================================
 void GameServer::HandleStopTesting_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(request);
@@ -485,7 +469,6 @@ void GameServer::HandleStopTesting_(const QVariantMap& request, QVariantMap& res
   testingStageActive_ = false;
 }
 
-//==============================================================================
 void GameServer::HandleGetDictionary_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(request);
@@ -496,7 +479,6 @@ void GameServer::HandleGetDictionary_(const QVariantMap& request, QVariantMap& r
   response["dictionary"] = dictionary;
 }
 
-//==============================================================================
 void GameServer::HandleBeginMove_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(response);
@@ -510,7 +492,6 @@ void GameServer::HandleBeginMove_(const QVariantMap& request, QVariantMap& respo
   p->SetClientTick(tick);
 }
 
-//==============================================================================
 void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
 {
   auto sid = request["sid"].toByteArray();
@@ -597,7 +578,6 @@ void GameServer::HandleLook_(const QVariantMap& request, QVariantMap& response)
   response["actors"] = actors;
 }
 
-//==============================================================================
 void GameServer::HandleEndMove_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(response);
@@ -611,7 +591,6 @@ void GameServer::HandleEndMove_(const QVariantMap& request, QVariantMap& respons
   p->SetClientTick(tick);
 }
 
-//==============================================================================
 void GameServer::HandleSetLocation_(const QVariantMap& request, QVariantMap& response)
 {
   Q_UNUSED(response);
@@ -645,7 +624,6 @@ void GameServer::HandleSetLocation_(const QVariantMap& request, QVariantMap& res
   SetActorPosition_(p, Vector2(x,y));
 }
 
-//==============================================================================
 void GameServer::HandleExamine_(const QVariantMap& request, QVariantMap& response)
 {
   auto id = request["id"].toInt();
@@ -762,7 +740,6 @@ void GameServer::HandleExamine_(const QVariantMap& request, QVariantMap& respons
   response["id"] = actor->GetId();
 }
 
-//==============================================================================
 void GameServer::HandlePickUp_(const QVariantMap& request, QVariantMap& response)
 {
   auto sid = request["sid"].toByteArray();
@@ -806,7 +783,6 @@ void GameServer::HandlePickUp_(const QVariantMap& request, QVariantMap& response
   player->items.push_back(dynamic_cast<Item*>(item));
 }
 
-//==============================================================================
 void GameServer::HandleUnequip_(const QVariantMap& request, QVariantMap& response)
 {
   if (request["slot"].toString() == ""
@@ -832,7 +808,6 @@ void GameServer::HandleUnequip_(const QVariantMap& request, QVariantMap& respons
   player->SetStat(false, item);
 }
 
-//==============================================================================
 void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
 {
   auto sid = request["sid"].toByteArray();
@@ -846,39 +821,6 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
 
   int id = request["id"].toInt();
 
-  Item* item = dynamic_cast<Item*>(idToActor_[request["id"].toInt()]);
-  if (item)
-  {
-    if (request.find("x") == request.end()
-        && request.find("y") == request.end())
-    {
-      if (item->GetSubtype() != "consumable")
-      {
-        WriteResult_(response, EFEMPResult::BAD_ID);
-        return;
-      }
-      else
-      {
-        p->SetHealth(p->GetHealth() + item->bonuses[EStatConst::HP]["value"].toFloat());
-        WriteResult_(response, EFEMPResult::OK);
-        return;
-      }
-    }
-
-    if ((item != p->GetSlot(ESlot::LEFT_HAND)
-         || item != p->GetSlot(ESlot::RIGHT_HAND))
-        && (p->GetSlot(ESlot::LEFT_HAND) != 0
-            || p->GetSlot(ESlot::RIGHT_HAND)!= 0 )
-        && id != FistId_)
-    {
-      WriteResult_(response, EFEMPResult::BAD_SLOT);
-      return;
-    }
-
-    WriteResult_(response, EFEMPResult::OK);
-    return;
-  }
-
   if (!request["x"].toFloat()
       || !request["y"].toFloat())
   {
@@ -886,55 +828,76 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
     return;
   }
 
-  // TODO: don't traverse all actors on single use item for attack.
   float x = request["x"].toFloat();
   float y = request["y"].toFloat();
   Vector2 at = Vector2(x, y);
 
-  if ((at - p->GetPosition()).Length() > 128.0f)
+  // Looks like this check here is for not casting attack too far from caster
+  if ((at - p->GetPosition()).Length() > 1.2f)
   {
     WriteResult_(response, EFEMPResult::BAD_PLACING);
     return;
   }
 
-  for (Actor* actor : actors_)
-  {
-    if (actor->GetType() == EActorType::MONSTER)
-    {
-      Creature* target = static_cast<Creature*>(actor);
-      if (p->GetId() != target->GetId()
-          && target->GetHealth() > 0)
-      {
-        Box targetBox(target->GetPosition(), target->GetSize());
-        if (targetBox.Inside(at))
-        {
-          events_ << p->attack(target, id);
+  ESpecId specId = ESpecId::UNDEFINED;
 
-          if (target->GetHealth() <= 0)
+  if (id < 0)
+  {
+    specId = static_cast<ESpecId>(id);
+  }
+
+  switch (specId)
+  {
+    case ESpecId::FIST_ID:
+    {
+      // TODO: replace this with creating an `attack object` which deal damage
+      // and live for about a frame
+      for (Actor* actor : actors_)
+      {
+        if (actor->GetType() == EActorType::MONSTER)
+        {
+          Creature* target = static_cast<Creature*>(actor);
+          if (p->GetId() != target->GetId()
+              && target->GetHealth() > 0)
           {
-            GetItems(target);
-            p->SetExperience(p->GetExperience () + 300);
-            int lev = p->GetLevel();
-            p->SetLevel(p->GetExperience() / 1000);
-            if (lev < p->GetLevel())
+            Box targetBox(target->GetPosition(), target->GetSize() * 0.5f);
+            if (targetBox.Inside(at))
             {
-              p->AddStat();
-              p->UpdateStat();
+              events_ << p->attack(target, id);
+
+              if (target->GetHealth() <= 0)
+              {
+                GetItems(target);
+                p->SetExperience(p->GetExperience () + 300);
+                int lev = p->GetLevel();
+                p->SetLevel(p->GetExperience() / 1000);
+                if (lev < p->GetLevel())
+                {
+                  p->AddStat();
+                  p->UpdateStat();
+                }
+              }
+              else
+              {
+                events_ << target->attack(p);
+              }
+              WriteResult_(response, EFEMPResult::OK);
+              return;
             }
           }
-          else
-          {
-            events_ << target->attack(p);
-          }
-          WriteResult_(response, EFEMPResult::OK);
-          return;
         }
       }
     }
+      break;
+
+    case ESpecId::BOW_ID:
+      break;
+
+    default:
+      break;
   }
 }
 
-//==============================================================================
 void GameServer::HandleUseSkill_(const QVariantMap& request, QVariantMap& response)
 {
   auto sid = request["sid"].toByteArray();
@@ -959,7 +922,6 @@ void GameServer::HandleUseSkill_(const QVariantMap& request, QVariantMap& respon
   return;
 }
 
-//==============================================================================
 void GameServer::HandleDrop_(const QVariantMap& request, QVariantMap& response)
 {
   int id = request["id"].toInt();
@@ -995,7 +957,6 @@ void GameServer::HandleDrop_(const QVariantMap& request, QVariantMap& response)
   WriteResult_(response, EFEMPResult::BAD_ID);
 }
 
-//==============================================================================
 void GameServer::HandleEquip_(const QVariantMap& request, QVariantMap& response)
 {
 #define BAD_ID(COND)\
@@ -1071,7 +1032,6 @@ void GameServer::HandleEquip_(const QVariantMap& request, QVariantMap& response)
 #undef BAD_ID
 }
 
-//==============================================================================
 void GameServer::HandlePutItem_(const QVariantMap& request, QVariantMap& response)
 {
   if (!testingStageActive_)
@@ -1101,7 +1061,6 @@ void GameServer::HandlePutItem_(const QVariantMap& request, QVariantMap& respons
   response["id"] = item->GetId();
 }
 
-//==============================================================================
 void GameServer::HandlePutMob_(const QVariantMap& request, QVariantMap& response)
 {
   if (!testingStageActive_)
@@ -1124,13 +1083,6 @@ void GameServer::HandlePutMob_(const QVariantMap& request, QVariantMap& response
   SetActorPosition_(monster, Vector2(x, y));
 
   monster->SetDirection(EActorDirection::SOUTH, true);
-
-  if (IsPositionWrong(x, y, monster))
-  {
-    KillActor_(monster);
-    WriteResult_(response, EFEMPResult::BAD_PLACING);
-    return;
-  }
 
   auto flags = request["flags"].toList();
   for (auto flag: flags)
@@ -1183,7 +1135,6 @@ void GameServer::HandlePutMob_(const QVariantMap& request, QVariantMap& response
   response["id"] = monster->GetId();
 }
 
-//==============================================================================
 void GameServer::HandlePutPlayer_(const QVariantMap& request, QVariantMap& response)
 {
   if (!testingStageActive_)
@@ -1203,13 +1154,6 @@ void GameServer::HandlePutPlayer_(const QVariantMap& request, QVariantMap& respo
 
   Player* player = CreateActor_<Player>();
   SetActorPosition_(player, Vector2(x, y));
-
-  if (IsPositionWrong(x, y, player))
-  {
-    KillActor_(player);
-    WriteResult_(response, EFEMPResult::BAD_PLACING);
-    return;
-  }
 
   auto inventory = request["inventory"].toList();
   for (auto elem: inventory)
@@ -1277,10 +1221,9 @@ void GameServer::HandlePutPlayer_(const QVariantMap& request, QVariantMap& respo
 
   sidToPlayer_.insert(sid, player);
   response["sid"] = sid;
-  response["fistId"] = FistId_;
+  response["fistId"] = static_cast<int>(ESpecId::FIST_ID);
 }
 
-//==============================================================================
 void GameServer::HandleEnforce_(const QVariantMap &request, QVariantMap &response)
 {
   QVariantMap res;
@@ -1294,13 +1237,11 @@ void GameServer::HandleEnforce_(const QVariantMap &request, QVariantMap &respons
 }
 
 
-//==============================================================================
 void GameServer::WriteResult_(QVariantMap& response, const EFEMPResult result)
 {
   response["result"] = fempResultToString[static_cast<unsigned>(result)];
 }
 
-//==============================================================================
 void GameServer::LoadLevelFromImage_(const QString filename)
 {
   QFile levelImage(filename);
@@ -1322,7 +1263,6 @@ void GameServer::LoadLevelFromImage_(const QString filename)
   }
 }
 
-//==============================================================================
 void GameServer::GenMonsters_()
 {
   int monsterCounter = 0;
@@ -1346,7 +1286,6 @@ void GameServer::GenMonsters_()
   }
 }
 
-//==============================================================================
 Player* GameServer::CreatePlayer_(const QString login, const QString heroClass)
 {
   Player* player = CreateActor_<Player>();
@@ -1384,7 +1323,6 @@ Player* GameServer::CreatePlayer_(const QString login, const QString heroClass)
   return player;
 }
 
-//==============================================================================
 void GameServer::GetItems(Creature* actor)
 {
   if (actor->GetType() == EActorType::PLAYER)
@@ -1404,7 +1342,6 @@ void GameServer::GetItems(Creature* actor)
   }
 }
 
-//==============================================================================
 void GameServer::SetActorPosition_(Actor* actor, const Vector2& position)
 {
   levelMap_.RemoveActor(actor);
@@ -1412,7 +1349,6 @@ void GameServer::SetActorPosition_(Actor* actor, const Vector2& position)
   levelMap_.IndexActor(actor);
 }
 
-//==============================================================================
 void GameServer::SetItemDescription(const QVariantMap& request, Item* item)
 {
   item->SetSubtype(request["subtype"].toString());
@@ -1433,46 +1369,6 @@ void GameServer::SetItemDescription(const QVariantMap& request, Item* item)
   }
 }
 
-//==============================================================================
-bool GameServer::IsPositionWrong(float x, float y, Actor* actor)
-{
-  if (levelMap_.GetCell(x, y) != '.')
-  {
-    return true;
-  }
-
-  if (levelMap_.GetCell(x + 0.4f, y) != '.'
-      || levelMap_.GetCell(x - 0.4f, y) != '.'
-      || levelMap_.GetCell(x, y - 0.4f) != '.'
-      || levelMap_.GetCell(x, y + 0.4f) != '.')
-  {
-    return true;
-  }
-
-  for (auto p : actors_)
-  {
-    if (p == actor
-        || p->GetType() == EActorType::ITEM)
-    {
-      continue;
-    }
-
-    if (p->GetPosition().x >= 0
-        && p->GetPosition().y >= 0)
-    {
-      Box box0(actor->GetPosition(), actor->GetSize(), actor->GetSize());
-      Box box1(p->GetPosition(), p->GetSize(), p->GetSize());
-
-      if (box0.Intersect(box1))
-      {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-//==============================================================================
 void GameServer::FindCollisions_(Actor* actor, float dt)
 {
 

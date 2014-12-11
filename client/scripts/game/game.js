@@ -418,16 +418,27 @@ define([
         api.endMove(keyToDirection[e.keyCode], tick_);
       }
       changeStepSoundState();
+      console.log(e.keyCode);
 
+      // 90 is `z`
       if (e.keyCode === 90) {
         audio.play('attack', {volume: 0.2});
+        var p = root.hero.getAttackPos();
+        api.use(fistId, p.x + gPlayerX, p.y + gPlayerY)
+        .then(function (data) {
+        });
+        root.hero.attack(p);
+      }
 
-          var p = root.hero.getAttackPos();
-          api.use(fistId, p.x + gPlayerX, p.y + gPlayerY)
-          .then(function (data) {
-          });
-
-          root.hero.attack(p);
+      // 88 is 'x'
+      if (e.keyCode === 88) {
+        audio.play('attack', {volume: 0.2});
+        var p = root.hero.getAttackPos();
+        // -4 is `BOW_ID_`
+        api.use(-4, p.x + gPlayerX, p.y + gPlayerY)
+        .then(function (data) {
+        });
+        root.hero.attack(p);
       }
     }
 

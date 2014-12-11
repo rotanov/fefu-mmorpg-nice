@@ -75,7 +75,6 @@ public slots:
 
 private:
   // Request Handlers
-//==============================================================================
   typedef void (GameServer::*HandlerType)(const QVariantMap& request, QVariantMap& response);
   QMap<QString, HandlerType> requestHandlers_ =
   {
@@ -136,7 +135,6 @@ private:
   void HandleUseSkill_(const QVariantMap& request, QVariantMap& response);
   void HandleDrop_(const QVariantMap& request, QVariantMap& response);
   void HandleEquip_(const QVariantMap& request, QVariantMap& response);
-//==============================================================================
 
   void WriteResult_(QVariantMap& response, const EFEMPResult result);
 
@@ -146,7 +144,6 @@ private:
   Player* CreatePlayer_(const QString login, const QString heroClass);
   void SetActorPosition_(Actor* actor, const Vector2& position);
   void SetItemDescription(const QVariantMap &request, Item* item);
-  bool IsPositionWrong(float x, float y, Actor *actor);
   void FindCollisions_(Actor* actor, float dt);
   void AddCollidedPair_(Actor* lhs, Actor* rhs);
   void ProcessCollision_(Actor* lhs, Actor* rhs);
@@ -188,7 +185,12 @@ private:
   float epsilon_ = 0.00001;
   float pickUpRadius_ = 1.5f;
 
-  int FistId_ = -5;
+  enum class ESpecId : int
+  {
+    UNDEFINED = -1,
+    BOW_ID = -4,
+    FIST_ID = -5,
+  };
 
   bool testingStageActive_ = false;
 
