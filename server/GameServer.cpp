@@ -21,6 +21,8 @@ GameServer::GameServer()
   qsrand(midnight.secsTo(QTime::currentTime()));
   srand(3);
 
+  // TODO: move tick somewhere, don't use QTimer it's totally useless for stable
+  // 60FPS game loop
   timer_ = new QTimer(this);
   timer_->setTimerType(Qt::PreciseTimer);
   connect(timer_
