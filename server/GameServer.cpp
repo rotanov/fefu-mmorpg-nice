@@ -252,7 +252,7 @@ void GameServer::tick()
       {
         Player* p = static_cast<Player*>(actor);
         p->SetHealth(p->GetHealth() + 10 * dt);
-            }
+      }
         break;
 
       default:
@@ -273,10 +273,10 @@ void GameServer::tick()
     KillActor_(a);
   }
 
-//  if (monsterCount < 5)
-//  {
-//    GenMonsters_();
-//  }
+  if (monsterCount < 5)
+  {
+    GenMonsters_();
+  }
 
   QVariantMap tickMessage;
   tickMessage["tick"] = tick_;
@@ -883,21 +883,27 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
     return;
   }
 
+  // TODO: don't traverse all actors on single use item for attack.
+  float x = request["x"].toFloat();
+  float y = request["y"].toFloat();
+  Vector2 at = Vector2(x, y);
+
+  if ((at - p->GetPosition()).Length() > 128.0f)
+  {
+    WriteResult_(response, EFEMPResult::BAD_PLACING);
+    return;
+  }
+
   for (Actor* actor : actors_)
   {
-    if (actor->GetType() != EActorType::ITEM
-        && actor->GetType() != EActorType::PROJECTILE)
+    if (actor->GetType() == EActorType::MONSTER)
     {
       Creature* target = static_cast<Creature*>(actor);
-      if ((p->GetId() != target->GetId())
-          && (target->GetHealth() > 0))
+      if (p->GetId() != target->GetId()
+          && target->GetHealth() > 0)
       {
-        Vector2 player_pos = p->GetPosition();
-        Vector2 target_pos = target->GetPosition();
-        float distance2 = Sqr(player_pos.x - target_pos.x)
-                        + Sqr(player_pos.y - target_pos.y);
-
-        if (distance2 <= Sqr(1.5)) // TODO: WAS pickUpRadius_
+        Box targetBox(target->GetPosition(), target->GetSize() * 0.5f);
+        if (targetBox.Inside(at))
         {
           events_ << p->attack(target, id);
 
