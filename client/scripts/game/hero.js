@@ -93,13 +93,13 @@ define([
     this.targetAngle = 0;
     this.boxSize = 1.0;
 
-    // var attackBody = new pixi.Graphics();
-    // this.attackBody = attackBody;
-    // this.addChild(attackBody);
+    var attackBody = new pixi.Graphics();
+    this.attackBody = attackBody;
+    this.addChild(attackBody);
 
-    // attackBody.beginFill();
-    // attackBody.drawRect(-20, -20, 40, 40);
-    // attackBody.endFill();
+    attackBody.beginFill(0xffffff, 1.0);
+    attackBody.drawCircle(0, 0, 5, 5);
+    attackBody.endFill();
 
     var body = new pixi.Graphics();
     this.addChild(body);
@@ -130,6 +130,7 @@ define([
   Hero.prototype.constructor = Hero;
 
   Hero.prototype.update = function (dt) {
+    Actor.prototype.update.call(this, dt);
     this.phase += 10.0 * dt;
     var t = this.phase;
     var scale = 1.5 + Math.sin(t) * 0.1;
@@ -184,8 +185,20 @@ define([
     // this.addChild(text);
   }
 
-  Hero.prototype.attack = function () {
-    return this.animate.call(this.attackBody, {position: new pixi.Point(0, 0)}, 500);
+  Hero.prototype.getAttackPos = function () {
+    var angle = this.targetAngle - Math.PI / 4;
+    return new pixi.Point(Math.cos(angle) * 1.0
+                        , Math.sin(angle) * 1.0)
+  }
+
+  Hero.prototype.attack = function (at) {
+    var a = this;
+    var sp = a.attackBody.position;
+    at.set(at.x * 64.0, at.y * 64.0);
+    return a.animate(a.attackBody, {position: at}, 0.1)
+           .then(function () {
+             a.animate(a.attackBody, {position: sp}, 0.1);
+           });
   }
 
   Hero.prototype.setBoxSize = function (boxSize) {

@@ -422,12 +422,12 @@ define([
       if (e.keyCode === 90) {
         audio.play('attack', {volume: 0.2});
 
-          var p = root.hero.lastDir;
+          var p = root.hero.getAttackPos();
           api.use(fistId, p.x + gPlayerX, p.y + gPlayerY)
           .then(function (data) {
           });
 
-          // root.hero.attack();
+          root.hero.attack(p);
       }
     }
 

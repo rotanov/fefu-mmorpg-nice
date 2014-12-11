@@ -18,29 +18,43 @@ define([
   Actor.prototype.constructor = Actor;
 
   Actor.prototype.update = function (dt) {
+    for (var i = 0; i < this.animators.length; i++) {
+      this.animators[i].update(this.animators[i], dt);
+    }
 
   }
 
-  Actor.prototype.animate = function (keys, time) {
+  Actor.prototype.animate = function (actor, keys, time) {
     for (var k in keys) {
       var v = keys[k];
       if (v.length === undefined
         || v.length === 1) {
         keys[k] = [];
-        keys[k].push(this[k]);
-        keys[j].push(v);
+        keys[k].push(actor[k]);
+        keys[k].push(v);
       }
     }
 
+    var animators = this.animators;
+
     return new Promise(function (resolve, reject) {
-      this.animators.push({
+      animators.push({
         resolve: resolve,
         reject: reject,
+        actor: actor,
         keys: keys,
-        time: time,
-        update: function (dt) {
+        timeLimit: time,
+        time: 0,
+        update: function (animator, dt) {
+          animator.time += dt;
+          if (animator.time >= animator.timeLimit) {
+            animators.splice(animators.indexOf(animator), 1);
+            resolve();
+          }
+          var t = animator.time / animator.timeLimit;
           for (var k in keys) {
-            this[k]
+            actor[k].set((keys[k][1].x - keys[k][0].x) * t,
+                         (keys[k][1].y - keys[k][0].y) * t);
           }
         }
       });
