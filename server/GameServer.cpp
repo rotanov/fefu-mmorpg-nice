@@ -904,7 +904,7 @@ void GameServer::HandleUse_(const QVariantMap& request, QVariantMap& response)
       if (p->GetId() != target->GetId()
           && target->GetHealth() > 0)
       {
-        Box targetBox(target->GetPosition(), target->GetSize() * 0.5f);
+        Box targetBox(target->GetPosition(), target->GetSize());
         if (targetBox.Inside(at))
         {
           events_ << p->attack(target, id);
