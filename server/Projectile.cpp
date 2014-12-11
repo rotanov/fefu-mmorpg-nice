@@ -40,28 +40,7 @@ Player* Projectile::GetPlayer()
 
 void Projectile::Update(float /*dt*/)
 {
-  float x = point_attack_.GetX() - position_.GetX();
-  float y =  point_attack_.GetY() - position_.GetY();
-  float norm = sqrt(x * x + y * y);
-  float dx = x * speed_ / norm;
-  float dy = y * speed_ / norm;
-  if ((y < 0 && signy_)
-      || (y > 0 && !signy_)
-      || y == 0)
-  {
-    signyy_++;
-  }
-  if ((x < 0 && signx_) || (x > 0 && !signx_) || x == 0)
-  {
-    signxx_++;
-  }
-  if (signxx_ > 0
-      && signyy_ > 0)
-  {
-    // dead
-  }
-  position_.x += dx;
-  position_.y += dy;
+
 }
 
 void Projectile::GetCoord()

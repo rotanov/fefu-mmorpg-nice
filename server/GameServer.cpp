@@ -234,6 +234,7 @@ void GameServer::tick()
   for (auto actor : actors_)
   {
     levelMap_.RemoveActor(actor);
+    actor->Update(dt);
     FindCollisions_(actor, dt);
 
     Creature* creature = static_cast<Creature*>(actor);
@@ -1338,9 +1339,7 @@ void GameServer::GenMonsters_()
           monster->SetType(EActorType::MONSTER);
           Monster& m = *monster;
           SetActorPosition_(monster, Vector2(j + 0.5f, i + 0.5f));
-//          m.SetDirection(static_cast<EActorDirection>(rand() % 4 + 1), true);
           storage_.GetMonster(monster, monster->GetId() % 32 + 1);
-//          m.OnCollideWorld();
         }
       }
     }

@@ -95,10 +95,9 @@ void Actor::SetSize(const float size)
   size_ = size;
 }
 
-void Actor::Update(float dt)
+void Actor::Update(float /*dt*/)
 {
-  // TODO: remove integrating over time from Update all over Actor hierarchy
-  position_ += velocity_ * dt;
+
 }
 
 int Actor::GetId() const
